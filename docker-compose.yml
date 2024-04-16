@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  database:
+    image: 'postgres:16.2'
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: herocrafter
+    env_file:
+      - .env
