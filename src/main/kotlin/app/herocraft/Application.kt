@@ -15,7 +15,6 @@ fun Application.module() {
     configureHTTP()
     configureMonitoring()
     configureSerialization()
-    DatabaseFactory.init()
     configureDatabases()
     configureRouting()
     install(CORS) {

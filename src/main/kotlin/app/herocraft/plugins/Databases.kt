@@ -16,7 +16,9 @@ fun Application.configureDatabases() {
 //        driver = "org.h2.Driver",
 //        password = ""
 //    )
-    val database = Database.connect(DatabaseFactory.hikari())
+    val jdbcUrl = environment.config.property("herocraft.db.postgres.url").getString()
+    DatabaseFactory.init(jdbcUrl)
+    val database = Database.connect(DatabaseFactory.hikari(jdbcUrl))
     val userService = UserService(database)
     val cardService = CardService(database)
 

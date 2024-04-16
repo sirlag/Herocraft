@@ -7,17 +7,17 @@ import org.jetbrains.exposed.sql.Database
 
 object DatabaseFactory {
 
-    fun init() {
-        val datasource = hikari()
+    fun init(url: String) {
+        val datasource = hikari(url)
         Database.connect(datasource)
         val flyway = Flyway.configure().dataSource(datasource).load()
         flyway.migrate()
     }
 
-    fun hikari(): HikariDataSource {
+    fun hikari(url: String): HikariDataSource {
         val config = with(HikariConfig()) {
             driverClassName = "org.postgresql.Driver"
-            jdbcUrl = "jdbc:postgresql://localhost:5432/herocrafter"
+            jdbcUrl = url
             username = "postgres"
             password = "password"
             maximumPoolSize = 3
