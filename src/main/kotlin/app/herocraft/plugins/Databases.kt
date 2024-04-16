@@ -17,6 +17,8 @@ fun Application.configureDatabases() {
 //        password = ""
 //    )
     val jdbcUrl = environment.config.property("herocraft.db.postgres.url").getString()
+
+    log.warn(jdbcUrl)
     DatabaseFactory.init(jdbcUrl)
     val database = Database.connect(DatabaseFactory.hikari(jdbcUrl))
     val userService = UserService(database)
