@@ -4,6 +4,6 @@
 	export let card;
 </script>
 
-<a href="">
+<div>
 	<CardImage {card} />
-</a>
+</div>

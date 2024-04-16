@@ -25,6 +25,7 @@ data class IvionCard(
     val flavorText: String?,
     val artist: String,
     val ivionUUID: UUID,
+    val secondUUID: UUID?,
     val colorPip1: String?,
     val colorPip2: String?,
     val season: String,

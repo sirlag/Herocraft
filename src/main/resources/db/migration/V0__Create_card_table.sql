@@ -17,6 +17,7 @@ CREATE TABLE card (
     flavor_text TEXT,
     artist TEXT NOT NULL,
     ivion_uuid uuid NOT NULL,
+    second_uuid uuid,
     color_pip_1 TEXT,
     color_pip_2 TEXT,
     season TEXT NOT NULL,

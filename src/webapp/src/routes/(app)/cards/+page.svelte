@@ -2,6 +2,8 @@
     import type { PageData } from './$types';
     import ImageListCard from '$lib/components/ImageListCard.svelte';
 
+    import { navigating } from '$app/stores';
+
     export let data: PageData
     let displayMode = "images";
 </script>
@@ -14,8 +16,8 @@
         <option value="full">Full</option>
     </select>
 
-    <a href="/cards?page=1">left</a>
-    <a href="/cards?page=2">right</a>
+    <a href="/cards?page=1" data-sveltekit-preload-data>left</a>
+    <a href="/cards?page=2" data-sveltekit-preload-data>right</a>
 </div>
 
 <h1>Herocrafter</h1>

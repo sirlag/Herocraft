@@ -2,9 +2,7 @@ package app.herocraft.features.search
 
 import app.herocraft.core.models.IvionCard
 import kotlinx.coroutines.Dispatchers
-import kotlinx.uuid.UUID
-import kotlinx.uuid.toJavaUUID
-import kotlinx.uuid.toKotlinUUID
+import kotlinx.uuid.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
@@ -31,6 +29,7 @@ class CardService(private val database: Database) {
         val flavorText = text("flavor_text").nullable()
         val artist = text("artist")
         val ivionUUID = uuid("ivion_uuid")
+        val secondUUID = uuid("second_uuid").nullable()
         val colorPip1 = text("color_pip_1").nullable()
         val colorPip2 = text("color_pip_2").nullable()
         val season = text("season")
@@ -85,7 +84,8 @@ class CardService(private val database: Database) {
                         colorPip1 = cols[19],
                         colorPip2 = cols[20],
                         season = cols[21],
-                        type = cols[22]
+                        type = cols[22],
+                        secondUUID = cols[23].toUUIDOrNull()
                     )
                 }
                 .toList()
@@ -123,6 +123,7 @@ class CardService(private val database: Database) {
         it[flavorText] = card.flavorText
         it[artist] = card.artist
         it[ivionUUID] = card.ivionUUID.toJavaUUID()
+        it[secondUUID] = card.secondUUID?.toJavaUUID()
         it[colorPip1] = card.colorPip1
         it[colorPip2] = card.colorPip2
         it[season] = card.season
@@ -149,6 +150,7 @@ class CardService(private val database: Database) {
             result[flavorText],
             result[artist],
             result[ivionUUID].toKotlinUUID(),
+            result[secondUUID]?.toKotlinUUID(),
             result[colorPip1],
             result[colorPip2],
             result[season],

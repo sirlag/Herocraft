@@ -1,6 +1,5 @@
 package app.herocraft
 
-import app.herocraft.core.DatabaseFactory
 import app.herocraft.plugins.*
 import io.ktor.server.application.*
 import io.ktor.server.netty.*
