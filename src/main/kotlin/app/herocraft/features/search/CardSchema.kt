@@ -54,11 +54,11 @@ class CardService(private val database: Database) {
     }
 
     suspend fun resetTable() {
-        val cards = File("src/main/resources/IvionCardsCombined.tsv")
-            .readLines()
-            .stream()
-            .skip(1)
-            .map {
+        val cards = this::class.java.getResourceAsStream("IvionCardsCombined.tsv")
+            ?.bufferedReader()
+            ?.lineSequence()
+            ?.drop(1)
+            ?.map {
                 val cols = it.split("\t")
                 IvionCard(
                     collectorsNumber = cols[0].toIntOrNull(),
@@ -83,7 +83,8 @@ class CardService(private val database: Database) {
                     season = cols[21],
                     type = cols[22]
                 )
-            }.toList()
+            }
+            ?.toList() ?: emptyList()
 
         dbQuery {
             Card.deleteAll()
