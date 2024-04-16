@@ -8,6 +8,7 @@ import kotlinx.uuid.toKotlinUUID
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.slf4j.LoggerFactory
 import java.io.File
 
 class CardService(private val database: Database) {
@@ -38,6 +39,8 @@ class CardService(private val database: Database) {
         override val primaryKey = PrimaryKey(id)
     }
 
+    val logger = LoggerFactory.getLogger(CardService::class.java)
+
     suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
 
@@ -53,47 +56,54 @@ class CardService(private val database: Database) {
             }.toList()
     }
 
-    suspend fun resetTable() {
-        val cards = this::class.java.getResourceAsStream("IvionCardsCombined.tsv")
+    suspend fun resetTable(): List<IvionCard> {
+        val cards = this::class.java.getResourceAsStream("/IvionCardsCombined.tsv")
             ?.bufferedReader()
-            ?.lineSequence()
-            ?.drop(1)
-            ?.map {
-                val cols = it.split("\t")
-                IvionCard(
-                    collectorsNumber = cols[0].toIntOrNull(),
-                    format = cols[1],
-                    name = cols[2],
-                    archetype = cols[3],
-                    actionCost = cols[5].toIntOrNull()?.times(if (cols[4] == "-") -1 else 1),
-                    powerCost = cols[6].toIntOrNull()?.times(if (cols[7] == "-") -1 else 1),
-                    range = cols[8].toIntOrNull(),
-                    health = cols[9].toIntOrNull(),
-                    heroic = cols[10] == "H",
-                    slow = cols[11] == "Slow",
-                    silence = cols[12] == "Silence",
-                    disarm = cols[13] == "Disarm",
-                    extraType = cols[14],
-                    rulesText = cols[15],
-                    flavorText = cols[16],
-                    artist = cols[17],
-                    ivionUUID = UUID(cols[18]),
-                    colorPip1 = cols[19],
-                    colorPip2 = cols[20],
-                    season = cols[21],
-                    type = cols[22]
-                )
-            }
-            ?.toList() ?: emptyList()
-
-        dbQuery {
-            Card.deleteAll()
-            cards.forEach { card ->
-                Card.insert {
-                    Card.fromIvionCard(it, card)
+            ?.use {
+                it.lineSequence()
+                .drop(1)
+                .map {
+                    val cols = it.split("\t")
+                    IvionCard(
+                        collectorsNumber = cols[0].toIntOrNull(),
+                        format = cols[1],
+                        name = cols[2],
+                        archetype = cols[3],
+                        actionCost = cols[5].toIntOrNull()?.times(if (cols[4] == "-") -1 else 1),
+                        powerCost = cols[6].toIntOrNull()?.times(if (cols[7] == "-") -1 else 1),
+                        range = cols[8].toIntOrNull(),
+                        health = cols[9].toIntOrNull(),
+                        heroic = cols[10] == "H",
+                        slow = cols[11] == "Slow",
+                        silence = cols[12] == "Silence",
+                        disarm = cols[13] == "Disarm",
+                        extraType = cols[14],
+                        rulesText = cols[15],
+                        flavorText = cols[16],
+                        artist = cols[17],
+                        ivionUUID = UUID(cols[18]),
+                        colorPip1 = cols[19],
+                        colorPip2 = cols[20],
+                        season = cols[21],
+                        type = cols[22]
+                    )
+                }
+                .toList()
+            } ?: emptyList()
+        if (cards.isNotEmpty()) {
+            dbQuery {
+                Card.deleteAll()
+                cards.forEach { card ->
+                    Card.insert {
+                        Card.fromIvionCard(it, card)
+                    }
                 }
             }
+        } else {
+            logger.error("Unable to load cards")
         }
+
+        return cards;
     }
 
     private fun Card.fromIvionCard(it: InsertStatement<Number>, card: IvionCard) {

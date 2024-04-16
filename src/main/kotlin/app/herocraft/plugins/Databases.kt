@@ -59,8 +59,8 @@ fun Application.configureDatabases() {
         }
 
         post("/cards/reload") {
-            cardService.resetTable()
-            call.respond(HttpStatusCode.OK)
+            val results = cardService.resetTable()
+            call.respond(HttpStatusCode.OK, results)
         }
 
         get("/cards") {

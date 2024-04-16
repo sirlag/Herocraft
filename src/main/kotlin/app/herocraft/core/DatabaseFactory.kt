@@ -9,7 +9,6 @@ object DatabaseFactory {
 
     fun init(url: String) {
         val datasource = hikari(url)
-        Database.connect(datasource)
         val flyway = Flyway.configure().dataSource(datasource).load()
         flyway.migrate()
     }
