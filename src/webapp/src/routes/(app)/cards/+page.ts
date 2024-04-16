@@ -1,5 +1,5 @@
 import type { PageLoad } from "./$types";
-import PUBLIC_API_BASE_URL from '$env/static/public';
+import { PUBLIC_API_BASE_URL } from '$env/static/public';
 
 export const load: PageLoad = async ({ fetch, params, url }) => {
 
