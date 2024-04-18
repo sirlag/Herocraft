@@ -64,7 +64,7 @@ fun Application.configureDatabases() {
         }
 
         get("/cards") {
-            val page = call.request.queryParameters["page"]?.toInt() ?: 0
+            val page = call.request.queryParameters["page"]?.toInt() ?: 1
             val results = cardService.getPaging(60, page)
             call.respond(HttpStatusCode.OK, results)
         }
