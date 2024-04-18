@@ -43,8 +43,6 @@ class CardService(private val database: Database) {
     suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
 
-
-
     suspend fun getPaging(size: Int  = 60, page: Int = 1) = dbQuery {
         val totalCount = Card.id.count().alias("total_count")
         val count = Card.select(totalCount).map { it[totalCount] }.first()
@@ -56,7 +54,14 @@ class CardService(private val database: Database) {
             .map {
                 Card.fromResultRow(it)
             }.toList()
-        Page(cards, cards.size.toLong(), count, page, ((count/size)+1).toInt())
+        Page(
+            items = cards,
+            itemCount = cards.size.toLong(),
+            totalItems = count,
+            page = page,
+            pageSize = size,
+            totalPages = ((count/size)+1).toInt()
+        )
     }
 
     suspend fun resetTable(): List<IvionCard> {
@@ -107,7 +112,7 @@ class CardService(private val database: Database) {
             logger.error("Unable to load cards")
         }
 
-        return cards;
+        return cards
     }
 
     private fun Card.fromIvionCard(it: InsertStatement<Number>, card: IvionCard) {

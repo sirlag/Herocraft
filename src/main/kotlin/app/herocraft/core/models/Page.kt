@@ -9,5 +9,6 @@ data class Page<T>(
     val totalItems: Long = 0,
     val page: Int = 0,
     val totalPages: Int = 0,
+    val pageSize: Int = 0,
     val hasNext: Boolean = page < totalPages,
 )

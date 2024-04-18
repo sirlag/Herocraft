@@ -54,6 +54,10 @@
     </Button>
 </div>
 
+<div>
+    {(data.page.pageSize*(data.page.page-1) +1)} - {(data.page.pageSize*(data.page.page-1)) + data.page.itemCount} of {data.page.totalItems} cards
+</div>
+
 {#if (displayMode === 'images')}
     <div class="grid grid-cols-4">
         {#each data.cards as card}

@@ -1,7 +1,7 @@
 import type { PageLoad } from "./$types";
 import { PUBLIC_API_BASE_URL } from '$env/static/public';
 
-export const load: PageLoad = async ({ fetch, params, url }) => {
+export const load: PageLoad = async ({ fetch, url }) => {
 
     let offset = Number(url.searchParams.get("page"))
 
@@ -14,6 +14,7 @@ export const load: PageLoad = async ({ fetch, params, url }) => {
         totalItems: jsonRes.totalItems,
         page: jsonRes.page,
         totalPages: jsonRes.totalPages,
+        pageSize: jsonRes.pageSize,
         hasNext: jsonRes.hasNext
     }
 
@@ -27,5 +28,6 @@ class Page {
     totalItems: number = 0;
     page: number = 0;
     totalPages: number = 0;
+    pageSize: number = 0;
     hasNext: boolean = false;
 }
