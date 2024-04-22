@@ -10,7 +10,7 @@
     export let data: PageData
     let displayMode = "images";
 
-    $: pageNum = parseInt($page.url.searchParams.get("page") || "1")
+    $: pageNum = data.page.page
     $: hasPrevious = pageNum > 1;
     $: hasNext = data.page.hasNext;
 
@@ -61,10 +61,13 @@
 {#if (displayMode === 'images')}
     <div class="grid grid-cols-4">
         {#each data.cards as card}
-            <div class="m-1 rounded-lg overflow-hidden">
-                <ImageListCard {card} />
-    <!--            <p class="text-blue-700"> {card.name} </p>-->
-            </div>
+            <a href="/card/{card.season}/{card.collectorsNumber}">
+                <div class="m-1">
+                    <ImageListCard {card} />
+        <!--            <p class="text-blue-700"> {card.name} </p>-->
+                </div>
+            </a>
+
         {/each}
     </div>
 {/if}

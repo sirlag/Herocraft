@@ -3,8 +3,10 @@ package app.herocraft.features.search
 import app.herocraft.core.models.IvionCard
 import app.herocraft.core.models.Page
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.selects.select
 import kotlinx.uuid.*
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.slf4j.LoggerFactory
@@ -12,7 +14,7 @@ import org.slf4j.LoggerFactory
 class CardService(private val database: Database) {
     object Card : Table() {
         val id = uuid("id")
-        val collectorsNumber = integer("collectors_number").nullable()
+        val collectorsNumber = text("collectors_number").nullable()
         val format = text("format").nullable()
         val name = text("name")
         val archetype = text("archetype").nullable()
@@ -42,6 +44,15 @@ class CardService(private val database: Database) {
 
     suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
+
+    suspend fun getOne(set: String, cn: String) = dbQuery {
+        Card
+            .selectAll()
+            .where{(Card.season eq set) and (Card.collectorsNumber eq cn)}
+            .limit(1)
+            .map { Card.fromResultRow(it) }
+            .first()
+    }
 
     suspend fun getPaging(size: Int  = 60, page: Int = 1) = dbQuery {
         val totalCount = Card.id.count().alias("total_count")
@@ -73,7 +84,7 @@ class CardService(private val database: Database) {
                 .map {
                     val cols = it.split("\t")
                     IvionCard(
-                        collectorsNumber = cols[0].toIntOrNull(),
+                        collectorsNumber = cols[0],
                         format = cols[1],
                         name = cols[2],
                         archetype = cols[3],
@@ -129,6 +140,7 @@ class CardService(private val database: Database) {
         it[silence] = card.silence
         it[disarm] = card.disarm
         it[extraType] = card.extraType
+        it[rulesText] = card.rulesText
         it[flavorText] = card.flavorText
         it[artist] = card.artist
         it[ivionUUID] = card.ivionUUID.toJavaUUID()

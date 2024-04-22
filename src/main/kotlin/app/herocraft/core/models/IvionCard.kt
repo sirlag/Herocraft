@@ -8,7 +8,7 @@ import kotlin.random.Random
 @Serializable
 data class IvionCard(
     val id: UUID = UUID.generateUUID(Random),
-    val collectorsNumber: Int?,
+    val collectorsNumber: String?,
     val format: String?,
     val name: String,
     val archetype: String?,

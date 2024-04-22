@@ -7,7 +7,7 @@
 	$: src = `https://static.wixstatic.com/media/b096d7_${uuid.toString().replaceAll("-", "")}~mv2.png`;
 </script>
 
-<div class="relative">
+<div class="relative rounded-lg overflow-hidden">
 	<img {src} alt="{card.name}" />
 	{#if (hasBack)}
 		<div class="absolute right-4 top-4 bg-blue-700 cursor-pointer" on:click|stopPropagation="{() => front = !front}">

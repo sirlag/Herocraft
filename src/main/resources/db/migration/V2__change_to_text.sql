@@ -1,0 +1,1 @@
+alter table herocrafter.public.card alter column collectors_number TYPE TEXT;

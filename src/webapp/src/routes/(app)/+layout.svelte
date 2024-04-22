@@ -1,6 +1,6 @@
 <script>
-	import "../../../app.css";
-	import Header from '../../Header.svelte';
+	import "../../app.css";
+	import Header from '../(home)/Header.svelte';
 </script>
 
 <div class="flex flex-col min-h-lvh">

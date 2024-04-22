@@ -65,8 +65,15 @@ fun Application.configureDatabases() {
 
         get("/cards") {
             val page = call.request.queryParameters["page"]?.toInt() ?: 1
-            val results = cardService.getPaging(60, page)
+            val results = cardService.getPaging(60, if (page == 0) 1 else page)
             call.respond(HttpStatusCode.OK, results)
+        }
+
+        get("card/{set}/{cn}") {
+            val set = call.parameters["set"]!!;
+            val cn = call.parameters["cn"]!!
+            val result = cardService.getOne(set, cn)
+            call.respond(HttpStatusCode.OK, result)
         }
     }
 }
