@@ -61,7 +61,7 @@
 {#if (displayMode === 'images')}
     <div class="grid grid-cols-4">
         {#each data.cards as card}
-            <a href="/card/{card.season}/{card.collectorsNumber}">
+            <a href="/card/{card.id}">
                 <div class="m-1">
                     <ImageListCard {card} />
         <!--            <p class="text-blue-700"> {card.name} </p>-->

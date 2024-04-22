@@ -7,6 +7,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.uuid.toUUIDOrNull
 import org.jetbrains.exposed.sql.*
 
 fun Application.configureDatabases() {
@@ -64,16 +65,23 @@ fun Application.configureDatabases() {
         }
 
         get("/cards") {
-            val page = call.request.queryParameters["page"]?.toInt() ?: 1
-            val results = cardService.getPaging(60, if (page == 0) 1 else page)
+            val searchString = call.request.queryParameters["q"]
+
+            var page = call.request.queryParameters["page"]?.toInt() ?: 1
+            if (page == 0) {
+                page = 1
+            }
+
+            println(call.request.queryString())
+            val results = searchString
+                ?.let { cardService.search(searchString, page=page) } ?: cardService.getPaging(page = page)
             call.respond(HttpStatusCode.OK, results)
         }
 
-        get("card/{set}/{cn}") {
-            val set = call.parameters["set"]!!;
-            val cn = call.parameters["cn"]!!
-            val result = cardService.getOne(set, cn)
-            call.respond(HttpStatusCode.OK, result)
+        get("card/{uuid}") {
+            val uuid = call.parameters["uuid"]!!
+            val card = uuid.toUUIDOrNull()?.let { cardService.getOne(it) }
+            card?.let { call.respond(HttpStatusCode.OK, it) } ?: call.respond(HttpStatusCode.NotFound)
         }
     }
 }

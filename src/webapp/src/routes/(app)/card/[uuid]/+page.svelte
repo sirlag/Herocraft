@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { PageData } from './$types';
+	import type { PageData } from './types/src/routes';
 	import CardImage from '$lib/components/CardImage.svelte';
 	import CardText from '$lib/components/CardText/CardText.svelte';
 	import ParsedCardText from '$lib/components/CardText/ParsedCardText.svelte';

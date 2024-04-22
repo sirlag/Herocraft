@@ -1,5 +1,6 @@
 package app.herocraft.features.search
 
+import app.herocraft.core.extensions.ilike
 import app.herocraft.core.models.IvionCard
 import app.herocraft.core.models.Page
 import kotlinx.coroutines.Dispatchers
@@ -45,21 +46,39 @@ class CardService(private val database: Database) {
     suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
 
-    suspend fun getOne(set: String, cn: String) = dbQuery {
+
+
+    suspend fun getOne(id: UUID) = dbQuery {
         Card
             .selectAll()
-            .where{(Card.season eq set) and (Card.collectorsNumber eq cn)}
+            .where{Card.id eq id.toJavaUUID()}
             .limit(1)
             .map { Card.fromResultRow(it) }
-            .first()
+            .firstOrNull()
     }
 
-    suspend fun getPaging(size: Int  = 60, page: Int = 1) = dbQuery {
-        val totalCount = Card.id.count().alias("total_count")
-        val count = Card.select(totalCount).map { it[totalCount] }.first()
+    suspend fun search(searchString: String, size: Int = 60, page: Int = 1) =
+        paged(size, page, {Card.id.count()}, {Card.name ilike "%$searchString%" })
+
+    suspend fun getPaging(size: Int = 60, page: Int = 1) = paged(size, page, {Card.id.count()}, {Op.TRUE})
+
+    private suspend fun paged(
+        size: Int  = 60,
+        page: Int = 1,
+        total: () -> Count = {Card.id.count()},
+        query: (SqlExpressionBuilder.() -> Op<Boolean>))
+    = dbQuery {
+        val totalCount = total().alias("total_count")
+        val count = Card
+            .select(totalCount)
+            .where(query)
+            .map { it[totalCount] }
+            .first()
+
         val offset = (page-1L)*size
         val cards = Card
             .selectAll()
+            .where(query)
             .orderBy(Card.name, SortOrder.ASC)
             .limit(size, offset)
             .map {
@@ -74,6 +93,7 @@ class CardService(private val database: Database) {
             totalPages = ((count/size)+1).toInt()
         )
     }
+
 
     suspend fun resetTable(): List<IvionCard> {
         val cards = this::class.java.getResourceAsStream("/IvionCardsCombined.tsv")
