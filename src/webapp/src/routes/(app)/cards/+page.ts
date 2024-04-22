@@ -7,8 +7,10 @@ export const load: PageLoad = async ({ fetch, url }) => {
     let offset = Number(url.searchParams.get("page"))
     let query = url.searchParams.get("q")
 
-    let endpoint = new URL(PUBLIC_API_BASE_URL+"/cards",)
-    endpoint.searchParams.append("q", query);
+    let endpoint = new URL(PUBLIC_API_BASE_URL+"/cards")
+    if (query !== null) {
+        endpoint.searchParams.append("q", query);
+    }
     endpoint.searchParams.append("page", offset);
     const res = await fetch(endpoint);
     const jsonRes = await res.json()
@@ -22,7 +24,6 @@ export const load: PageLoad = async ({ fetch, url }) => {
         pageSize: jsonRes.pageSize,
         hasNext: jsonRes.hasNext
     }
-
 
     if (page.totalItems == 1) {
         await redirect(303,`/card/${cards[0].id}`)
