@@ -1,19 +1,31 @@
-<script>
+<script lang="ts">
 	import { page } from '$app/stores';
 	import logo from '$lib/images/svelte-logo.svg';
 	import github from '$lib/images/github.svg';
 	import { Input } from '$lib/components/ui/input/';
+
+	let search: string
+
 </script>
 
 <header>
 
-	<nav class="bg-blue-700">
-		<ul>
+	<nav class="flex w-full bg-blue-700">
+		<ul class="w-full">
 			<li aria-current={$page.url.pathname === '/' ? 'page' : undefined}>
 				<a href="/">Home</a>
 			</li>
+			<li class="w-full">
+				<div class="w-full">
+					<form method="GET" action="/cards">
+						<Input name="q" bind:value={search} class="w-full"/>
+						<button type="submit" class="visually-hidden"></button>
+					</form>
+				</div>
+			</li>
+			<li>
+			<a href="/cards">Random</a>
 		</ul>
-		<Input/>
 	</nav>
 
 </header>
