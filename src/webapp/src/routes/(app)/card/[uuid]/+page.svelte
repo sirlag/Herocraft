@@ -1,30 +1,33 @@
 <script lang="ts">
-	import type { PageData } from './types/src/routes';
+	import type { PageData } from './$types';
 	import CardImage from '$lib/components/CardImage.svelte';
-	import CardText from '$lib/components/CardText/CardText.svelte';
 	import ParsedCardText from '$lib/components/CardText/ParsedCardText.svelte';
 	import { Separator } from '$lib/components/ui/separator';
 
 	export let data: PageData
+
+	let card: IvionCard = data.card
 </script>
 
 <div class="flex flex-row">
-	<CardImage card={data.card}/>
+	<CardImage card={card}/>
 	<div class="border">
-		<h1 class="pl-4">{data.card.name}</h1>
+		<h1 class="pl-4">{card.name}</h1>
 		<Separator />
-		<p class="pl-4">{data.card.archetype} – {data.card.type}</p>
-		<Separator />
-		<ParsedCardText source={data.card.rulesText}/>
-		<Separator />
-		<div>
-			<div>Range = {data.card.range} </div>
-			<div>Action = {data.card.actionCost}</div>
-			<div>Power = {data.card.powerCost}</div>
-		</div>
-		{#if data.card.flavorText}
+		<p class="pl-4">{card.archetype} – {card.type}</p>
+		{#if card.rulesText}
 			<Separator />
-			<p>{data.card.flavorText}</p>
+			<ParsedCardText source={card.rulesText}/>
+		{/if}
+		<Separator />
+		<div class="pl-4">
+			{#if card.range} <div>Range = {card.range} </div> {/if}
+			{#if card.actionCost} <div>Action = {card.actionCost}</div> {/if}
+			{#if card.powerCost} <div>Power = {card.powerCost}</div> {/if}
+		</div>
+		{#if card.flavorText}
+			<Separator />
+			<p class="pl-4">{card.flavorText}</p>
 		{/if}
 
 	</div>

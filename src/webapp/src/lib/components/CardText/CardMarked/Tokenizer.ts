@@ -383,7 +383,6 @@ export class _Tokenizer {
   }
 
   ivionIcon(src: string): Tokens.IvionIcon | undefined {
-    console.log(src)
     const cap = this.rules.block.ivionIcon.exec(src)
     if (cap) {
       const token: Tokens.IvionIcon = {

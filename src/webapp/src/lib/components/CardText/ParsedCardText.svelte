@@ -9,7 +9,6 @@
 	export let renderers = {}
 	export let options = {}
 	export let isInline = false
-	export let text: string;
 
 	const dispatch = createEventDispatcher();
 

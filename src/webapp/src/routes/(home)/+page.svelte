@@ -28,7 +28,7 @@
 			</form>
 		</div>
 		<div class="flex mr-8 p-2 justify-end">
-			<Button href="/cards" data-sveltekit-preload-data>All Cards</Button>
+			<Button href="/cards" data-sveltekit-preload-data="hover">All Cards</Button>
 		</div>
 	</div>
 

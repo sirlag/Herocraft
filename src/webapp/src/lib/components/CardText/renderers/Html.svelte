@@ -2,8 +2,6 @@
   import IvionIcon from '$lib/components/IvionIcon.svelte';
 
 	export let text
-
-	console.log(text)
 </script>
 
 

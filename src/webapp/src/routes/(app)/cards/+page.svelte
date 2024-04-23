@@ -59,7 +59,7 @@
 </div>
 
 {#if (displayMode === 'images')}
-    <div class="grid grid-cols-4">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {#each data.cards as card}
             <a href="/card/{card.id}">
                 <div class="m-1">
