@@ -74,6 +74,17 @@ class CardService(private val database: Database) {
             .map { it[totalCount] }
             .first()
 
+        if (count == 0L) {
+            Page(
+                items = emptyList<Card>(),
+                itemCount = count,
+                totalItems = count,
+                page = page,
+                pageSize = size,
+                totalPages = page
+            )
+        }
+
         val offset = (page-1L)*size
         val cards = Card
             .selectAll()

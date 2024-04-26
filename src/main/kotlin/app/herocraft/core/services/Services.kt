@@ -3,6 +3,7 @@ package app.herocraft.core.services
 import app.herocraft.core.DatabaseFactory
 import app.herocraft.core.security.UserService
 import app.herocraft.features.search.CardService
+import com.zaxxer.hikari.HikariDataSource
 import io.ktor.server.application.*
 import org.jetbrains.exposed.sql.Database
 
@@ -15,8 +16,9 @@ class Services(app: Application) {
 
     init {
         val jdbcUrl = app.environment.config.property("herocraft.db.postgres.url").getString()
-        DatabaseFactory.init(jdbcUrl)
-        database = Database.connect(DatabaseFactory.hikari(jdbcUrl))
+        val datasource = DatabaseFactory.hikari(jdbcUrl)
+        DatabaseFactory.init(datasource)
+        database = Database.connect(datasource)
         userService = UserService(database)
         cardService = CardService(database)
     }

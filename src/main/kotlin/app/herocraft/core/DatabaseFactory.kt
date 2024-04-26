@@ -4,12 +4,12 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
+import javax.sql.DataSource
 
 object DatabaseFactory {
 
-    fun init(url: String) {
-        val datasource = hikari(url)
-        val flyway = Flyway.configure().dataSource(datasource).load()
+    fun init(dataSource: DataSource) {
+        val flyway = Flyway.configure().dataSource(dataSource).load()
         flyway.migrate()
     }
 
