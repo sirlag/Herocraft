@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 val ktor_version: String by project
 val kotlin_version: String by project
 val logback_version: String by project
@@ -18,6 +20,14 @@ application {
 
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+}
+
+tasks.withType<ShadowJar> {
+    mergeServiceFiles("META-INF/services/org.flywaydb.core.extensibility.Plugin")
+}
+
+ktor {
+    fatJar
 }
 
 repositories {
