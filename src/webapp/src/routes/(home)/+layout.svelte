@@ -1,8 +1,13 @@
 <script>
 	import "../../app.css";
+
+	import HomeHeader from './home-header.svelte'
 </script>
 
 <div class="app">
+
+	<HomeHeader />
+
 	<main>
 		<slot />
 	</main>

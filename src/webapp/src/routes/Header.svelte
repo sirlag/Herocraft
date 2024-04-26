@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import logo from '$lib/images/svelte-logo.svg';
-	import github from '$lib/images/github.svg';
-	import { Input } from '$lib/components/ui/input/';
+	import { Input } from '$lib/components/ui/input';
 
 	let search: string
 

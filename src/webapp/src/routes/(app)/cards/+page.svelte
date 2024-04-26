@@ -67,7 +67,6 @@
         <!--            <p class="text-blue-700"> {card.name} </p>-->
                 </div>
             </a>
-
         {/each}
     </div>
 {/if}
