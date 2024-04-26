@@ -4,10 +4,11 @@ import app.herocraft.core.extensions.ilike
 import app.herocraft.core.models.IvionCard
 import app.herocraft.core.models.Page
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.selects.select
-import kotlinx.uuid.*
+import kotlinx.uuid.UUID
+import kotlinx.uuid.toJavaUUID
+import kotlinx.uuid.toKotlinUUID
+import kotlinx.uuid.toUUIDOrNull
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.slf4j.LoggerFactory
@@ -44,9 +45,7 @@ class CardService(private val database: Database) {
     val logger = LoggerFactory.getLogger(CardService::class.java)
 
     suspend fun <T> dbQuery(block: suspend () -> T): T =
-        newSuspendedTransaction(Dispatchers.IO) { block() }
-
-
+        newSuspendedTransaction(Dispatchers.IO, database) { block() }
 
     suspend fun getOne(id: UUID) = dbQuery {
         Card
