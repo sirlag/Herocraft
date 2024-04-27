@@ -44,6 +44,15 @@ fun Application.registerSecurityRouter(userService: UserService){
         }
 
         authenticate("auth-session") {
+
+            post( "/logout") {
+                val principal = call.authentication.principal<UserSession>()
+                if (principal != null) {
+                    call.sessions.clear<UserSession>()
+                    call.respond(200)
+                }
+            }
+
             get ("/protected") {
                 val principal = call.principal<UserSession>()
                 val email = principal?.email

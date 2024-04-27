@@ -10,11 +10,7 @@ fun Application.configureSecurity() {
     authentication {
         session<UserSession>("auth-session") {
             validate { session ->
-                if (session.id != null) {
-                    session
-                } else {
-                    null
-                }
+                session
             }
             challenge {
                 call.respondRedirect("/login")

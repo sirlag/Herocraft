@@ -36,7 +36,7 @@ console.log(page)
 			{:else}
 				<ul>
 					<li>
-						<a href="/account/logout">Logout</a>
+						<a href="/account/logout" data-sveltekit-reload>Logout</a>
 					</li>
 				</ul>
 			{/if}

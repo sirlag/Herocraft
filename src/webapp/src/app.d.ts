@@ -4,10 +4,7 @@ declare global {
 	namespace App {
 		// interface Error {}
 		interface Locals {
-			user: {
-				isAuthenticated: Boolean,
-				session: String
-			}
+			user: UserSession | undefined;
 		}
 		// interface PageData {}
 		// interface PageState {}
@@ -15,4 +12,11 @@ declare global {
 	}
 }
 
-export {};
+type UserSession = {
+	isAuthenticated: Boolean,
+	session: String
+}
+
+export {
+
+};
