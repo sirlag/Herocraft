@@ -1,6 +1,7 @@
 <script>
 	import "../../app.css";
 	import Header from '../Header.svelte';
+	import Footer from '../footer.svelte';
 </script>
 
 <div class="flex flex-col min-h-lvh">
@@ -12,4 +13,16 @@
 		</div>
 	</main>
 
+	<Footer />
 </div>
+
+<style lang="postcss">
+    :root {
+        --global-header-height: 3rem;
+    }
+
+		main {
+        min-height: calc(100vh - var(--global-header-height));
+    }
+
+</style>

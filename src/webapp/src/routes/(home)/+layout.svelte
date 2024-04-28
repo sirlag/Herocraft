@@ -2,6 +2,7 @@
 	import "../../app.css";
 
 	import Header from '../Header.svelte'
+	import Footer from '../footer.svelte'
 </script>
 
 <div class="app">
@@ -12,12 +13,14 @@
 		<slot />
 	</main>
 
-	<footer>
-		<p>visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to learn SvelteKit</p>
-	</footer>
+	<Footer />
 </div>
 
 <style>
+
+	:root {
+			--global-header-height: 3rem;
+	}
 
 	.app {
 		display: flex;
@@ -34,24 +37,7 @@
 		max-width: 64rem;
 		margin: 0 auto;
 		box-sizing: border-box;
-	}
-
-	footer {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		padding: 12px;
-	}
-
-	footer a {
-		font-weight: bold;
-	}
-
-	@media (min-width: 480px) {
-		footer {
-			padding: 12px 0;
-		}
+		min-height: calc(100vh - var(--global-header-height));
 	}
 
   :root {
@@ -68,96 +54,6 @@
       --column-margin-top: 4rem;
       font-family: var(--font-body);
       color: var(--color-text);
-  }
-
-  body {
-      min-height: 100vh;
-      margin: 0;
-      background-attachment: fixed;
-      background-color: var(--color-bg-1);
-      background-size: 100vw 100vh;
-      background-image: radial-gradient(
-              50% 50% at 50% 50%,
-              rgba(255, 255, 255, 0.75) 0%,
-              rgba(255, 255, 255, 0) 100%
-      ),
-      linear-gradient(180deg, var(--color-bg-0) 0%, var(--color-bg-1) 15%, var(--color-bg-2) 50%);
-  }
-
-  h1,
-  h2,
-  p {
-      font-weight: 400;
-  }
-
-  p {
-      line-height: 1.5;
-  }
-
-  a {
-      color: var(--color-theme-1);
-      text-decoration: none;
-  }
-
-  a:hover {
-      text-decoration: underline;
-  }
-
-  h1 {
-      font-size: 2rem;
-      text-align: center;
-  }
-
-  h2 {
-      font-size: 1rem;
-  }
-
-  pre {
-      font-size: 16px;
-      font-family: var(--font-mono);
-      background-color: rgba(255, 255, 255, 0.45);
-      border-radius: 3px;
-      box-shadow: 2px 2px 6px rgb(255 255 255 / 25%);
-      padding: 0.5em;
-      overflow-x: auto;
-      color: var(--color-text);
-  }
-
-  .text-column {
-      display: flex;
-      max-width: 48rem;
-      flex: 0.6;
-      flex-direction: column;
-      justify-content: center;
-      margin: 0 auto;
-  }
-
-  input,
-  button {
-      font-size: inherit;
-      font-family: inherit;
-  }
-
-  button:focus:not(:focus-visible) {
-      outline: none;
-  }
-
-  @media (min-width: 720px) {
-      h1 {
-          font-size: 2.4rem;
-      }
-  }
-
-  .visually-hidden {
-      border: 0;
-      clip: rect(0 0 0 0);
-      height: auto;
-      margin: 0;
-      overflow: hidden;
-      padding: 0;
-      position: absolute;
-      width: 1px;
-      white-space: nowrap;
   }
 
 </style>
