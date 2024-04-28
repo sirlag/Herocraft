@@ -1,0 +1,1 @@
+ALTER TABLE deck ADD COLUMN format INT not null default 3

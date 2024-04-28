@@ -10,7 +10,8 @@ data class IvionDeck(
     val name: String,
     val list: List<IvionCard>,
     val owner: UUID,
-    val visibility: DeckVisibility
+    val visibility: DeckVisibility,
+    val format: DeckFormat,
 )
 
 
@@ -18,4 +19,10 @@ enum class DeckVisibility {
     PUBLIC,
     UNLISTED,
     PRIVATE
+}
+
+enum class DeckFormat {
+    CONSTRUCTED,
+    PARAGON,
+    OTHER
 }

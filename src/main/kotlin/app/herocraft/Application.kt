@@ -2,6 +2,7 @@ package app.herocraft
 
 import app.herocraft.core.security.registerSecurityRouter
 import app.herocraft.core.services.registerServices
+import app.herocraft.features.builder.registerBuilder
 import app.herocraft.plugins.*
 import io.ktor.server.application.*
 import io.ktor.server.netty.*
@@ -20,6 +21,7 @@ fun Application.module() {
     configureMonitoring()
     configureSerialization()
     configureDatabases(services.userService, services.cardService)
+    registerBuilder(services.deckService)
     configureRouting()
     install(CORS) {
         anyHost()

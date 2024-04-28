@@ -1,26 +1,31 @@
 package app.herocraft.features.builder
 
+import app.herocraft.core.models.DeckFormat
 import app.herocraft.core.models.DeckVisibility
 import app.herocraft.core.models.IvionDeck
 import app.herocraft.core.models.Page
+import io.ktor.util.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.uuid.toKotlinUUID
+import kotlinx.uuid.*
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import kotlin.random.Random
 
-class DeckSchema(private val database: Database) {
+class DeckService(private val database: Database) {
     object Deck : Table() {
         val id = uuid("id")
         val hash = text("hash")
         val name = text("name")
         val owner = uuid("owner") //Make this a foreign key constraint
         val visibility = enumeration("visibility", DeckVisibility::class)
+        val format = enumeration("format", DeckFormat::class)
 
         override val primaryKey = PrimaryKey(id)
     }
 
     suspend fun <T> dbQuery(block: suspend () -> T): T =
-        newSuspendedTransaction(Dispatchers.IO) { block() }
+        newSuspendedTransaction(Dispatchers.IO, database) { block() }
 
     suspend fun getPaging(size: Int = 60, page: Int = 1) = paged(size, page, { Deck.id.count()}, { Op.TRUE})
 
@@ -56,6 +61,30 @@ class DeckSchema(private val database: Database) {
         )
     }
 
+    suspend fun createDeck(userId: UUID, name: String, format: DeckFormat, visibility: DeckVisibility): String {
+
+        val id = UUID.generateUUID(Random)
+        val hash = id.encodeToByteArray().encodeBase64()
+            .replace("/", "_")
+            .replace("+", "-")
+            .substring(0, 22)
+
+        dbQuery {
+            Deck.selectAll().where(Deck.id.eq(id.toJavaUUID()))
+            Deck.insert {
+                it[Deck.id] = id.toJavaUUID()
+                it[Deck.hash] = hash
+                it[Deck.name] = name
+                it[owner] = userId.toJavaUUID()
+                it[Deck.visibility] = visibility
+                it[Deck.format] = format
+            }
+        }
+
+        return hash;
+    }
+
+
     private fun Deck.fromResultRow(result: ResultRow): IvionDeck =
         IvionDeck(
             result[id].toKotlinUUID(),
@@ -63,6 +92,7 @@ class DeckSchema(private val database: Database) {
             result[name],
             emptyList(),
             result[owner].toKotlinUUID(),
-            result[visibility]
+            result[visibility],
+            result[format]
         )
 }

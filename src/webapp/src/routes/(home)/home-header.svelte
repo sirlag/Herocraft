@@ -1,8 +1,8 @@
 <script lang="ts">
 
 import { page } from '$app/stores';
+import { NewDeckDialog } from '$lib/components/NewDeck';
 
-console.log(page)
 
 </script>
 
@@ -23,6 +23,20 @@ console.log(page)
 				</li>
 			</ul>
 		</div>
+		{#if ($page.data.user)}
+			<div>
+				<ul>
+					<li>
+						<a href="/decks/personal">Your Decks</a>
+					</li>
+					<li>
+						<NewDeckDialog form="{$page.data.deckForm}">
+							<a href="">New Deck</a>
+						</NewDeckDialog>
+					</li>
+				</ul>
+			</div>
+		{/if}
 		<div>
 			{#if (!$page.data.user)}
 				<ul>

@@ -147,6 +147,10 @@ class CardService(private val database: Database) {
                     Card.insert {
                         Card.fromIvionCard(it, card)
                     }
+
+                    Card.insert {
+                        it[collectorsNumber]
+                    }
                 }
             }
         } else {

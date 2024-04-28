@@ -1,10 +1,15 @@
 
 import type { LayoutServerLoad } from './$types';
+import {superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { DeckSchema } from '$lib/components/NewDeck';
 
 export const load: LayoutServerLoad = async ({ locals }) => {
-	let user = locals.user
+	let deckForm = await superValidate(zod(DeckSchema))
 
+	let user = locals.user
 	return {
-		user
+		user,
+		deckForm
 	}
 }
