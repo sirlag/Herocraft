@@ -81,7 +81,8 @@ class CardService(private val database: Database) {
                 totalItems = count,
                 page = page,
                 pageSize = size,
-                totalPages = page
+                totalPages = page,
+                hasNext = false
             )
         }
 

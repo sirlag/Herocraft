@@ -9,6 +9,8 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.uuid.toUUIDOrNull
 import org.jetbrains.exposed.sql.*
 
@@ -63,6 +65,9 @@ fun Application.configureDatabases(userService: UserService, cardService: CardSe
             println(call.request.queryString())
             val results = searchString
                 ?.let { cardService.search(searchString, page=page) } ?: cardService.getPaging(page = page)
+            println(results.toString())
+//            results.hasNext //synthetic call to populate
+            println(Json.encodeToJsonElement(results))
             call.respond(HttpStatusCode.OK, results)
         }
 

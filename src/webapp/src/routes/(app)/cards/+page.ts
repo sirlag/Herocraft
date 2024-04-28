@@ -16,6 +16,8 @@ export const load: PageLoad = async ({ fetch, url }) => {
     const jsonRes = await res.json()
 
     const cards = jsonRes.items
+    jsonRes.items = null
+    console.log(jsonRes)
     const page: Page = {
         itemCount: jsonRes.itemCount,
         totalItems: jsonRes.totalItems,
@@ -34,11 +36,11 @@ export const load: PageLoad = async ({ fetch, url }) => {
     }
 }
 
-class Page {
-    itemCount: number = 0;
-    totalItems: number = 0;
-    page: number = 0;
-    totalPages: number = 0;
-    pageSize: number = 0;
-    hasNext: boolean = false;
+type Page = {
+    itemCount: number
+    totalItems: number
+    page: number
+    totalPages: number;
+    pageSize: number;
+    hasNext: boolean;
 }
