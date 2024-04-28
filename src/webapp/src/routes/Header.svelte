@@ -1,121 +1,151 @@
 <script lang="ts">
+
 	import { page } from '$app/stores';
+	import { NewDeckDialog } from '$lib/components/NewDeck';
 	import { Input } from '$lib/components/ui/input';
 
-	let search: string
-
+	export let showSearch: boolean
+	let search: string = ''
 </script>
 
-<header>
+<nav class="flex w-full bg-blue-700">
 
-	<nav class="flex w-full bg-blue-700">
-		<ul class="w-full">
-			<li aria-current={$page.url.pathname === '/' ? 'page' : undefined}>
-				<a href="/">Home</a>
-			</li>
-			<li class="w-full">
-				<div class="w-full">
-					<form method="GET" action="/cards">
-						<Input name="q" bind:value={search} class="w-full"/>
-						<button type="submit" class="visually-hidden"></button>
-					</form>
-				</div>
-			</li>
-			<li>
-			<a href="/cards">Random</a>
-		</ul>
-	</nav>
+	<div class="container">
+		<div>
+			<ul>
+				<li aria-current={$page.url.pathname === '/' ? 'page' : undefined}>
+					<a href="/">Home</a>
+				</li>
+			</ul>
+		</div>
+		{#if (showSearch)}
+			<div class="w-full h-10">
+				<form method="GET" action="/cards">
+					<Input name="q" bind:value={search} class="w-full"/>
+					<button type="submit" class="visually-hidden"></button>
+				</form>
+			</div>
+		{/if}
+		{#if ($page.data.user)}
+			<div>
+				<ul>
+					<li>
+						<a href="/decks/personal">Your Decks</a>
+					</li>
+					<li>
+						<NewDeckDialog form="{$page.data.deckForm}">
+							<a href="">New Deck</a>
+						</NewDeckDialog>
+					</li>
+				</ul>
+			</div>
+		{/if}
+		<div>
+			{#if (!$page.data.user)}
+				<ul>
+					<li>
+						<a href="/account/signin">Sign In</a>
+					</li>
+					<li>
+						<a href="/account/register">Register</a>
+					</li>
+				</ul>
+			{:else}
+				<ul>
+					<li>
+						<a href="/account/logout" data-sveltekit-reload>Logout</a>
+					</li>
+				</ul>
+			{/if}
+		</div>
+	</div>
 
-</header>
+</nav>
 
 <style>
-	header {
-		display: flex;
-		justify-content: space-around;
-		--background: rgba(255, 255, 255, 0.7);
-	}
 
-	.corner {
-		width: 3em;
-		height: 3em;
-	}
+    .container {
+        display: flex;
+        flex-wrap: inherit;
+        align-items: center;
+        justify-content: space-between;
+    }
 
-	.corner a {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 100%;
-		height: 100%;
-	}
+    header {
+        display: flex;
+        justify-content: space-around;
+        --background: rgba(255, 255, 255, 0.7);
+    }
 
-	.corner img {
-		width: 2em;
-		height: 2em;
-		object-fit: contain;
-	}
+    .corner {
+        width: 3em;
+        height: 3em;
+    }
 
-	nav {
-		display: flex;
-		justify-content: center;
-		width: 100%;
-		background: rgba(255, 255, 255, 0.7);
-	}
+    .corner a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+    }
 
-	svg {
-		width: 2em;
-		height: 3em;
-		display: block;
-	}
+    .corner img {
+        width: 2em;
+        height: 2em;
+        object-fit: contain;
+    }
 
-	path {
-		fill: var(--background);
-	}
+    nav {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.7);
+    }
 
-	ul {
-		position: relative;
-		padding: 0;
-		margin: 0;
-		height: 3em;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		list-style: none;
-		background: var(--background);
-		background-size: contain;
-	}
+    svg {
+        width: 2em;
+        height: 3em;
+        display: block;
+    }
 
-	li {
-		position: relative;
-		height: 100%;
-	}
+    path {
+        fill: var(--background);
+    }
 
-	li[aria-current='page']::before {
-		--size: 6px;
-		content: '';
-		width: 0;
-		height: 0;
-		position: absolute;
-		top: 0;
-		left: calc(50% - var(--size));
-		border: var(--size) solid transparent;
-		border-top: var(--size) solid var(--color-theme-1);
-	}
+    ul {
+        position: relative;
+        padding: 0;
+        margin: 0;
+        height: 3em;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        list-style: none;
+        background: var(--background);
+        background-size: contain;
+    }
 
-	nav a {
-		display: flex;
-		height: 100%;
-		align-items: center;
-		padding: 0 0.5rem;
-		color: var(--color-text);
-		font-weight: 700;
-		font-size: 0.8rem;
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
-		text-decoration: none;
-		transition: color 0.2s linear;
-	}
+    li {
+        /*position: relative;*/
+        height: 100%;
+    }
 
-	a:hover {
-		color: var(--color-theme-1);
-	}
+    nav a {
+        display: flex;
+        height: 100%;
+        align-items: center;
+        padding: 0 0.5rem;
+        color: var(--color-text);
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        text-decoration: none;
+        transition: color 0.2s linear;
+    }
+
+    a:hover {
+        color: var(--color-theme-1);
+    }
 </style>

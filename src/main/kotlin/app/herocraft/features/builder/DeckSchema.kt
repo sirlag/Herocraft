@@ -84,6 +84,14 @@ class DeckService(private val database: Database) {
         return hash;
     }
 
+    suspend fun getUserDecks(userId: UUID): List<IvionDeck> = dbQuery {
+        Deck
+            .selectAll()
+            .where { Deck.owner eq (userId.toJavaUUID()) }
+            .map { Deck.fromResultRow(it) }
+            .toList()
+    }
+
 
     private fun Deck.fromResultRow(result: ResultRow): IvionDeck =
         IvionDeck(

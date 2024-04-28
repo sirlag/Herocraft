@@ -23,6 +23,18 @@ fun Application.registerBuilder(deckService: DeckService) {
                 val hash = deckService.createDeck(session.id.toUUID(), deck.name, deck.format, deck.visibility)
                 call.respond(mapOf("hash" to hash))
             }
+
+            get("/decks/personal") {
+                val session = call.authentication.principal<UserSession>()
+
+                if (session == null) {
+                    call.respondRedirect("/login")
+                    return@get
+                }
+
+                val decks = deckService.getUserDecks(session.id.toUUID())
+                call.respond(decks)
+            }
         }
     }
 }

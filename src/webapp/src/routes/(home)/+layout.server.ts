@@ -7,9 +7,7 @@ import { DeckSchema } from '$lib/components/NewDeck';
 export const load: LayoutServerLoad = async ({ locals }) => {
 	let deckForm = await superValidate(zod(DeckSchema))
 
-	let user = locals.user
 	return {
-		user,
 		deckForm
 	}
 }

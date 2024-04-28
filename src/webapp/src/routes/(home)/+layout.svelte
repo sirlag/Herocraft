@@ -1,12 +1,12 @@
 <script>
 	import "../../app.css";
 
-	import HomeHeader from './home-header.svelte'
+	import Header from '../Header.svelte'
 </script>
 
 <div class="app">
 
-	<HomeHeader />
+	<Header showSearch="{false}"/>
 
 	<main>
 		<slot />
@@ -18,10 +18,6 @@
 </div>
 
 <style>
-
-	body {
-			background: gold;
-	}
 
 	.app {
 		display: flex;

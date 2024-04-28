@@ -1,7 +1,10 @@
 <script lang="ts">
-	import { createTable, Render, Subscribe } from 'svelte-headless-table';
+	import { createRender, createTable, Render, Subscribe } from 'svelte-headless-table';
 	import { readable } from "svelte/store"
 	import * as Table from "$lib/components/ui/table"
+	import DataTableActions from "./data-table-actions.svelte"
+
+	import LinkCell from "$lib/components/data-table/link-cell.svelte"
 
 	type Deck = {
 		id: string;
@@ -9,19 +12,44 @@
 		name: string;
 	};
 
-	const data: Deck[] = [
-		{
-			id: "uuid",
-			hash: "hash",
-			name: "Untitled Deck"
-		}
-	]
+	type DeckEntry = {
+		display: {
+			name: string;
+			hash: string;
+		},
+		id: string;
+	}
 
-	const table = createTable(readable(data))
+	export let decks: Deck[]
+
+	let mappedDecks: DeckEntry[] = decks.map((it) =>{
+		return {
+			display: {
+				name: it.name,
+				hash: it.hash
+			},
+			id: it.id
+		}
+	})
+
+	const table = createTable(readable(mappedDecks))
 	const columns = table.createColumns([
 		table.column({
-			accessor: "name",
-			header: "Name"
+			accessor: "display",
+			header: "Name",
+			cell: ({value}) => {
+				return createRender(LinkCell, {
+					text: value.name,
+					link: `/deck/${value.hash}`
+				})
+			}
+		}),
+		table.column({
+			accessor: "id",
+			header: "",
+			cell: ({value}) => {
+				return createRender(DataTableActions, { id: value })
+			}
 		})
 	]);
 
