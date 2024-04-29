@@ -6,7 +6,7 @@
 
 	export let data: PageData
 
-	let card: IvionCard = data.card
+	$: card = data.card
 </script>
 
 <div class="flex w-full p-4 pb-8 justify-center bg-neutral-50">

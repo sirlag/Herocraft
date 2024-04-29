@@ -5,6 +5,7 @@ import app.herocraft.core.models.User
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.uuid.UUID
+import kotlinx.uuid.toJavaUUID
 import kotlinx.uuid.toKotlinUUID
 import org.jetbrains.exposed.crypt.Algorithms
 import org.jetbrains.exposed.crypt.encryptedVarchar
@@ -40,6 +41,15 @@ class UserService(private val database: Database) {
                 .map { Users.fromResultRow(it) }
                 .firstOrNull()
 
+        }
+
+    suspend fun getUsername(id: UUID): String?
+        = dbQuery {
+            Users
+                .select(Users.username)
+                .where { Users.id eq id.toJavaUUID()}
+                .map { it[Users.username] }
+                .firstOrNull()
         }
 
 //    suspend fun read(id: Int): User? {

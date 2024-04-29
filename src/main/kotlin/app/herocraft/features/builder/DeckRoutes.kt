@@ -1,6 +1,7 @@
 package app.herocraft.features.builder
 
 import app.herocraft.plugins.UserSession
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -10,6 +11,13 @@ import kotlinx.uuid.toUUID
 
 fun Application.registerBuilder(deckService: DeckService) {
     routing {
+
+        get("/deck/{id}") {
+            val id = call.parameters["id"] ?: return@get call.respond(HttpStatusCode.BadRequest)
+            val deckList = deckService.getDeck(id)
+            call.respond(deckList)
+        }
+
         authenticate("auth-session") {
             post("/deck/new") {
                 val session = call.authentication.principal<UserSession>()

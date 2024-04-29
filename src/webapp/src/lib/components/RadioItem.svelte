@@ -6,9 +6,9 @@
 	export let text
 </script>
 
+<div class="border rounded-lg px-3 py-2 flex items-center space-x-3 space-y-0" >
 	<Form.Control let:attrs>
-		<div class="border rounded-lg px-3 py-2 flex items-center space-x-3 space-y-0" >
-			<RadioGroup.Item value="{value}" {...attrs} />
+			<RadioGroup.Item value={value} {...attrs} />
 			<Form.Label class="font-normal">{text}</Form.Label>
-		</div>
 	</Form.Control>
+</div>

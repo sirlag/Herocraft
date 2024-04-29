@@ -1,18 +1,19 @@
 package app.herocraft.features.builder
 
-import app.herocraft.core.models.DeckFormat
-import app.herocraft.core.models.DeckVisibility
-import app.herocraft.core.models.IvionDeck
-import app.herocraft.core.models.Page
+import app.herocraft.core.extensions.DataService
+import app.herocraft.core.models.*
+import app.herocraft.core.security.UserService
 import io.ktor.util.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.uuid.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import kotlin.random.Random
 
-class DeckService(private val database: Database) {
+class DeckService(
+    database: Database,
+    private val deckListService: DeckListService,
+    private val userService: UserService
+): DataService(database) {
     object Deck : Table() {
         val id = uuid("id")
         val hash = text("hash")
@@ -23,9 +24,6 @@ class DeckService(private val database: Database) {
 
         override val primaryKey = PrimaryKey(id)
     }
-
-    suspend fun <T> dbQuery(block: suspend () -> T): T =
-        newSuspendedTransaction(Dispatchers.IO, database) { block() }
 
     suspend fun getPaging(size: Int = 60, page: Int = 1) = paged(size, page, { Deck.id.count()}, { Op.TRUE})
 
@@ -92,13 +90,25 @@ class DeckService(private val database: Database) {
             .toList()
     }
 
+    suspend fun getDeck(deckHash: String): IvionDeck = dbQuery {
+        val deck = Deck
+            .selectAll()
+            .where { Deck.hash eq (deckHash)}
+            .map { Deck.fromResultRow(it) }
+            .first()
+        val name = userService.getUsername(deck.owner)
+        deck.ownerName = name
+        val deckList = deckListService.getDeck(deck.id)
+        deck.list.addAll(deckList)
+        return@dbQuery deck
+    }
 
     private fun Deck.fromResultRow(result: ResultRow): IvionDeck =
         IvionDeck(
             result[id].toKotlinUUID(),
             result[hash],
             result[name],
-            emptyList(),
+            mutableListOf(),
             result[owner].toKotlinUUID(),
             result[visibility],
             result[format]

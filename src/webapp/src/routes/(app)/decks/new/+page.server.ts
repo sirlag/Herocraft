@@ -1,4 +1,4 @@
-import type { Actions } from '../../../../../.svelte-kit/types/src/routes';
+import type { Actions } from './$types';
 import { PUBLIC_API_BASE_URL } from '$env/static/public';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';

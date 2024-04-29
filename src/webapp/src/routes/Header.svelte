@@ -5,6 +5,7 @@
 	import { Input } from '$lib/components/ui/input';
 
 	export let showSearch: boolean
+	$: deckForm = $page.data.deckForm
 	let search: string = ''
 </script>
 
@@ -33,7 +34,7 @@
 						<a href="/decks/personal">Your Decks</a>
 					</li>
 					<li>
-						<NewDeckDialog form="{$page.data.deckForm}">
+						<NewDeckDialog bind:form={deckForm}>
 							<a href="">New Deck</a>
 						</NewDeckDialog>
 					</li>

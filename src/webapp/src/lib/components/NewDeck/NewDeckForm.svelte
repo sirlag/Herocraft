@@ -1,7 +1,6 @@
 <script lang="ts">
 	import * as Form from '$lib/components/ui/form'
 	import * as RadioGroup from '$lib/components/ui/radio-group';
-	import { Footer } from '$lib/components/ui/dialog';
 	import { Input } from "$lib/components/ui/input"
 	import { formSchema, type FormSchema} from './schema.ts'
 	import RadioItem from '$lib/components/RadioItem.svelte'
@@ -12,19 +11,22 @@
 		superForm,
 	} from 'sveltekit-superforms'
 	import { zodClient } from 'sveltekit-superforms/adapters'
-	import { Button } from '$lib/components/ui/button';
 
 	export let data: SuperValidated<Infer<FormSchema>>;
+	export let handleSubmit : () => void
 
 	const form = superForm(data, {
 		validators: zodClient(formSchema),
+		onSubmit: () =>{
+			handleSubmit()
+		},
 	})
 
 	const { form: formData, enhance } = form;
 
 </script>
 
-<form method="POST" use:enhance action="/decks/new">
+<form id="deckForm" method="POST" action="/decks/new" use:enhance>
 	<Form.Field {form} name="name">
 		<Form.Control let:attrs>
 			<Form.Label>Deck Name</Form.Label>
@@ -42,6 +44,7 @@
 			<RadioItem value="public" text="Public" />
 			<RadioItem value="unlisted" text="Unlisted" />
 			<RadioItem value="private" text="Private" />
+			<RadioGroup.Input name="visibility" />
 		</RadioGroup.Root>
 	</Form.Fieldset>
 
@@ -54,14 +57,11 @@
 			<RadioItem value="constructed" text="Constructed" />
 			<RadioItem value="paragon" text="Paragon" />
 			<RadioItem value="other" text="Other" />
+
+			<RadioGroup.Input name="format" />
 		</RadioGroup.Root>
 	</Form.Fieldset>
 
-<!--	<SuperDebug data="{form}"/>-->
-
-	<Footer>
-		<Button type="submit">Create</Button>
-	</Footer>
 
 </form>
 

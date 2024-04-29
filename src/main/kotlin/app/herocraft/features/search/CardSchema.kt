@@ -52,7 +52,7 @@ class CardService(private val database: Database) {
             .selectAll()
             .where{Card.id eq id.toJavaUUID()}
             .limit(1)
-            .map { Card.fromResultRow(it) }
+            .map { it.toIvionCard() }
             .firstOrNull()
     }
 
@@ -93,7 +93,7 @@ class CardService(private val database: Database) {
             .orderBy(Card.name, SortOrder.ASC)
             .limit(size, offset)
             .map {
-                Card.fromResultRow(it)
+                it.toIvionCard()
             }.toList()
         Page(
             items = cards,
@@ -186,30 +186,30 @@ class CardService(private val database: Database) {
         it[type] = card.type
     }
 
-    private fun Card.fromResultRow(result: ResultRow): IvionCard =
+    private fun ResultRow.toIvionCard(): IvionCard =
         IvionCard(
-            result[id].toKotlinUUID(),
-            result[collectorsNumber],
-            result[format],
-            result[name],
-            result[archetype],
-            result[actionCost],
-            result[powerCost],
-            result[range],
-            result[health],
-            result[heroic],
-            result[slow],
-            result[silence],
-            result[disarm],
-            result[extraType],
-            result[rulesText],
-            result[flavorText],
-            result[artist],
-            result[ivionUUID].toKotlinUUID(),
-            result[secondUUID]?.toKotlinUUID(),
-            result[colorPip1],
-            result[colorPip2],
-            result[season],
-            result[type]
+            this[Card.id].toKotlinUUID(),
+            this[Card.collectorsNumber],
+            this[Card.format],
+            this[Card.name],
+            this[Card.archetype],
+            this[Card.actionCost],
+            this[Card.powerCost],
+            this[Card.range],
+            this[Card.health],
+            this[Card.heroic],
+            this[Card.slow],
+            this[Card.silence],
+            this[Card.disarm],
+            this[Card.extraType],
+            this[Card.rulesText],
+            this[Card.flavorText],
+            this[Card.artist],
+            this[Card.ivionUUID].toKotlinUUID(),
+            this[Card.secondUUID]?.toKotlinUUID(),
+            this[Card.colorPip1],
+            this[Card.colorPip2],
+            this[Card.season],
+            this[Card.type]
         )
 }

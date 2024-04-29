@@ -17,6 +17,36 @@ type UserSession = {
 	session: String
 }
 
-export {
+enum DeckVisibility {
+	Public = "PUBLIC",
+	Unlisted = "UNLISTED",
+	Private = "PRIVATE"
+}
 
+enum DeckFormat {
+	Constructed = "CONSTRUCTED",
+	Paragon = "PARAGON",
+	Other = "OTHER"
+}
+
+type DeckEntry = {
+	count: number,
+	card: IvionCard
+}
+
+type Deck = {
+	id: string,
+	hash: string,
+	name: string,
+	list: DeckEntry[],
+	owner: string,
+	ownerName: string,
+	visibility: DeckVisibility,
+	format: DeckFormat
+}
+
+export {
+	Deck,
+	DeckEntry,
+	UserSession,
 };
