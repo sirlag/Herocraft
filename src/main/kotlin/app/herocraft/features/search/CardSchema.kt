@@ -41,6 +41,10 @@ class CardService(private val database: Database) {
 
         override val primaryKey = PrimaryKey(id)
     }
+//
+//    object CardMapping : Table() {
+//        val card
+//    }
 
     val logger = LoggerFactory.getLogger(CardService::class.java)
 

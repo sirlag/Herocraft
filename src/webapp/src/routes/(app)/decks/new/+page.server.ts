@@ -18,8 +18,6 @@ export const actions: Actions = {
 
 		let data = form.data
 
-		console.log(data)
-
 		let createResponse = await fetch(PUBLIC_API_BASE_URL + '/deck/new', {
 			method: 'POST',
 			headers: {

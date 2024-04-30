@@ -4,6 +4,7 @@ import app.herocraft.core.security.registerSecurityRouter
 import app.herocraft.core.services.registerServices
 import app.herocraft.features.builder.registerBuilder
 import app.herocraft.plugins.*
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.cors.routing.*
@@ -25,5 +26,6 @@ fun Application.module() {
     configureRouting()
     install(CORS) {
         anyHost()
+        allowHeader(HttpHeaders.ContentType)
     }
 }

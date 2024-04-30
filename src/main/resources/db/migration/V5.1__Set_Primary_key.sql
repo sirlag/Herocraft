@@ -1,0 +1,1 @@
+ALTER TABLE deckentry ADD PRIMARY KEY (deck_id, card_id);

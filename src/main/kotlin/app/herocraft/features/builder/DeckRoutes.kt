@@ -28,8 +28,8 @@ fun Application.registerBuilder(deckService: DeckService) {
                 }
 
                 val deck = call.receive<DeckRequest>()
-                val hash = deckService.createDeck(session.id.toUUID(), deck.name, deck.format, deck.visibility)
-                call.respond(mapOf("hash" to hash))
+                val createDeckResponse = deckService.createDeck(session.id.toUUID(), deck.name, deck.format, deck.visibility)
+                call.respond(mapOf("hash" to createDeckResponse.hash))
             }
 
             get("/decks/personal") {
@@ -42,6 +42,24 @@ fun Application.registerBuilder(deckService: DeckService) {
 
                 val decks = deckService.getUserDecks(session.id.toUUID())
                 call.respond(decks)
+            }
+
+            post("/decks/import") {
+                val session = call.authentication.principal<UserSession>()
+
+                if (session == null) {
+                    call.respondRedirect("/login")
+                    return@post
+                }
+
+//                val body = call.receiveText()
+//                println(body)
+
+                val importedDecks = call.receive<DeckImportRequest>()
+
+                val decks = deckService.importAll(session.id.toUUID(), importedDecks)
+                call.respond(decks)
+                call.respond(hashMapOf("test" to "to"))
             }
         }
     }

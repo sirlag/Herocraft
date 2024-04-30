@@ -39,6 +39,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@types/node": "^20.12.7",
 		"bits-ui": "^0.21.5",
 		"clsx": "^2.1.0",
 		"cmdk-sv": "^0.0.17",

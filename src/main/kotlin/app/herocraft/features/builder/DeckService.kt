@@ -3,11 +3,17 @@ package app.herocraft.features.builder
 import app.herocraft.core.extensions.DataService
 import app.herocraft.core.models.*
 import app.herocraft.core.security.UserService
+import app.herocraft.features.search.CardService
 import io.ktor.util.*
+import kotlinx.serialization.Serializable
 import kotlinx.uuid.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import kotlin.random.Random
+
+
+@Serializable
+data class CreateDeckResponse(val uuid: UUID, val hash: String)
 
 class DeckService(
     database: Database,
@@ -59,7 +65,7 @@ class DeckService(
         )
     }
 
-    suspend fun createDeck(userId: UUID, name: String, format: DeckFormat, visibility: DeckVisibility): String {
+    suspend fun createDeck(userId: UUID, name: String, format: DeckFormat, visibility: DeckVisibility): CreateDeckResponse {
 
         val id = UUID.generateUUID(Random)
         val hash = id.encodeToByteArray().encodeBase64()
@@ -79,7 +85,45 @@ class DeckService(
             }
         }
 
-        return hash;
+        return CreateDeckResponse(id, hash);
+    }
+
+    suspend fun importAll(userId: UUID, deckImportRequest: DeckImportRequest): List<CreateDeckResponse>  {
+
+        val newDeckIds = mutableListOf<CreateDeckResponse>()
+        for (deck: DeckImportRequestDeck in deckImportRequest.decks) {
+            val deckIds = createDeck(userId, deck.name, DeckFormat.CONSTRUCTED, deckImportRequest.defaultVisibility)
+            dbQuery {
+                for (card: DeckImportRequestCard in deck.list) {
+                    DeckListService.DeckEntry.insert {
+                        it[deckId] = deckIds.uuid.toJavaUUID()
+                        it[cardId] = CardService.Card
+                            .select(CardService.Card.id)
+                            .where(CardService.Card.name eq card.name)
+                        it[count] = card.count
+                    }
+                }
+                for (name: String in deck.traits) {
+                    DeckListService.DeckEntry.insert {
+                        it[deckId] = deckIds.uuid.toJavaUUID()
+                        it[cardId] = CardService.Card
+                            .select(CardService.Card.id)
+                            .where(CardService.Card.name eq name)
+                        it[count] = 1
+                    }
+                }
+                DeckListService.DeckEntry.insert {
+                    it[deckId] = deckIds.uuid.toJavaUUID()
+                    it[cardId] = CardService.Card
+                        .select(CardService.Card.id)
+                        .where(CardService.Card.archetype eq deck.specialization and (CardService.Card.type eq "Ultimate"))
+                    it[count] = 1
+                }
+                newDeckIds.add(deckIds)
+            }
+        }
+        return newDeckIds
+
     }
 
     suspend fun getUserDecks(userId: UUID): List<IvionDeck> = dbQuery {

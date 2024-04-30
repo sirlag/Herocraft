@@ -2,7 +2,6 @@
 	import * as Dialog from "$lib/components/ui/dialog"
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import NewDeckForm from '$lib/components/NewDeck/NewDeckForm.svelte';
-	import { Footer } from '$lib/components/ui/dialog';
 
 	export let form;
 
@@ -21,8 +20,8 @@
 
 		<NewDeckForm data={form} handleSubmit={handleSubmit} />
 
-		<Footer>
+		<Dialog.Footer>
 			<Button form="deckForm" type="submit">Create</Button>
-		</Footer>
+		</Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>

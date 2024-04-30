@@ -45,7 +45,14 @@ type Deck = {
 	format: DeckFormat
 }
 
+type C2Array = {
+	c2Array: boolean
+	size: number[]
+	data: any[][][]
+}
+
 export {
+	C2Array,
 	Deck,
 	DeckEntry,
 	UserSession,
