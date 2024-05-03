@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<OpenSearchDescription xmln="http://a9.com/-/spec/opensearch/1.1">
+    <ShortName>Herocraft</ShortName>
+    <Description>Search Herocraft for Ivion cards by name</Description>
+    <Image width="32" height="32" type="image/x-icon">https://herocraft.app/favicon.ico</Image>
+    <Tags>Herocraft Ivion Search</Tags>
+    <InputEncoding>UTF-8</InputEncoding>
+    <Url method="get" rel="results" type="text/html" template="https://herocraft.com/cards?q={searchTerms}" />
+    <Url rel="self" type="application/opensearchdescription+xml" template="https://herocraft.com/opensearch.xml" />
+    <Language>en</Language>
+</OpenSearchDescription>

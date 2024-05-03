@@ -12,8 +12,8 @@
 </script>
 
 <svelte:head>
-	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
+	<title>Home // Herocraft</title>
+	<meta name="description" content="Herocraft is the Unofficial deckbuilder and card database for Ivion." />
 </svelte:head>
 
 <section>
