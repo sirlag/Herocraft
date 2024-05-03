@@ -7,6 +7,7 @@
 	import IvionIcon from '$lib/components/IvionIcon.svelte';
 	import CardImage from '$lib/components/CardImage.svelte';
 	import type { CollatedDeckList } from './+page.ts';
+	import CardTable from './card-table.svelte';
 
 	export let data: PageData
 
@@ -80,14 +81,20 @@
 				</div>
 			{/if}
 			{#each iterableCards as category}
-				<div class="flex flex-col flex-2">
-					<h5>{category.key}</h5>
-					{#each category.deckEntries as deckEntry}
-						<span on:mouseover={() => setFirstCard(deckEntry.card)}>
-							{deckEntry.count} {deckEntry.card.name}
-						</span>
-					{/each}
+				<div class="flex-2">
+					<CardTable cards={category.deckEntries} category={category.key} mouseOver={(link) => {
+						return () => setFirstCard(link)
+						}
+					} />
 				</div>
+<!--				<div class="flex flex-col flex-2">-->
+<!--					<h5>{category.key}</h5>-->
+<!--					{#each category.deckEntries as deckEntry}-->
+<!--						<span on:mouseover={() => setFirstCard(deckEntry.card)}>-->
+<!--							{deckEntry.count} {deckEntry.card.name}-->
+<!--						</span>-->
+<!--					{/each}-->
+<!--				</div>-->
 			{/each}
 		</div>
 
