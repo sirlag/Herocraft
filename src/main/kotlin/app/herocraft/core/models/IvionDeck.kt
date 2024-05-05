@@ -1,5 +1,6 @@
 package app.herocraft.core.models
 
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlinx.uuid.UUID
 
@@ -12,6 +13,8 @@ data class IvionDeck(
     val owner: UUID,
     val visibility: DeckVisibility,
     val format: DeckFormat,
+    val created: Instant,
+    val lastModified: Instant,
     var ownerName: String? = null,
 )
 

@@ -5,22 +5,30 @@
 	import DataTableActions from "./data-table-actions.svelte"
 
 	import LinkCell from "$lib/components/data-table/link-cell.svelte"
+	import assert from 'node:assert';
+	import Time from 'svelte-time';
 
 	type Deck = {
 		id: string;
 		hash: string;
 		name: string;
+		format: string;
+		lastModified: Date
 	};
 
 	type DeckEntry = {
 		display: {
 			name: string;
 			hash: string;
-		},
+		}
+		format: string;
+		lastModified: Date;
 		id: string;
 	}
 
 	export let decks: Deck[]
+	let relativeFormat = new Intl.RelativeTimeFormat("en-US", { style: 'short'})
+
 
 	let mappedDecks  = decks.map((it) =>{
 		return {
@@ -28,7 +36,9 @@
 				name: it.name,
 				hash: it.hash
 			},
-			id: it.id
+			format: it.format,
+			lastModified: it.lastModified,
+			id: it.id,
 		}
 	})
 
@@ -42,6 +52,21 @@
 					text: value.name,
 					link: `/deck/${value.hash}`
 				})
+			}
+		}),
+		table.column({
+			accessor: "format",
+			header: "Format",
+		}),
+		table.column({
+			accessor: "lastModified",
+			header: "Last Updated",
+			cell: ({value}) => {
+				return createRender(Time, {
+					timestamp: value,
+					relative: true,
+				})
+				// return relativeFormat.format(value)
 			}
 		}),
 		table.column({

@@ -5,10 +5,14 @@ import app.herocraft.core.models.*
 import app.herocraft.core.security.UserService
 import app.herocraft.features.search.CardService
 import io.ktor.util.*
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 import kotlinx.uuid.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 import kotlin.random.Random
 
 
@@ -27,6 +31,8 @@ class DeckService(
         val owner = uuid("owner") //Make this a foreign key constraint
         val visibility = enumeration("visibility", DeckVisibility::class)
         val format = enumeration("format", DeckFormat::class)
+        val lastModified = timestamp("last_modified")
+        val created = timestamp("created")
 
         override val primaryKey = PrimaryKey(id)
     }
@@ -73,6 +79,8 @@ class DeckService(
             .replace("+", "-")
             .substring(0, 22)
 
+        val now = Clock.System.now()
+
         dbQuery {
             Deck.selectAll().where(Deck.id.eq(id.toJavaUUID()))
             Deck.insert {
@@ -82,6 +90,8 @@ class DeckService(
                 it[owner] = userId.toJavaUUID()
                 it[Deck.visibility] = visibility
                 it[Deck.format] = format
+                it[created] = now
+                it[lastModified] = now
             }
         }
 
@@ -160,6 +170,8 @@ class DeckService(
             mutableListOf(),
             result[owner].toKotlinUUID(),
             result[visibility],
-            result[format]
+            result[format],
+            result[created],
+            result[lastModified]
         )
 }
