@@ -3,6 +3,7 @@
 	import { page } from '$app/stores';
 	import { NewDeckDialog } from '$lib/components/NewDeck';
 	import { Input } from '$lib/components/ui/input';
+	import HerocraftWordmark from '$lib/images/herocraft.svelte'
 
 	export let showSearch: boolean
 	$: deckForm = $page.data.deckForm
@@ -14,9 +15,10 @@
 	<div class="container">
 		<div>
 			<ul>
-				<li aria-current={$page.url.pathname === '/' ? 'page' : undefined}>
-					<a href="/">Home</a>
+				<li class="h-8 w-28 pt-1 hover:fill-red-600" aria-current={$page.url.pathname === '/' ? 'page' : undefined}>
+					<a href="/"><HerocraftWordmark /></a>
 				</li>
+
 			</ul>
 		</div>
 		{#if (showSearch)}
@@ -148,5 +150,6 @@
 
     a:hover {
         color: var(--color-theme-1);
+				fill: var(--color-theme-1);
     }
 </style>
