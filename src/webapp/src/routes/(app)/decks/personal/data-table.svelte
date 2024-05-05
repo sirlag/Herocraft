@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createRender, createTable, Render, Subscribe } from 'svelte-headless-table';
-	import { readable } from "svelte/store"
+	import { readable, writable } from 'svelte/store';
 	import * as Table from "$lib/components/ui/table"
 	import DataTableActions from "./data-table-actions.svelte"
 
@@ -22,7 +22,7 @@
 
 	export let decks: Deck[]
 
-	let mappedDecks: DeckEntry[] = decks.map((it) =>{
+	let mappedDecks  = decks.map((it) =>{
 		return {
 			display: {
 				name: it.name,
@@ -32,8 +32,8 @@
 		}
 	})
 
-	const table = createTable(readable(mappedDecks))
-	const columns = table.createColumns([
+	let table = createTable(writable(mappedDecks))
+	let columns = table.createColumns([
 		table.column({
 			accessor: "display",
 			header: "Name",

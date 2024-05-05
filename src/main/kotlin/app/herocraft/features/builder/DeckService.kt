@@ -147,6 +147,11 @@ class DeckService(
         return@dbQuery deck
     }
 
+    suspend fun deleteDeck(userId: UUID, deckId: UUID) = dbQuery {
+        return@dbQuery Deck
+            .deleteWhere { owner eq userId.toJavaUUID() and (id eq deckId.toJavaUUID())}
+    }
+
     private fun Deck.fromResultRow(result: ResultRow): IvionDeck =
         IvionDeck(
             result[id].toKotlinUUID(),

@@ -52,14 +52,24 @@ fun Application.registerBuilder(deckService: DeckService) {
                     return@post
                 }
 
-//                val body = call.receiveText()
-//                println(body)
-
                 val importedDecks = call.receive<DeckImportRequest>()
 
                 val decks = deckService.importAll(session.id.toUUID(), importedDecks)
                 call.respond(decks)
                 call.respond(hashMapOf("test" to "to"))
+            }
+
+            delete("/decks/{id}") {
+                val session = call.authentication.principal<UserSession>()
+                if (session == null) {
+                    call.respondRedirect("/login")
+                    return@delete
+                }
+
+                val deckId = call.parameters["id"]?.toUUID() ?: return@delete call.respond(HttpStatusCode.BadRequest)
+
+                deckService.deleteDeck(session.id.toUUID(), deckId)
+                call.respond(hashMapOf("deleted" to deckId))
             }
         }
     }
