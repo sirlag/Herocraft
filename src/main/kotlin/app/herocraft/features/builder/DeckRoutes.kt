@@ -69,7 +69,7 @@ fun Application.registerBuilder(deckService: DeckService) {
                 val deckId = call.parameters["id"]?.toUUID() ?: return@put call.respond(HttpStatusCode.BadRequest)
                 val settings = call.receive<DeckSettings>()
 
-                val deckList = deckService.updateSettings(deckId, settings)
+                val deckList = deckService.updateSettings(session.id.toUUID(), deckId, settings)
                 call.respond(deckList)
             }
 
