@@ -5,10 +5,14 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { BulkImportSchema } from '$lib/components/bulk-import';
 import { fail, redirect } from '@sveltejs/kit';
 
-export const load: PageServerLoad = async ({request}) => {
+export const load: PageServerLoad = async ({request, locals}) => {
 	let bulkImportForm = await superValidate(zod(BulkImportSchema))
 
-	console.log("Called load")
+	console.log(locals)
+
+	if (!locals.user?.isAuthenticated) {
+		redirect(302, `/account/signin?redirect=/decks/personal`)
+	}
 
 	let decksResponse = await fetch(PUBLIC_API_BASE_URL+`/decks/personal`, {
 		method: 'GET',
@@ -51,8 +55,7 @@ export const actions: Actions = {
 
 		let responseData = await createResponse.json()
 
-		return {
-			responseData
-		}
+		redirect(303, "/decks/personal")
+
 	}
 } satisfies Actions

@@ -1,22 +1,19 @@
 import type { PageLoad } from './$types';
-import { PUBLIC_API_BASE_URL } from '$env/static/public';
-import type { Deck, DeckEntry } from '../../../../app';
+import type { DeckEntry } from '../../../../app';
 
 export type CollatedDeckList = Partial<Record<PropertyKey, DeckEntry[]>>
 
-export const load : PageLoad = async ({params, fetch}) => {
-		let deckListResponse = await fetch(PUBLIC_API_BASE_URL+`/deck/${params.slug}`, {
-			method: 'GET'
-		})
+export const load : PageLoad = async ({params, parent, fetch}) => {
 
-		let deckList: Deck = await deckListResponse.json()
+		let parentData = await parent()
+		let deckList = parentData.deckList
 
 		let collatedCards: CollatedDeckList = Object.groupBy(deckList.list, ({ card } ) => {
 			return card.archetype === '' || card.type === 'Ultimate' ? `Trait`.valueOf() : card.archetype!!
 		})
 
 		return {
-			deckList,
-			collatedCards
+			collatedCards,
+			slug: params.slug
 		}
 }

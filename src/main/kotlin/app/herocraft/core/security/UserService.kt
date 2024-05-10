@@ -43,6 +43,14 @@ class UserService(private val database: Database) {
 
         }
 
+    suspend fun getUser(id: UUID): User?
+        = dbQuery {
+            Users.select(Users.id, Users.email, Users.username)
+                .where { Users.id eq id.toJavaUUID() }
+                .map { Users.fromResultRow(it) }
+                .firstOrNull()
+    }
+
     suspend fun getUsername(id: UUID): String?
         = dbQuery {
             Users

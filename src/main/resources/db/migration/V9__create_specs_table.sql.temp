@@ -1,0 +1,9 @@
+CREATE TABLE spec (
+    id uuid NOT NULL PRIMARY KEY,
+    card_id uuid NOT NULL references card(id),
+    name text NOT NULL,
+    color1 text,
+    color2 text
+);
+
+INSERT INTO spec()

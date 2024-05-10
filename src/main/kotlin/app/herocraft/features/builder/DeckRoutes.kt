@@ -59,6 +59,20 @@ fun Application.registerBuilder(deckService: DeckService) {
                 call.respond(hashMapOf("test" to "to"))
             }
 
+            put("/decks/{id}") {
+                val session = call.authentication.principal<UserSession>()
+                if (session == null) {
+                    call.respondRedirect("/login")
+                    return@put
+                }
+
+                val deckId = call.parameters["id"]?.toUUID() ?: return@put call.respond(HttpStatusCode.BadRequest)
+                val settings = call.receive<DeckSettings>()
+
+                val deckList = deckService.updateSettings(deckId, settings)
+                call.respond(deckList)
+            }
+
             delete("/decks/{id}") {
                 val session = call.authentication.principal<UserSession>()
                 if (session == null) {

@@ -8,6 +8,10 @@ export const handle: Handle = async ({ event, resolve}) => {
 			isAuthenticated: true,
 			session: userSession
 		}
+	} else {
+		event.locals.user = {
+			isAuthenticated: false
+		}
 	}
 
 	return resolve(event);

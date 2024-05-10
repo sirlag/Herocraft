@@ -28,5 +28,6 @@ fun Application.module() {
         anyHost()
         allowHeader(HttpHeaders.ContentType)
         allowMethod(HttpMethod.Delete)
+        allowMethod(HttpMethod.Put)
     }
 }

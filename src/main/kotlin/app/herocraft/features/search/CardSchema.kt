@@ -12,6 +12,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.slf4j.LoggerFactory
+import java.util.*
 
 class CardService(private val database: Database) {
     object Card : Table() {
@@ -60,8 +61,45 @@ class CardService(private val database: Database) {
             .firstOrNull()
     }
 
-    suspend fun search(searchString: String, size: Int = 60, page: Int = 1) =
-        paged(size, page, {Card.id.count()}, {Card.name ilike "%$searchString%" })
+    enum class SearchOps() {
+
+        NORMAL,
+        TYPE;
+
+        companion object {
+            fun parse(string: String): SearchOps =
+                when(string.lowercase(Locale.getDefault())) {
+                    "t", "type" -> SearchOps.TYPE
+                    else -> SearchOps.NORMAL
+                }
+        }
+    }
+
+    suspend fun search(searchString: String, size: Int = 60, page: Int = 1): Page<IvionCard> {
+
+        val queryTerms = mutableMapOf(SearchOps.NORMAL to "")
+
+
+        for (str: String in searchString.split(" ")) {
+            if (str.contains(":")) {
+                val tokens = str.split(":")
+                when (SearchOps.parse(tokens[0])) {
+                    SearchOps.TYPE -> queryTerms[SearchOps.TYPE] = tokens[1]
+                    else -> {}
+                }
+            }
+            else {
+                queryTerms[SearchOps.NORMAL] += str
+            }
+        }
+
+        var query = Card.name ilike "%${queryTerms[SearchOps.NORMAL]}%";
+        if (queryTerms.contains(SearchOps.TYPE)) {
+            query = query and (Card.type ilike "%${queryTerms[SearchOps.TYPE]}%")
+        }
+
+        return paged(size, page, {Card.id.count()}, {query})
+    }
 
     suspend fun getPaging(size: Int = 60, page: Int = 1) = paged(size, page, {Card.id.count()}, {Op.TRUE})
 

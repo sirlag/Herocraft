@@ -48,7 +48,10 @@ export const actions: Actions = {
 			maxAge: parseInt(parsedCookie['Max-Age']),
 			httpOnly: true,
 		});
-		redirect(303, "/")
+
+		let destination  = event.url.searchParams.get("redirect") || "/"
+
+		redirect(303, destination)
 	}
 
 }

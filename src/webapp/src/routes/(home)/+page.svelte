@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Input } from '$lib/components/ui/input/';
+	import { SearchInput } from '$lib/components/ui/search-input/';
 	import { Button } from '$lib/components/ui/button/';
 	import { goto } from '$app/navigation';
 
@@ -23,8 +23,8 @@
 		</h1>
 		<div>
 			<form method="GET" action="/cards">
-				<Input name="q" bind:value={search}/>
-				<button type="submit" class="visually-hidden"></button>
+				<SearchInput name="q" bind:value={search}/>
+<!--				<button type="submit" class="visually-hidden"></button>-->
 			</form>
 		</div>
 		<div class="flex mr-8 p-2 justify-end">

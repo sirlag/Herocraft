@@ -13,6 +13,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
+import kotlinx.uuid.toUUID
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -54,9 +55,20 @@ fun Application.registerSecurityRouter(userService: UserService){
             }
 
             get ("/protected") {
-                val principal = call.principal<UserSession>()
+                val principal = call.authentication.principal<UserSession>()
                 val email = principal?.email
                 call.respondText("Hello, $email!")
+            }
+
+            get("/user") {
+                val principal = call.authentication.principal<UserSession>()
+                if (principal == null) {
+                    call.respondRedirect("/login")
+                    return@get
+                }
+
+                val user = userService.getUser(principal.id.toUUID())!!
+                call.respond(HttpStatusCode.OK, user)
             }
         }
 

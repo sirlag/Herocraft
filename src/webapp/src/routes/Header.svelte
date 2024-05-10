@@ -6,7 +6,8 @@
 	import HerocraftWordmark from '$lib/images/herocraft.svelte'
 
 	export let showSearch: boolean
-	$: deckForm = $page.data.deckForm
+	$: ({deckForm, session} = $page.data)
+	// $: deckForm = $page.data.deckForm
 	let search: string = ''
 </script>
 
@@ -29,7 +30,7 @@
 				</form>
 			</div>
 		{/if}
-		{#if ($page.data.user)}
+		{#if (session && session.isAuthenticated)}
 			<div>
 				<ul>
 					<li>
@@ -44,7 +45,7 @@
 			</div>
 		{/if}
 		<div>
-			{#if (!$page.data.user)}
+			{#if (!session || !session.isAuthenticated)}
 				<ul>
 					<li>
 						<a href="/account/signin">Sign In</a>
