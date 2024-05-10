@@ -157,15 +157,17 @@ class DeckService(
         return@dbQuery deck
     }
 
-    suspend fun updateSettings(deckId: UUID, settings: DeckSettings) = dbQuery {
+    suspend fun updateSettings(userId: UUID, deckId: UUID, settings: DeckSettings) = dbQuery {
         val now = Clock.System.now()
 
         val updatedDeck = Deck
-            .updateReturning( where = { Deck.id eq deckId.toJavaUUID()}) {
-            it[name] = settings.name
-            it[visibility] = settings.visibility
-            it[format] = settings.format
-            it[lastModified] = now
+            .updateReturning(
+                where = { Deck.id eq deckId.toJavaUUID() and (Deck.owner eq userId.toJavaUUID()) }
+            ) {
+                it[name] = settings.name
+                it[visibility] = settings.visibility
+                it[format] = settings.format
+                it[lastModified] = now
             }
             .map { Deck.fromResultRow(it) }
             .first()
