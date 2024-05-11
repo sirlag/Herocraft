@@ -1,5 +1,5 @@
 <script>
-	import "../../app.css";
+	import '../../app.css';
 	import Header from '../Header.svelte';
 	import Footer from '../footer.svelte';
 </script>
@@ -15,11 +15,11 @@
 </div>
 
 <style lang="postcss">
-    :root {
-        --global-header-height: 3rem;
-    }
+	:root {
+		--global-header-height: 3rem;
+	}
 
-		main {
-        min-height: calc(100vh - var(--global-header-height));
-    }
+	main {
+		min-height: calc(100vh - var(--global-header-height));
+	}
 </style>

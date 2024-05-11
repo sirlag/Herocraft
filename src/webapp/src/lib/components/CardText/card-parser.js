@@ -1,4 +1,4 @@
-export { Lexer } from './CardMarked/marked'
+export { Lexer } from './CardMarked/marked';
 
 import {
 	Heading,
@@ -21,8 +21,8 @@ import {
 	Html,
 	Blockquote,
 	Code,
-	Br,
-} from './renderers'
+	Br
+} from './renderers';
 
 export const defaultRenderers = {
 	heading: Heading,
@@ -47,5 +47,5 @@ export const defaultRenderers = {
 	html: Html,
 	blockquote: Blockquote,
 	code: Code,
-	br: Br,
-}
+	br: Br
+};

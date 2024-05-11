@@ -13,47 +13,44 @@ declare global {
 }
 
 type UserSession = {
-	isAuthenticated: Boolean,
-	session: String
-}
+	isAuthenticated: Boolean;
+	session: String | undefined;
+};
 
 enum DeckVisibility {
-	Public = "PUBLIC",
-	Unlisted = "UNLISTED",
-	Private = "PRIVATE"
+	Public = 'PUBLIC',
+	Unlisted = 'UNLISTED',
+	Private = 'PRIVATE'
 }
 
 enum DeckFormat {
-	Constructed = "CONSTRUCTED",
-	Paragon = "PARAGON",
-	Other = "OTHER"
+	Constructed = 'CONSTRUCTED',
+	Paragon = 'PARAGON',
+	Other = 'OTHER'
 }
 
 type DeckEntry = {
-	count: number,
-	card: IvionCard
-}
+	count: number;
+	card: IvionCard;
+};
 
 type Deck = {
-	id: string,
-	hash: string,
-	name: string,
-	list: DeckEntry[],
-	owner: string,
-	ownerName: string,
-	visibility: DeckVisibility,
-	format: DeckFormat
-}
+	id: string;
+	hash: string;
+	name: string;
+	list: DeckEntry[];
+	primarySpec: string;
+	owner: string;
+	ownerName: string;
+	visibility: DeckVisibility;
+	format: DeckFormat;
+	lastModified: Date;
+};
 
 type C2Array = {
-	c2Array: boolean
-	size: number[]
-	data: any[][][]
-}
-
-export {
-	C2Array,
-	Deck,
-	DeckEntry,
-	UserSession,
+	c2Array: boolean;
+	size: number[];
+	data: any[][][];
 };
+
+export { C2Array, Deck, DeckEntry, UserSession };

@@ -89,11 +89,11 @@ class CardService(private val database: Database) {
                 }
             }
             else {
-                queryTerms[SearchOps.NORMAL] += str
+                queryTerms[SearchOps.NORMAL] += "$str "
             }
         }
 
-        var query = Card.name ilike "%${queryTerms[SearchOps.NORMAL]}%";
+        var query = Card.name ilike "%${queryTerms[SearchOps.NORMAL]?.trim()}%";
         if (queryTerms.contains(SearchOps.TYPE)) {
             query = query and (Card.type ilike "%${queryTerms[SearchOps.TYPE]}%")
         }

@@ -1,24 +1,25 @@
 <script lang="ts">
-	import * as Dialog from "$lib/components/ui/dialog"
+	import * as Dialog from '$lib/components/ui/dialog';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import NewDeckForm from '$lib/components/NewDeck/NewDeckForm.svelte';
 
 	export let form;
 
-	let open = false
+	let open = false;
 
 	const handleSubmit = () => {
-		open = false
-	}
-
+		open = false;
+	};
 </script>
 
 <Dialog.Root bind:open>
-	<Dialog.Trigger class={buttonVariants({ variant: "header", size: "header"})}><slot/></Dialog.Trigger>
+	<Dialog.Trigger class={buttonVariants({ variant: 'header', size: 'header' })}
+		><slot /></Dialog.Trigger
+	>
 	<Dialog.Content>
 		<Dialog.Title>New Deck</Dialog.Title>
 
-		<NewDeckForm data={form} handleSubmit={handleSubmit} />
+		<NewDeckForm data={form} {handleSubmit} />
 
 		<Dialog.Footer>
 			<Button form="deckForm" type="submit">Create</Button>

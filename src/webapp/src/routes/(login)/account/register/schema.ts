@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const formSchema = z.object({
 	username: z.string(),
@@ -6,6 +6,6 @@ export const formSchema = z.object({
 	password: z.string(),
 	confirmPassword: z.string(),
 	agree: z.boolean()
-})
+});
 
 export type FormSchema = typeof formSchema;

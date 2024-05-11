@@ -18,76 +18,76 @@
 	export let icon: string;
 
 	class ImageSpec {
-		image: {} = "";
-		alt: string = ""
+		image: {} = '';
+		alt: string = '';
 	}
 
-	let ImageMap:Record<string, ImageSpec> = {
-		"a": {
+	let ImageMap: Record<string, ImageSpec> = {
+		a: {
 			image: action,
-			alt: "action"
+			alt: 'action'
 		},
-		"charge": {
+		charge: {
 			image: charge,
-			alt: "charge"
+			alt: 'charge'
 		},
-		"c": {
+		c: {
 			image: chivalrous,
-			alt: "chivalrous"
+			alt: 'chivalrous'
 		},
-		"d" : {
+		d: {
 			image: disarm,
-			alt: "disarm"
+			alt: 'disarm'
 		},
-		"dt": {
+		dt: {
 			image: difficultTerrain,
-			alt: "difficult terrain"
+			alt: 'difficult terrain'
 		},
-		"du": {
+		du: {
 			image: duration,
-			alt: "duration"
+			alt: 'duration'
 		},
-		"et": {
+		et: {
 			image: enchantedTerrain,
-			alt: "enchanted terrain"
+			alt: 'enchanted terrain'
 		},
-		"i" : {
+		i: {
 			image: silence,
-			alt: "silence"
+			alt: 'silence'
 		},
-		"lu": {
+		lu: {
 			image: luck,
-			alt: "luck"
+			alt: 'luck'
 		},
-		"mi": {
+		mi: {
 			image: mitigate,
-			alt: "mitigation"
+			alt: 'mitigation'
 		},
-		"n": {
+		n: {
 			image: initiative,
-			alt: "initiative"
+			alt: 'initiative'
 		},
-		"o": {
+		o: {
 			image: slow,
-			alt: "slow"
+			alt: 'slow'
 		},
-		"p": {
+		p: {
 			image: power,
-			alt: "power"
+			alt: 'power'
 		},
-		"pi": {
+		pi: {
 			image: poison,
-			alt: "posion"
+			alt: 'posion'
 		},
-		"t": {
+		t: {
 			image: trap,
-			alt: "trap"
+			alt: 'trap'
 		}
-	}
+	};
 </script>
 
 {#if ImageMap.hasOwnProperty(icon)}
-	<img class="w-4 inline-block" src={ImageMap[icon].image} alt={ImageMap[icon].alt}/>
+	<img class="w-4 inline-block" src={ImageMap[icon].image} alt={ImageMap[icon].alt} />
 {:else}
 	"UNKNOWN IMAGE TAG - "{icon}"
 {/if}

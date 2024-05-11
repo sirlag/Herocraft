@@ -22,4 +22,4 @@ type IvionCard = {
 	colorPip2: string | null;
 	season: string;
 	type: string | null;
-}
+};

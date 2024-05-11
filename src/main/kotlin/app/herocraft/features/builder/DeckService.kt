@@ -28,6 +28,7 @@ class DeckService(
         val id = uuid("id")
         val hash = text("hash")
         val name = text("name")
+        val primarySpec = text("primary_spec").nullable()
         val owner = uuid("owner") //Make this a foreign key constraint
         val visibility = enumeration("visibility", DeckVisibility::class)
         val format = enumeration("format", DeckFormat::class)
@@ -71,7 +72,13 @@ class DeckService(
         )
     }
 
-    suspend fun createDeck(userId: UUID, name: String, format: DeckFormat, visibility: DeckVisibility): CreateDeckResponse {
+    suspend fun createDeck(
+        userId: UUID,
+        name: String,
+        format: DeckFormat,
+        visibility: DeckVisibility,
+        spec: String? = null
+    ): CreateDeckResponse {
 
         val id = UUID.generateUUID(Random)
         val hash = id.encodeToByteArray().encodeBase64()
@@ -87,6 +94,7 @@ class DeckService(
                 it[Deck.id] = id.toJavaUUID()
                 it[Deck.hash] = hash
                 it[Deck.name] = name
+                it[primarySpec] = spec
                 it[owner] = userId.toJavaUUID()
                 it[Deck.visibility] = visibility
                 it[Deck.format] = format
@@ -102,7 +110,12 @@ class DeckService(
 
         val newDeckIds = mutableListOf<CreateDeckResponse>()
         for (deck: DeckImportRequestDeck in deckImportRequest.decks) {
-            val deckIds = createDeck(userId, deck.name, DeckFormat.CONSTRUCTED, deckImportRequest.defaultVisibility)
+            val deckIds = createDeck(
+                userId,
+                deck.name,
+                DeckFormat.CONSTRUCTED,
+                deckImportRequest.defaultVisibility,
+                deck.specialization)
             dbQuery {
                 for (card: DeckImportRequestCard in deck.list) {
                     DeckListService.DeckEntry.insert {
@@ -185,6 +198,7 @@ class DeckService(
             result[hash],
             result[name],
             mutableListOf(),
+            result[primarySpec],
             result[owner].toKotlinUUID(),
             result[visibility],
             result[format],

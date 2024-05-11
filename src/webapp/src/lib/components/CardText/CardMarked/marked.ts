@@ -5,11 +5,7 @@ import { _Renderer } from './Renderer.ts';
 import { _TextRenderer } from './TextRenderer.ts';
 import { _Hooks } from './Hooks.ts';
 import { Marked } from './Instance.ts';
-import {
-  _getDefaults,
-  changeDefaults,
-  _defaults
-} from './defaults.ts';
+import { _getDefaults, changeDefaults, _defaults } from './defaults.ts';
 import type { MarkedExtension, MarkedOptions } from './MarkedOptions.ts';
 import type { Token, TokensList } from './Tokens.ts';
 import type { MaybePromise } from './Instance.ts';
@@ -34,7 +30,7 @@ export function marked(src: string, options: MarkedOptions & { async: true }): P
  */
 export function marked(src: string, options?: MarkedOptions): string | Promise<string>;
 export function marked(src: string, opt?: MarkedOptions): string | Promise<string> {
-  return markedInstance.parse(src, opt);
+	return markedInstance.parse(src, opt);
 }
 
 /**
@@ -42,12 +38,11 @@ export function marked(src: string, opt?: MarkedOptions): string | Promise<strin
  *
  * @param options Hash of options
  */
-marked.options =
-marked.setOptions = function(options: MarkedOptions) {
-  markedInstance.setOptions(options);
-  marked.defaults = markedInstance.defaults;
-  changeDefaults(marked.defaults);
-  return marked;
+marked.options = marked.setOptions = function (options: MarkedOptions) {
+	markedInstance.setOptions(options);
+	marked.defaults = markedInstance.defaults;
+	changeDefaults(marked.defaults);
+	return marked;
 };
 
 /**
@@ -61,19 +56,22 @@ marked.defaults = _defaults;
  * Use Extension
  */
 
-marked.use = function(...args: MarkedExtension[]) {
-  markedInstance.use(...args);
-  marked.defaults = markedInstance.defaults;
-  changeDefaults(marked.defaults);
-  return marked;
+marked.use = function (...args: MarkedExtension[]) {
+	markedInstance.use(...args);
+	marked.defaults = markedInstance.defaults;
+	changeDefaults(marked.defaults);
+	return marked;
 };
 
 /**
  * Run callback for every token
  */
 
-marked.walkTokens = function(tokens: Token[] | TokensList, callback: (token: Token) => MaybePromise | MaybePromise[]) {
-  return markedInstance.walkTokens(tokens, callback);
+marked.walkTokens = function (
+	tokens: Token[] | TokensList,
+	callback: (token: Token) => MaybePromise | MaybePromise[]
+) {
+	return markedInstance.walkTokens(tokens, callback);
 };
 
 /**

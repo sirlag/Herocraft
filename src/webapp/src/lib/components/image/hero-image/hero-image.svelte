@@ -20,60 +20,82 @@
 	import Archmage from '$lib/images/specs/Archmage.png';
 	import Avatar from '$lib/images/specs/Avatar.png';
 	import Baron from '$lib/images/specs/Baron.png';
-	import Confuse from '$lib/images/specs/Confuse.png';
+	import Illusionist from '$lib/images/specs/Illusionist.png';
 	import Curseblade from '$lib/images/specs/Curseblade.png';
 	import EbonMage from '$lib/images/specs/Ebon Mage.png';
 
 	export let spec;
 
-	let getImage =(spec: string) => {
-		switch(spec) {
-			case "Enchantress": return Enchantress
-			case "Errant": return Errant
-			case "Executioner": return Executioner
-			case "Fletcher": return Fletcher
-			case "Friar": return Friar
-			case "Huntsman": return Huntsman
-			case "Incarnate": return Incarnate
-			case "Invoker": return Invoker
-			case "Jarl": return Jarl
-			case "Poacher": return Poacher
-			case "Ruffian": return Ruffian
-			case "Saint": return Saint
-			case "Steward": return Steward
-			case "Survivalist": return Survivalist
-			case "Watcher": return Watcher
-			case "Wilder": return Wilder
-			case "Winterborn": return Winterborn
-			case "Ancient": return Ancient
-			case "Archmage": return Archmage
-			case "Avatar": return Avatar
-			case "Baron": return Baron
-			case "Confuse": return Confuse
-			case "Curseblade": return Curseblade
-			case "Ebon Mage": return EbonMage
-			default: return undefined
+	let getImage = (spec: string) => {
+		switch (spec) {
+			case 'Enchantress':
+				return Enchantress;
+			case 'Errant':
+				return Errant;
+			case 'Executioner':
+				return Executioner;
+			case 'Fletcher':
+				return Fletcher;
+			case 'Friar':
+				return Friar;
+			case 'Huntsman':
+				return Huntsman;
+			case 'Incarnate':
+				return Incarnate;
+			case 'Invoker':
+				return Invoker;
+			case 'Jarl':
+				return Jarl;
+			case 'Poacher':
+				return Poacher;
+			case 'Ruffian':
+				return Ruffian;
+			case 'Saint':
+				return Saint;
+			case 'Steward':
+				return Steward;
+			case 'Survivalist':
+				return Survivalist;
+			case 'Watcher':
+				return Watcher;
+			case 'Wilder':
+				return Wilder;
+			case 'Winterborn':
+				return Winterborn;
+			case 'Ancient':
+				return Ancient;
+			case 'Archmage':
+				return Archmage;
+			case 'Avatar':
+				return Avatar;
+			case 'Baron':
+				return Baron;
+			case 'Illusionist':
+				return Illusionist;
+			case 'Curseblade':
+				return Curseblade;
+			case 'Ebon Mage':
+				return EbonMage;
+			default:
+				return undefined;
 		}
-	}
+	};
 
 	let src = getImage(spec)!!;
-
-
 </script>
 
 <!--{#if src}-->
-	<img class="min-w-full min-h-full masked" {src} alt="{spec}"/>
+<img class="min-w-full min-h-full masked" {src} alt={spec} />
+
 <!--{/if}-->
 
 <style lang="postcss">
-
 	.masked {
-			mask-image: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgb(0, 0, 0) 100%);
-			overflow-x: clip;
-			overflow-y: clip;
-			overflow-clip-margin: content-box;
-			object-fit: cover;
-			object-position: 0% 0%;
+		mask-image: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgb(0, 0, 0) 100%);
+		overflow-x: clip;
+		overflow-y: clip;
+		overflow-clip-margin: content-box;
+		object-fit: cover;
+		object-position: 0% 0%;
 	}
-
 </style>

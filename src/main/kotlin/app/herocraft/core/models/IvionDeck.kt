@@ -10,6 +10,7 @@ data class IvionDeck(
     val hash: String,
     val name: String,
     val list: MutableList<IvionDeckEntry>,
+    val primarySpec: String?,
     val owner: UUID,
     val visibility: DeckVisibility,
     val format: DeckFormat,

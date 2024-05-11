@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { createRender, createTable, Render, Subscribe } from 'svelte-headless-table';
 	import { readable, writable } from 'svelte/store';
-	import * as Table from "$lib/components/ui/table"
-	import DataTableActions from "./data-table-actions.svelte"
+	import * as Table from '$lib/components/ui/table';
+	import DataTableActions from './data-table-actions.svelte';
 
-	import LinkCell from "$lib/components/data-table/link-cell.svelte"
+	import LinkCell from '$lib/components/data-table/link-cell.svelte';
 	import assert from 'node:assert';
 	import Time from 'svelte-time';
 
@@ -13,24 +13,23 @@
 		hash: string;
 		name: string;
 		format: string;
-		lastModified: Date
+		lastModified: Date;
 	};
 
 	type DeckEntry = {
 		display: {
 			name: string;
 			hash: string;
-		}
+		};
 		format: string;
 		lastModified: Date;
 		id: string;
-	}
+	};
 
-	export let decks: Deck[]
-	let relativeFormat = new Intl.RelativeTimeFormat("en-US", { style: 'short'})
+	export let decks: Deck[];
+	let relativeFormat = new Intl.RelativeTimeFormat('en-US', { style: 'short' });
 
-
-	let mappedDecks  = decks.map((it) =>{
+	let mappedDecks = decks.map((it) => {
 		return {
 			display: {
 				name: it.name,
@@ -38,47 +37,47 @@
 			},
 			format: it.format,
 			lastModified: it.lastModified,
-			id: it.id,
-		}
-	})
+			id: it.id
+		};
+	});
 
-	let table = createTable(writable(mappedDecks))
+	let table = createTable(writable(mappedDecks));
 	let columns = table.createColumns([
 		table.column({
-			accessor: "display",
-			header: "Name",
-			cell: ({value}) => {
+			accessor: 'display',
+			header: 'Name',
+			cell: ({ value }) => {
 				return createRender(LinkCell, {
 					text: value.name,
 					link: `/deck/${value.hash}`
-				})
+				});
 			}
 		}),
 		table.column({
-			accessor: "format",
-			header: "Format",
+			accessor: 'format',
+			header: 'Format'
 		}),
 		table.column({
-			accessor: "lastModified",
-			header: "Last Updated",
-			cell: ({value}) => {
+			accessor: 'lastModified',
+			header: 'Last Updated',
+			cell: ({ value }) => {
 				return createRender(Time, {
 					timestamp: value,
-					relative: true,
-				})
+					relative: true
+				});
 				// return relativeFormat.format(value)
 			}
 		}),
 		table.column({
-			accessor: "id",
-			header: "",
-			cell: ({value}) => {
-				return createRender(DataTableActions, { id: value })
+			accessor: 'id',
+			header: '',
+			cell: ({ value }) => {
+				return createRender(DataTableActions, { id: value });
 			}
 		})
 	]);
 
-	const { headerRows, pageRows, tableAttrs, tableBodyAttrs } = table.createViewModel(columns)
+	const { headerRows, pageRows, tableAttrs, tableBodyAttrs } = table.createViewModel(columns);
 </script>
 
 <div class="rounded border">

@@ -1,5 +1,5 @@
 <script>
-	let year = new Date().getFullYear()
+	let year = new Date().getFullYear();
 </script>
 
 <footer class="bg-neutral-900">
@@ -17,7 +17,8 @@
 				<h6 class="border-b font-thin">Account</h6>
 				<ul>
 					<li>
-						<a href="/">Your Account</a> <!-- TODO: Replace this with settings link -->
+						<a href="/">Your Account</a>
+						<!-- TODO: Replace this with settings link -->
 					</li>
 					<li>
 						<a href="/account/register">Register</a>
@@ -43,11 +44,11 @@
 			</div>
 		</div>
 		<div class="container text-sm text-neutral-700">
+			<p class="pb-2">Ivion and the Herocrafting system are trademarks of Luminary Games LLC</p>
 			<p class="pb-2">
-				Ivion and the Herocrafting system are trademarks of Luminary Games LLC
-			</p>
-			<p class="pb-2">
-				Literal and graphical information presented on this site about Ivion, including card images and iconography, is copyright Luminary Games LLC. Herocraft is not affiliated with, endorsed, sponsored, or approved by Luminary Games LLC.
+				Literal and graphical information presented on this site about Ivion, including card images
+				and iconography, is copyright Luminary Games LLC. Herocraft is not affiliated with,
+				endorsed, sponsored, or approved by Luminary Games LLC.
 			</p>
 			<p>
 				All other content © {year} Herocraft
@@ -57,17 +58,17 @@
 </footer>
 
 <style lang="postcss">
-    footer {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 12px;
-    }
+	footer {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		padding: 12px;
+	}
 
-    @media (min-width: 480px) {
-        footer {
-            padding: 12px 0;
-        }
-    }
+	@media (min-width: 480px) {
+		footer {
+			padding: 12px 0;
+		}
+	}
 </style>

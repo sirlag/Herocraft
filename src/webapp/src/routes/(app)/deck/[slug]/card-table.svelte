@@ -1,38 +1,36 @@
 <script lang="ts">
 	import { createRender, createTable, Render, Subscribe } from 'svelte-headless-table';
 	import { readable } from 'svelte/store';
-	import * as Table from '$lib/components/ui/table'
+	import * as Table from '$lib/components/ui/table';
 	import type { DeckEntry } from '../../../../app';
 
-	import LinkCell from "$lib/components/data-table/link-cell.svelte"
+	import LinkCell from '$lib/components/data-table/link-cell.svelte';
 
+	export let cards: DeckEntry[];
+	export let category: string;
+	export let mouseOver: (link: IvionCard) => () => void;
 
-	export let cards: DeckEntry[]
-	export let category: string
-	export let mouseOver: (link: DeckEntry) => (() => void)
+	$: totalCards = cards.map((it) => it.count).reduce((acc, it) => acc + it, 0);
 
-	$: totalCards = cards.map((it) => it.count).reduce((acc, it) => acc + it, 0)
-
-	const table = createTable(readable(cards))
+	const table = createTable(readable(cards));
 	const columns = table.createColumns([
 		table.column({
 			accessor: 'count',
-			header: '',
+			header: ''
 		}),
 		table.column({
 			accessor: 'card',
 			header: category,
-			cell: ({value}) => {
+			cell: ({ value }) => {
 				return createRender(LinkCell, {
 					text: value.name,
 					link: `/card/${value.id}`
-				})
+				});
 			}
 		})
 	]);
 
-	const { headerRows, pageRows, tableAttrs, tableBodyAttrs } = table.createViewModel(columns)
-
+	const { headerRows, pageRows, tableAttrs, tableBodyAttrs } = table.createViewModel(columns);
 </script>
 
 <div class="rounded">

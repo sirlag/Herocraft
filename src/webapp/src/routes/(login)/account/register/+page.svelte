@@ -1,8 +1,8 @@
 <script lang="ts">
-	import RegisterForm from './register-form.svelte'
+	import RegisterForm from './register-form.svelte';
 
-	import type { PageData } from "./$types"
-	export let data: PageData
+	import type { PageData } from './$types';
+	export let data: PageData;
 </script>
 
 <div class="flex flex-col h-full">

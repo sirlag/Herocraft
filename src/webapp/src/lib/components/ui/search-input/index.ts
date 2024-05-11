@@ -1,4 +1,4 @@
-import Root from "./search-input.svelte";
+import Root from './search-input.svelte';
 
 export type FormInputEvent<T extends Event = Event> = T & {
 	currentTarget: EventTarget & HTMLInputElement;
@@ -24,5 +24,5 @@ export type InputEvents = {
 export {
 	Root,
 	//
-	Root as SearchInput,
+	Root as SearchInput
 };

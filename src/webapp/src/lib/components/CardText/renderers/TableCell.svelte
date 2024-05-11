@@ -1,10 +1,10 @@
 <script>
-  export let header
-  export let align
+	export let header;
+	export let align;
 </script>
 
 {#if header}
-  <th {align}><slot></slot></th>
+	<th {align}><slot></slot></th>
 {:else}
-  <td {align}><slot></slot></td>
+	<td {align}><slot></slot></td>
 {/if}

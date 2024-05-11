@@ -1,61 +1,60 @@
-import type { PageServerLoad, Actions } from './$types'
+import type { PageServerLoad, Actions } from './$types';
 import { PUBLIC_API_BASE_URL } from '$env/static/public';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { BulkImportSchema } from '$lib/components/bulk-import';
 import { fail, redirect } from '@sveltejs/kit';
 
-export const load: PageServerLoad = async ({request, locals}) => {
-	let bulkImportForm = await superValidate(zod(BulkImportSchema))
+export const load: PageServerLoad = async ({ request, locals }) => {
+	let bulkImportForm = await superValidate(zod(BulkImportSchema));
 
-	console.log(locals)
+	console.log(locals);
 
 	if (!locals.user?.isAuthenticated) {
-		redirect(302, `/account/signin?redirect=/decks/personal`)
+		redirect(302, `/account/signin?redirect=/decks/personal`);
 	}
 
-	let decksResponse = await fetch(PUBLIC_API_BASE_URL+`/decks/personal`, {
+	let decksResponse = await fetch(PUBLIC_API_BASE_URL + `/decks/personal`, {
 		method: 'GET',
 		headers: {
-			"cookie": request.headers.get("cookie")!!
+			cookie: request.headers.get('cookie')!!
 		}
-	})
+	});
 
-	let decks = await decksResponse.json()
+	let decks = await decksResponse.json();
 
-	console.log(decks)
+	// console.log(decks)
+
+	// let decks= []
 
 	return {
 		decks,
 		bulkImportForm
-	}
-}
+	};
+};
 
 export const actions: Actions = {
-
 	delete: async ({ request, fetch, params }) => {
-
 		let formData = await request.formData();
 
-		let id = formData.get("id")
+		let id = formData.get('id');
 
 		let createResponse = await fetch(`${PUBLIC_API_BASE_URL}/decks/${id}`, {
 			method: 'DELETE',
 			headers: {
-				'Cookie': request.headers.get("Cookie")!!,
-			},
-		})
+				Cookie: request.headers.get('Cookie')!!
+			}
+		});
 
 		if (!createResponse.ok) {
-			console.log("Unable to delete deck")
+			console.log('Unable to delete deck');
 			return fail(createResponse.status, {
 				formData
-			})
+			});
 		}
 
-		let responseData = await createResponse.json()
+		let responseData = await createResponse.json();
 
-		redirect(303, "/decks/personal")
-
+		redirect(303, '/decks/personal');
 	}
-} satisfies Actions
+} satisfies Actions;
