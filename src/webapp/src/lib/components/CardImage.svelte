@@ -3,7 +3,7 @@
 	import { Repeat } from 'lucide-svelte';
 
 	export let card: IvionCard;
-	export let href;
+	export let href: string | undefined = undefined;
 
 	let front = true;
 

@@ -39,3 +39,9 @@ data class DeckImportRequestCard (
     val uuid: UUID,
     val count: Int
 )
+
+@Serializable
+data class DeckEditRequest(
+    val cardId: UUID,
+    val count: Int
+)

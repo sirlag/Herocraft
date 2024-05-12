@@ -5,9 +5,9 @@
 
 	let search: string;
 
-	let navigate = () => {
-		goto(`/cards?q=${search}`);
-	};
+	// let navigate = () => {
+	// 	goto(`/cards?q=${search}`);
+	// };
 </script>
 
 <svelte:head>

@@ -25,7 +25,9 @@ fun Application.module() {
     registerBuilder(services.deckService)
     configureRouting()
     install(CORS) {
-        anyHost()
+        allowHost("localhost:5173")
+        allowHost("herocraft.app")
+        allowCredentials = true
         allowHeader(HttpHeaders.ContentType)
         allowMethod(HttpMethod.Delete)
         allowMethod(HttpMethod.Put)

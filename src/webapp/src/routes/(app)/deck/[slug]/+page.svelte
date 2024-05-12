@@ -39,6 +39,7 @@
 
 	$: iterableCards = getKeys(collatedCards);
 	$: traits = iterableCards.find((it) => it.key === 'Trait');
+	$: traitSlots = traits ? 3 - traits.deckEntries.length : 0
 
 	const getFirstCard = (cards: DeckEntry[]) => {
 		let sorted = cards.toSorted((a, b) => a.card.name.localeCompare(b.card.name));
@@ -50,6 +51,8 @@
 		firstCard = card;
 	};
 	$: firstCard = getFirstCard(deckList.list);
+
+	let search = ""
 </script>
 
 <LongHeader {deckList} />
@@ -61,7 +64,9 @@
 				<a href="/deck/{data.slug}/settings">Settings</a>
 			</div>
 			<div class="pb-3">
-				<SearchInput />
+				<form method="GET" action="/deck/{data.slug}/search">
+					<SearchInput name="q" bind:value={search}/>
+				</form>
 			</div>
 		{/if}
 	</div>
@@ -77,6 +82,11 @@
 							<CardImage card={entry.card} />
 						</div>
 					{/each}
+				{/if}
+				{#if (traitSlots > 0)}
+					<div class="w-56 rounded-lg bg-neutral-300">
+						ADD A NEW TRAIT
+					</div>
 				{/if}
 			</div>
 		{/if}

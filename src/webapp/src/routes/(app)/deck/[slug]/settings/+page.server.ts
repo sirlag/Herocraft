@@ -1,4 +1,4 @@
-import type { Actions } from '../../../../../../../.svelte-kit/types/src/routes/(app)/decks/personal/$types';
+import type { Actions } from '../../../../../../.svelte-kit/types/src/routes/(app)/decks/personal/$types';
 import { PUBLIC_API_BASE_URL } from '$env/static/public';
 import { fail, redirect } from '@sveltejs/kit';
 import { DeckSettingsForm } from '$lib/components/deck-settings';

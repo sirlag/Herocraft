@@ -14,7 +14,7 @@ fun Application.registerBuilder(deckService: DeckService) {
 
         get("/deck/{id}") {
             val id = call.parameters["id"] ?: return@get call.respond(HttpStatusCode.BadRequest)
-            val deckList = deckService.getDeck(id)
+            val deckList = deckService.getDeckList(id)
             call.respond(deckList)
         }
 
@@ -84,6 +84,20 @@ fun Application.registerBuilder(deckService: DeckService) {
 
                 deckService.deleteDeck(session.id.toUUID(), deckId)
                 call.respond(hashMapOf("deleted" to deckId))
+            }
+
+            post ("/decks/{id}/edit") {
+                val session = call.authentication.principal<UserSession>()
+                if (session == null) {
+                    call.respondRedirect("/login")
+                    return@post
+                }
+
+                val deckId = call.parameters["id"]?: return@post call.respond(HttpStatusCode.BadRequest)
+
+                val editRequest = call.receive<DeckEditRequest>()
+                deckService.editDeck(session.id.toUUID(), deckId, editRequest.cardId, editRequest.count)
+                call.respond(editRequest)
             }
         }
     }

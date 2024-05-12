@@ -7,10 +7,8 @@ import app.herocraft.features.search.CardService.Card
 import kotlinx.uuid.UUID
 import kotlinx.uuid.toJavaUUID
 import kotlinx.uuid.toKotlinUUID
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.JoinType
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 
 
 class DeckListService(database: Database) : DataService(database) {
@@ -59,6 +57,30 @@ class DeckListService(database: Database) : DataService(database) {
             .toList()
 
     }
+
+    suspend fun editDeck(userId: UUID, deckHash: String, cardId: UUID, count: Int) = dbQuery {
+        val deck = DeckService.Deck.select(DeckService.Deck.id)
+            .where{ DeckService.Deck.owner eq userId.toJavaUUID() and (DeckService.Deck.hash eq deckHash)}
+            .limit(1)
+            .map { it[DeckEntry.deckId] }
+            .firstOrNull()
+
+        if (deck == null) {
+            return@dbQuery
+        }
+
+        if (count > 0) {
+            DeckEntry.upsert {
+                it[deckId] = deck
+                it[DeckEntry.cardId] = cardId.toJavaUUID()
+                it[DeckEntry.count] = count
+            }
+        } else {
+            DeckEntry.deleteWhere(limit = 1) { deckId eq deck and (DeckEntry.cardId eq cardId.toJavaUUID())}
+        }
+
+    }
+
 
     private fun ResultRow.toIvionDeckEntry() : IvionDeckEntry =
         IvionDeckEntry(

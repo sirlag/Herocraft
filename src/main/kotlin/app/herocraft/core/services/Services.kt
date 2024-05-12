@@ -27,7 +27,7 @@ class Services(app: Application) {
         cardService = CardService(database)
         deckListService = DeckListService(database)
         userService = UserService(database)
-        deckService = DeckService(database, deckListService, userService)
+        deckService = DeckService(database, userService)
     }
 }
 

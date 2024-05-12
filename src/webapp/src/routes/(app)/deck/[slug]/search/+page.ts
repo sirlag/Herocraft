@@ -1,8 +1,8 @@
 import type { PageLoad } from './$types';
 import { PUBLIC_API_BASE_URL } from '$env/static/public';
-import { redirect } from '@sveltejs/kit';
+import type { DeckEntry } from '../../../../../app';
 
-export const load: PageLoad = async ({ fetch, url }) => {
+export const load: PageLoad = async ({ fetch, url, parent }) => {
 	let offset = Number(url.searchParams.get('page'));
 	let query = url.searchParams.get('q');
 
@@ -15,8 +15,6 @@ export const load: PageLoad = async ({ fetch, url }) => {
 	const jsonRes = await res.json();
 
 	const cards = jsonRes.items;
-	jsonRes.items = null;
-	console.log(jsonRes);
 	const page: Page = {
 		itemCount: jsonRes.itemCount,
 		totalItems: jsonRes.totalItems,
@@ -26,9 +24,19 @@ export const load: PageLoad = async ({ fetch, url }) => {
 		hasNext: jsonRes.hasNext
 	};
 
+	let parentData = await parent()
+	let countObj = {}
+
+	parentData.deckList.list.forEach((it: DeckEntry) => {
+		// @ts-ignore
+		countObj[it.card.id] = it.count
+	})
+
 
 	return {
+		...parentData,
 		cards,
+		countObj,
 		page,
 		query
 	};

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { HeroImage } from '$lib/components/image/hero-image';
-	import ShortHeader from '../../short-header.svelte';
-	import type { PageData } from '../../../../../../../.svelte-kit/types/src/routes';
+	import ShortHeader from '../short-header.svelte';
+	import type { PageData } from './$types';
 	import { DeckSettingsForm } from '$lib/components/deck-settings';
 	import { Button } from '$lib/components/ui/button';
 	import { enhance } from '$app/forms';

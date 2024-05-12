@@ -4,10 +4,9 @@ import app.herocraft.core.extensions.DataService
 import app.herocraft.core.models.*
 import app.herocraft.core.security.UserService
 import app.herocraft.features.search.CardService
+import app.herocraft.features.search.CardService.Card
 import io.ktor.util.*
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 import kotlinx.uuid.*
 import org.jetbrains.exposed.sql.*
@@ -21,7 +20,6 @@ data class CreateDeckResponse(val uuid: UUID, val hash: String)
 
 class DeckService(
     database: Database,
-    private val deckListService: DeckListService,
     private val userService: UserService
 ): DataService(database) {
     object Deck : Table() {
@@ -37,6 +35,22 @@ class DeckService(
 
         override val primaryKey = PrimaryKey(id)
     }
+
+    object DeckEntry : Table() {
+        val deckId = uuid("deck_id")
+        val cardId = uuid("card_id")
+        val count = integer("count")
+
+        override val primaryKey = PrimaryKey(deckId, cardId)
+    }
+
+//    object DeckHistory : Table() {
+//        val id = uuid("deck_history_id")
+//        val deckId = uuid("deck_id")
+//        val cardId = uuid("card_id")
+//        val change = integer("change")
+//        val timestamp = timestamp("timestamp")
+//    }
 
     suspend fun getPaging(size: Int = 60, page: Int = 1) = paged(size, page, { Deck.id.count()}, { Op.TRUE})
 
@@ -157,7 +171,7 @@ class DeckService(
             .toList()
     }
 
-    suspend fun getDeck(deckHash: String): IvionDeck = dbQuery {
+    suspend fun getDeckList(deckHash: String): IvionDeck = dbQuery {
         val deck = Deck
             .selectAll()
             .where { Deck.hash eq (deckHash)}
@@ -165,7 +179,7 @@ class DeckService(
             .first()
         val name = userService.getUsername(deck.owner)
         deck.ownerName = name
-        val deckList = deckListService.getDeck(deck.id)
+        val deckList = getDeckList(deck.id)
         deck.list.addAll(deckList)
         return@dbQuery deck
     }
@@ -205,4 +219,106 @@ class DeckService(
             result[created],
             result[lastModified]
         )
+
+    // DECK ENTRY STUFF
+
+    suspend fun getDeckList(deckId: UUID) = dbQuery {
+        return@dbQuery DeckEntry
+            .join(Card, JoinType.INNER, DeckEntry.cardId, Card.id)
+            .select(
+                DeckEntry.deckId,
+                DeckEntry.cardId,
+                DeckEntry.count,
+                Card.name,
+                Card.format,
+                Card.collectorsNumber,
+                Card.format,
+                Card.name,
+                Card.archetype,
+                Card.actionCost,
+                Card.powerCost,
+                Card.range,
+                Card.health,
+                Card.heroic,
+                Card.slow,
+                Card.silence,
+                Card.disarm,
+                Card.extraType,
+                Card.rulesText,
+                Card.flavorText,
+                Card.artist,
+                Card.ivionUUID,
+                Card.secondUUID,
+                Card.colorPip1,
+                Card.colorPip2,
+                Card.season,
+                Card.type,
+            )
+            .where{ DeckEntry.deckId eq deckId.toJavaUUID() }
+            .map { it.toIvionDeckEntry() }
+            .toList()
+
+    }
+
+    suspend fun editDeck(userId: UUID, deckHash: String, cardId: UUID, count: Int) = dbQuery {
+        val deck = Deck.select(Deck.id)
+            .where{ Deck.owner eq userId.toJavaUUID() and (Deck.hash eq deckHash)}
+            .limit(1)
+            .map { it[Deck.id] }
+            .firstOrNull()
+
+        if (deck == null) {
+            return@dbQuery
+        }
+
+        val now = Clock.System.now()
+
+        if (count > 0) {
+            DeckEntry.upsert {
+                it[deckId] = deck
+                it[DeckEntry.cardId] = cardId.toJavaUUID()
+                it[DeckEntry.count] = count
+            }
+        } else {
+            DeckEntry.deleteWhere { deckId eq deck and (DeckEntry.cardId eq cardId.toJavaUUID())}
+        }
+
+        Deck.update(
+            where = {Deck.id eq deck}
+        ) { it[lastModified] = now }
+
+    }
+
+    private fun ResultRow.toIvionDeckEntry() : IvionDeckEntry =
+        IvionDeckEntry(
+            count = this[DeckEntry.count],
+            card = IvionCard(
+                this[DeckEntry.cardId].toKotlinUUID(),
+                this[Card.collectorsNumber],
+                this[Card.format],
+                this[Card.name],
+                this[Card.archetype],
+                this[Card.actionCost],
+                this[Card.powerCost],
+                this[Card.range],
+                this[Card.health],
+                this[Card.heroic],
+                this[Card.slow],
+                this[Card.silence],
+                this[Card.disarm],
+                this[Card.extraType],
+                this[Card.rulesText],
+                this[Card.flavorText],
+                this[Card.artist],
+                this[Card.ivionUUID].toKotlinUUID(),
+                this[Card.secondUUID]?.toKotlinUUID(),
+                this[Card.colorPip1],
+                this[Card.colorPip2],
+                this[Card.season],
+                this[Card.type]
+            )
+        )
+
+
+
 }
