@@ -7,9 +7,9 @@ val exposed_version: String by project
 val flyway_version: String by project
 
 plugins {
-    kotlin("jvm") version "2.0.0-RC1"
-    id("io.ktor.plugin") version "2.3.10"
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0-RC1"
+    kotlin("jvm") version "2.1.20"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.1.20"
+    id("io.ktor.plugin") version "3.1.2"
 }
 
 group = "app.herocraft"
@@ -61,6 +61,6 @@ dependencies {
 
     implementation("app.softwork:kotlinx-uuid-core:0.0.25")
 
-    testImplementation("io.ktor:ktor-server-tests-jvm")
+    testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }

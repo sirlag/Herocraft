@@ -62,22 +62,25 @@ class CardService(private val database: Database) {
     }
 
     enum class SearchOps() {
-
-        NORMAL,
+        ARCHETYPE,
+        FORMAT,
+        NAME,
         TYPE;
 
         companion object {
             fun parse(string: String): SearchOps =
                 when(string.lowercase(Locale.getDefault())) {
-                    "t", "type" -> SearchOps.TYPE
-                    else -> SearchOps.NORMAL
+                    "t", "type" -> TYPE
+                    "a", "archetype", "c", "class" -> ARCHETYPE
+                    "f", "format" -> FORMAT
+                    else -> NAME
                 }
         }
     }
 
     suspend fun search(searchString: String, size: Int = 60, page: Int = 1): Page<IvionCard> {
 
-        val queryTerms = mutableMapOf(SearchOps.NORMAL to "")
+        val queryTerms = mutableMapOf(SearchOps.NAME to "")
 
 
         for (str: String in searchString.split(" ")) {
@@ -85,18 +88,29 @@ class CardService(private val database: Database) {
                 val tokens = str.split(":")
                 when (SearchOps.parse(tokens[0])) {
                     SearchOps.TYPE -> queryTerms[SearchOps.TYPE] = tokens[1]
+                    SearchOps.ARCHETYPE -> queryTerms[SearchOps.ARCHETYPE] = tokens[1]
+                    SearchOps.FORMAT -> queryTerms[SearchOps.FORMAT] = tokens[1]
                     else -> {}
                 }
             }
             else {
-                queryTerms[SearchOps.NORMAL] += "$str "
+                queryTerms[SearchOps.NAME] += "$str "
             }
         }
 
-        var query = Card.name ilike "%${queryTerms[SearchOps.NORMAL]?.trim()}%";
+        var query = Card.name ilike "%${queryTerms[SearchOps.NAME]?.trim()}%";
         if (queryTerms.contains(SearchOps.TYPE)) {
             query = query and (Card.type ilike "%${queryTerms[SearchOps.TYPE]}%")
         }
+
+        if (queryTerms.contains(SearchOps.ARCHETYPE)) {
+            query = query and (Card.archetype ilike "%${queryTerms[SearchOps.ARCHETYPE]}%")
+        }
+
+        if (queryTerms.contains(SearchOps.FORMAT)) {
+            query = query and (Card.format ilike "%${queryTerms[SearchOps.FORMAT]}%")
+        }
+
 
         return paged(size, page, {Card.id.count()}, {query})
     }
@@ -133,7 +147,8 @@ class CardService(private val database: Database) {
             .selectAll()
             .where(query)
             .orderBy(Card.name, SortOrder.ASC)
-            .limit(size, offset)
+            .limit(size)
+            .offset(offset)
             .map {
                 it.toIvionCard()
             }.toList()

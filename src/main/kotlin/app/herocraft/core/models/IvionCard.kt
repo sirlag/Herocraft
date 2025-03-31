@@ -30,7 +30,9 @@ data class IvionCard(
     val colorPip2: String?,
     val season: String,
     val type: String?
-)
+) {
+    fun isUltimate() = type == "Ultimate"
+}
 
 //sealed class
 //

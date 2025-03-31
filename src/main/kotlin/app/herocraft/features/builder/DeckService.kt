@@ -18,9 +18,13 @@ import kotlin.random.Random
 @Serializable
 data class CreateDeckResponse(val uuid: UUID, val hash: String)
 
+@Serializable
+data class EditDeckResponse(val cardId: UUID, val count: Int, val changeSpec: Boolean, val spec: String?)
+
 class DeckService(
     database: Database,
-    private val userService: UserService
+    private val userService: UserService,
+    private val cardService: CardService
 ): DataService(database) {
     object Deck : Table() {
         val id = uuid("id")
@@ -72,7 +76,8 @@ class DeckService(
             .selectAll()
             .where(query)
             .orderBy(Deck.name, SortOrder.ASC)
-            .limit(size, offset)
+            .limit(size)
+            .offset(offset)
             .map {
                 Deck.fromResultRow(it)
             }.toList()
@@ -132,7 +137,7 @@ class DeckService(
                 deck.specialization)
             dbQuery {
                 for (card: DeckImportRequestCard in deck.list) {
-                    DeckListService.DeckEntry.insert {
+                    DeckEntry.insert {
                         it[deckId] = deckIds.uuid.toJavaUUID()
                         it[cardId] = CardService.Card
                             .select(CardService.Card.id)
@@ -141,7 +146,7 @@ class DeckService(
                     }
                 }
                 for (name: String in deck.traits) {
-                    DeckListService.DeckEntry.insert {
+                    DeckEntry.insert {
                         it[deckId] = deckIds.uuid.toJavaUUID()
                         it[cardId] = CardService.Card
                             .select(CardService.Card.id)
@@ -149,7 +154,7 @@ class DeckService(
                         it[count] = 1
                     }
                 }
-                DeckListService.DeckEntry.insert {
+                DeckEntry.insert {
                     it[deckId] = deckIds.uuid.toJavaUUID()
                     it[cardId] = CardService.Card
                         .select(CardService.Card.id)
@@ -260,33 +265,56 @@ class DeckService(
 
     }
 
-    suspend fun editDeck(userId: UUID, deckHash: String, cardId: UUID, count: Int) = dbQuery {
-        val deck = Deck.select(Deck.id)
+    suspend fun editDeck(userId: UUID, deckHash: String, cardId: UUID, count: Int): EditDeckResponse? = dbQuery {
+        val deck = Deck.selectAll()
             .where{ Deck.owner eq userId.toJavaUUID() and (Deck.hash eq deckHash)}
             .limit(1)
-            .map { it[Deck.id] }
+            .map { Deck.fromResultRow(it) }
             .firstOrNull()
+        val card = cardService.getOne(cardId)
 
-        if (deck == null) {
-            return@dbQuery
+        if (deck == null || card == null) {
+            return@dbQuery null
         }
 
+        val deckUUID = deck.id.toJavaUUID()
         val now = Clock.System.now()
 
         if (count > 0) {
             DeckEntry.upsert {
-                it[deckId] = deck
+                it[deckId] = deckUUID
                 it[DeckEntry.cardId] = cardId.toJavaUUID()
                 it[DeckEntry.count] = count
             }
         } else {
-            DeckEntry.deleteWhere { deckId eq deck and (DeckEntry.cardId eq cardId.toJavaUUID())}
+            DeckEntry.deleteWhere { deckId eq deckUUID and (DeckEntry.cardId eq cardId.toJavaUUID())}
         }
 
-        Deck.update(
-            where = {Deck.id eq deck}
-        ) { it[lastModified] = now }
+//        println((card.toString()))
+//        println
 
+        var changeSpec: Boolean = false
+        var spec: String? = null
+
+        Deck.update(
+            where = {Deck.id eq deckUUID}
+        ) {
+            it[lastModified] = now
+            if (card.isUltimate()) {
+                if (deck.primarySpec == null && count > 0) {
+                    it[primarySpec] = card.archetype
+                    changeSpec = true
+                    spec = card.archetype
+
+                } else if (deck.primarySpec == card.archetype && count <= 0) {
+                    it[primarySpec] = null
+                    changeSpec = true
+                    spec = null;
+                }
+            }
+        }
+
+        return@dbQuery EditDeckResponse(cardId, count, changeSpec, spec)
     }
 
     private fun ResultRow.toIvionDeckEntry() : IvionDeckEntry =

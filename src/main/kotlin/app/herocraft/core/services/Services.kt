@@ -2,7 +2,6 @@ package app.herocraft.core.services
 
 import app.herocraft.core.DatabaseFactory
 import app.herocraft.core.security.UserService
-import app.herocraft.features.builder.DeckListService
 import app.herocraft.features.builder.DeckService
 import app.herocraft.features.search.CardService
 import io.ktor.server.application.*
@@ -13,7 +12,6 @@ class Services(app: Application) {
     private val database: Database
 
     val deckService: DeckService
-    val deckListService: DeckListService
     val cardService: CardService
     val userService: UserService
 
@@ -25,9 +23,8 @@ class Services(app: Application) {
         database = Database.connect(datasource)
 
         cardService = CardService(database)
-        deckListService = DeckListService(database)
         userService = UserService(database)
-        deckService = DeckService(database, userService)
+        deckService = DeckService(database, userService, cardService)
     }
 }
 

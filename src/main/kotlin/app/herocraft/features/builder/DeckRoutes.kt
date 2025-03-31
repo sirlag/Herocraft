@@ -96,8 +96,8 @@ fun Application.registerBuilder(deckService: DeckService) {
                 val deckId = call.parameters["id"]?: return@post call.respond(HttpStatusCode.BadRequest)
 
                 val editRequest = call.receive<DeckEditRequest>()
-                deckService.editDeck(session.id.toUUID(), deckId, editRequest.cardId, editRequest.count)
-                call.respond(editRequest)
+                val response = deckService.editDeck(session.id.toUUID(), deckId, editRequest.cardId, editRequest.count)
+                call.respond(response!!)
             }
         }
     }
