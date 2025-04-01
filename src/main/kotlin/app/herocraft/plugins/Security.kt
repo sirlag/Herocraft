@@ -6,7 +6,7 @@ import io.ktor.server.response.*
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UserSession(val id: String, val email: String)
+data class UserSession(val id: String, val email: String, val verified: Boolean)
 
 fun Application.configureSecurity() {
     authentication {

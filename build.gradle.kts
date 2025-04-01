@@ -61,6 +61,8 @@ dependencies {
 
     implementation("app.softwork:kotlinx-uuid-core:0.0.25")
 
+    implementation("org.apache.commons:commons-email:1.6.0")
+
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }

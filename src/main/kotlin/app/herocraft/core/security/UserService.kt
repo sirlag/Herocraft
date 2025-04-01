@@ -2,14 +2,16 @@ package app.herocraft.core.security
 
 import app.herocraft.core.api.UserRequest
 import app.herocraft.core.models.User
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import kotlinx.coroutines.Dispatchers
+import kotlinx.datetime.Clock
 import kotlinx.uuid.UUID
 import kotlinx.uuid.toJavaUUID
 import kotlinx.uuid.toKotlinUUID
 import org.jetbrains.exposed.crypt.Algorithms
 import org.jetbrains.exposed.crypt.encryptedVarchar
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 class UserService(private val database: Database) {
     object Users : Table() {
@@ -17,6 +19,10 @@ class UserService(private val database: Database) {
         val username = text("username")
         val email = text("email")
         val password = encryptedVarchar("password", 80, Algorithms.AES_256_PBE_GCM("enchantress", "E3FA597D8D9C98E5"))
+        val createdAt = timestamp("created_at")
+        val lastModified = timestamp("last_modified")
+        val verified = bool("verified").default(false)
+        val verifiedAt = timestamp("verified_at").nullable()
 
         override val primaryKey = PrimaryKey(id)
     }
@@ -25,10 +31,15 @@ class UserService(private val database: Database) {
         newSuspendedTransaction(Dispatchers.IO, database) { block() }
 
     suspend fun create(user: UserRequest): UUID = dbQuery {
+        val now = Clock.System.now()
+
         Users.insert {
             it[username] = user.username
             it[email] = user.email
             it[password] = user.password
+            it[createdAt] = now
+            it[lastModified] = now
+            it[verified] = false
         }[Users.id].toKotlinUUID()
     }
 
@@ -45,7 +56,7 @@ class UserService(private val database: Database) {
 
     suspend fun getUser(id: UUID): User?
         = dbQuery {
-            Users.select(Users.id, Users.email, Users.username)
+            Users.select(Users.id, Users.email, Users.username, Users.verified)
                 .where { Users.id eq id.toJavaUUID() }
                 .map { Users.fromResultRow(it) }
                 .firstOrNull()
@@ -89,6 +100,7 @@ class UserService(private val database: Database) {
             result[id].toKotlinUUID(),
             result[username],
             result[email],
+            result[verified],
         )
 
 }

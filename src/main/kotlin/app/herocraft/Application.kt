@@ -17,7 +17,7 @@ fun Application.module() {
     val services = registerServices()
     configureSessions()
     configureSecurity()
-    registerSecurityRouter(services.userService)
+    registerSecurityRouter(services.userService, services.verificationService, services.notificationManager)
     configureHTTP()
     configureMonitoring()
     configureSerialization()
