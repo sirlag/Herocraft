@@ -1,13 +1,22 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { page } from '$app/stores';
 	import { NewDeckDialog } from '$lib/components/NewDeck';
 	import { Input } from '$lib/components/ui/input';
 	import HerocraftWordmark from '$lib/images/herocraft.svelte';
 
-	export let showSearch: boolean;
-	$: ({ deckForm, session } = $page.data);
+	interface Props {
+		showSearch: boolean;
+	}
+
+	let { showSearch }: Props = $props();
+	let deckForm;
+	run(() => {
+		({ deckForm, session } = $page.data);
+	});
 	// $: deckForm = $page.data.deckForm
-	let search: string = '';
+	let search: string = $state('');
 </script>
 
 <nav class="flex w-full bg-blue-700">
@@ -38,7 +47,7 @@
 					</li>
 					<li>
 						<NewDeckDialog bind:form={deckForm}>
-							<!-- svelte-ignore a11y-missing-attribute -->
+							<!-- svelte-ignore a11y_missing_attribute -->
 							<a>New Deck</a>
 						</NewDeckDialog>
 					</li>

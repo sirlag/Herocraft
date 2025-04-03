@@ -3,7 +3,7 @@
 	import { Button } from '$lib/components/ui/button/';
 	import { goto } from '$app/navigation';
 
-	let search: string;
+	let search: string = $state();
 
 	// let navigate = () => {
 	// 	goto(`/cards?q=${search}`);

@@ -19,7 +19,12 @@
 	import RadioItem from '$lib/components/RadioItem.svelte';
 	import type { C2Array } from '../../../app';
 
-	export let data: SuperValidated<Infer<FormSchema>>;
+	interface Props {
+		data: SuperValidated<Infer<FormSchema>>;
+		children?: import('svelte').Snippet;
+	}
+
+	let { data, children }: Props = $props();
 
 	const form = superForm(data, {
 		validators: zodClient(formSchema),
@@ -43,10 +48,10 @@
 		}
 	};
 
-	$: deckViewer = viewDecks($formData.deckBuilderSave);
-	let listOfDecks: C2Array | undefined;
+	let deckViewer = $derived(viewDecks($formData.deckBuilderSave));
+	let listOfDecks: C2Array | undefined = $state();
 
-	let open = false;
+	let open = $state(false);
 
 	const handleSubmit = () => {
 		data.data;
@@ -65,7 +70,7 @@
 </script>
 
 <Dialog.Root bind:open>
-	<Dialog.Trigger class={buttonVariants({ variant: 'link' })}><slot /></Dialog.Trigger>
+	<Dialog.Trigger class={buttonVariants({ variant: 'link' })}>{@render children?.()}</Dialog.Trigger>
 	<Dialog.Content>
 		<Dialog.Title>Import From Aldenwar's Ivion Deckbuilder</Dialog.Title>
 		<form
@@ -76,10 +81,12 @@
 			use:enhance
 		>
 			<Form.Field {form} name="deckBuilderSave" class="pb-4">
-				<Form.Control let:attrs>
-					<Form.Label>Ivion Deck Builder Save</Form.Label>
-					<InputFile {...attrs} type="file" accept="application/json" bind:files={$file} />
-				</Form.Control>
+				<Form.Control >
+					{#snippet children({ attrs })}
+										<Form.Label>Ivion Deck Builder Save</Form.Label>
+						<InputFile {...attrs} type="file" accept="application/json" bind:files={$file} />
+														{/snippet}
+								</Form.Control>
 				<Form.FieldErrors />
 			</Form.Field>
 
@@ -94,29 +101,31 @@
 							{#each listOfDecks.data as deckList}
 								{@const checked = $formData.decks.includes(deckList[0][0])}
 								<div class="flex flex-row items-start space-x-3 align-middle m-2 h-8">
-									<Form.Control let:attrs>
-										<Checkbox
-											{...attrs}
-											{checked}
-											onCheckedChange={(v) => {
-												if (v) {
-													addItem(deckList[0][0]);
-												} else {
-													removeItem(deckList[0][0]);
-												}
-											}}
-										/>
-										<Form.Label class="font-normal">
-											{deckList[0]}
-										</Form.Label>
-										<input
-											hidden
-											type="checkbox"
-											name={attrs.name}
-											value={deckList[0][0]}
-											{checked}
-										/>
-									</Form.Control>
+									<Form.Control >
+										{#snippet children({ attrs })}
+																				<Checkbox
+												{...attrs}
+												{checked}
+												onCheckedChange={(v) => {
+													if (v) {
+														addItem(deckList[0][0]);
+													} else {
+														removeItem(deckList[0][0]);
+													}
+												}}
+											/>
+											<Form.Label class="font-normal">
+												{deckList[0]}
+											</Form.Label>
+											<input
+												hidden
+												type="checkbox"
+												name={attrs.name}
+												value={deckList[0][0]}
+												{checked}
+											/>
+																													{/snippet}
+																		</Form.Control>
 								</div>
 							{/each}
 						</ScrollArea>

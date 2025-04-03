@@ -3,9 +3,14 @@
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import NewDeckForm from '$lib/components/NewDeck/NewDeckForm.svelte';
 
-	export let form;
+	interface Props {
+		form: any;
+		children?: import('svelte').Snippet;
+	}
 
-	let open = false;
+	let { form, children }: Props = $props();
+
+	let open = $state(false);
 
 	const handleSubmit = () => {
 		open = false;
@@ -14,7 +19,7 @@
 
 <Dialog.Root bind:open>
 	<Dialog.Trigger class={buttonVariants({ variant: 'header', size: 'header' })}
-		><slot /></Dialog.Trigger
+		>{@render children?.()}</Dialog.Trigger
 	>
 	<Dialog.Content>
 		<Dialog.Title>New Deck</Dialog.Title>

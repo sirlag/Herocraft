@@ -15,7 +15,11 @@
 	import slow from '$lib/images/IvionIcons/SlowSquare.png';
 	import trap from '$lib/images/IvionIcons/Trap.png';
 
-	export let icon: string;
+	interface Props {
+		icon: string;
+	}
+
+	let { icon }: Props = $props();
 
 	class ImageSpec {
 		image: {} = '';

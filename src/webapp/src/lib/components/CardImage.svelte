@@ -2,10 +2,14 @@
 	import { Button } from '$lib/components/ui/button'
 	import { Repeat } from 'lucide-svelte';
 
-	export let card: IvionCard;
-	export let href: string | undefined = undefined;
+	interface Props {
+		card: IvionCard;
+		href?: string | undefined;
+	}
 
-	let front = true;
+	let { card, href = undefined }: Props = $props();
+
+	let front = $state(true);
 
 	let getImageData = (card: IvionCard, front: boolean) => {
 		if (card === undefined) return undefined;
@@ -22,7 +26,7 @@
 		};
 	};
 
-	$: imageData = getImageData(card, front);
+	let imageData = $derived(getImageData(card, front));
 </script>
 
 <div class="relative rounded-lg overflow-hidden">

@@ -1,8 +1,12 @@
 <script lang="ts">
 	import CardImage from '$lib/components/CardImage.svelte';
 
-	export let card;
-	export let href;
+	interface Props {
+		card: any;
+		href: any;
+	}
+
+	let { card, href }: Props = $props();
 </script>
 
 <div class="relative isolate">

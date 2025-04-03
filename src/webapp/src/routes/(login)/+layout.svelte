@@ -1,11 +1,13 @@
 <script>
 	import '../../app.css';
+	/** @type {{children?: import('svelte').Snippet}} */
+	let { children } = $props();
 </script>
 
 <div>
 	<main class="min-h-lvh w-full max-w-5xl">
 		<div>
-			<slot />
+			{@render children?.()}
 		</div>
 	</main>
 </div>

@@ -7,12 +7,16 @@
 
 	import { ChevronFirst, ChevronLast, ChevronLeft, ChevronRight } from 'lucide-svelte';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
 	let displayMode = 'images';
 
-	$: pageNum = data.page.page;
-	$: hasPrevious = pageNum > 1;
-	$: hasNext = data.page.hasNext;
+	let pageNum = $derived(data.page.page);
+	let hasPrevious = $derived(pageNum > 1);
+	let hasNext = $derived(data.page.hasNext);
 
 	let navigateTo = (pageNum: string) => {
 		let query = new URLSearchParams($page.url.searchParams.toString());

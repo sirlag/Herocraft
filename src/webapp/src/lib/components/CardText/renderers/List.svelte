@@ -1,10 +1,10 @@
 <script>
-	export let ordered;
-	export let start;
+	/** @type {{ordered: any, start: any, children?: import('svelte').Snippet}} */
+	let { ordered, start, children } = $props();
 </script>
 
 {#if ordered}
-	<ol {start}><slot></slot></ol>
+	<ol {start}>{@render children?.()}</ol>
 {:else}
-	<ul><slot></slot></ul>
+	<ul>{@render children?.()}</ul>
 {/if}

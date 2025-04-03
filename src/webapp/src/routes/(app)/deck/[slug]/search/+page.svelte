@@ -11,10 +11,14 @@
 	import { PUBLIC_API_BASE_URL } from '$env/static/public';
 	import { invalidate, invalidateAll } from '$app/navigation';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
 	let displayMode = 'images';
 
-	$: ({ deckList: deck, countObj, query } = data);
+	let { deckList: deck, countObj, query } = $derived(data);
 
 	const modify = async (card: IvionCard, change: number) => {
 

@@ -7,11 +7,15 @@
 	import LinkCell from '$lib/components/data-table/link-cell.svelte';
 	import { PlusCircle } from 'lucide-svelte';
 
-	export let cards: DeckEntry[];
-	export let category: string;
-	export let mouseOver: (link: IvionCard) => () => void;
+	interface Props {
+		cards: DeckEntry[];
+		category: string;
+		mouseOver: (link: IvionCard) => () => void;
+	}
 
-	$: totalCards = cards.map((it) => it.count).reduce((acc, it) => acc + it, 0);
+	let { cards, category, mouseOver }: Props = $props();
+
+	let totalCards = $derived(cards.map((it) => it.count).reduce((acc, it) => acc + it, 0));
 
 	const table = createTable(readable(cards));
 	const columns = table.createColumns([
@@ -46,19 +50,23 @@
 		</Table.Header>
 		<Table.Body {...$tableBodyAttrs}>
 			{#each $pageRows as row (row.id)}
-				<Subscribe rowAttrs={row.attrs()} let:rowAttrs>
-					<Table.Row>
-						<div on:mouseover={mouseOver(row.cells[1].value)} {...rowAttrs}>
-							{#each row.cells as cell (cell.id)}
-								<Subscribe attrs={cell.attrs()} let:attrs>
-									<Table.Cell {...attrs}>
-										<Render of={cell.render()} />
-									</Table.Cell>
+				<Subscribe rowAttrs={row.attrs()} >
+					{#snippet children({ rowAttrs })}
+										<Table.Row>
+							<div onmouseover={mouseOver(row.cells[1].value)} {...rowAttrs}>
+								{#each row.cells as cell (cell.id)}
+									<Subscribe attrs={cell.attrs()} >
+										{#snippet children({ attrs })}
+																		<Table.Cell {...attrs}>
+												<Render of={cell.render()} />
+											</Table.Cell>
+																											{/snippet}
+																</Subscribe>
+								{/each}
+							</div>
+						</Table.Row>
+														{/snippet}
 								</Subscribe>
-							{/each}
-						</div>
-					</Table.Row>
-				</Subscribe>
 			{/each}
 		</Table.Body>
 	</Table.Root>

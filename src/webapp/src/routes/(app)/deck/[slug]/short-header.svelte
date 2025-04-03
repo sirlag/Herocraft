@@ -4,8 +4,12 @@
 	import { ChevronLeft, ChevronsRight } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 
-	export let deckList: Deck;
-	export let page: string;
+	interface Props {
+		deckList: Deck;
+		page: string;
+	}
+
+	let { deckList, page }: Props = $props();
 </script>
 
 <div class="w-full bg-red-50 relative">

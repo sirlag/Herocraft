@@ -8,9 +8,13 @@
 	import SuperDebug, { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 
-	export let data: SuperValidated<Infer<DeckSettingsSchema>>;
+	interface Props {
+		data: SuperValidated<Infer<DeckSettingsSchema>>;
+	}
 
-	$: id = data.id;
+	let { data }: Props = $props();
+
+	let id = $derived(data.id);
 
 	const form = superForm(data, {
 		validators: zodClient(deckSettingsSchema)
@@ -21,10 +25,12 @@
 
 <form id="deckForm" method="POST" use:enhance>
 	<Form.Field {form} name="name">
-		<Form.Control let:attrs>
-			<Form.Label>Deck Name</Form.Label>
-			<Input {...attrs} bind:value={$formData.name} type="text" />
-		</Form.Control>
+		<Form.Control >
+			{#snippet children({ attrs })}
+						<Form.Label>Deck Name</Form.Label>
+				<Input {...attrs} bind:value={$formData.name} type="text" />
+								{/snippet}
+				</Form.Control>
 		<Form.FieldErrors />
 	</Form.Field>
 

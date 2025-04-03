@@ -24,7 +24,11 @@
 	import Curseblade from '$lib/images/specs/Curseblade.png';
 	import EbonMage from '$lib/images/specs/Ebon Mage.png';
 
-	export let spec;
+	interface Props {
+		spec: any;
+	}
+
+	let { spec }: Props = $props();
 
 	let getImage = (spec: string) => {
 		switch (spec) {
@@ -81,7 +85,7 @@
 		}
 	};
 
-	$: src = getImage(spec)!!;
+	let src = $derived(getImage(spec)!!);
 </script>
 
 <!--{#if src}-->

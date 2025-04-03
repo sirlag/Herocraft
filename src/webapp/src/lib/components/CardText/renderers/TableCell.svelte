@@ -1,10 +1,10 @@
 <script>
-	export let header;
-	export let align;
+	/** @type {{header: any, align: any, children?: import('svelte').Snippet}} */
+	let { header, align, children } = $props();
 </script>
 
 {#if header}
-	<th {align}><slot></slot></th>
+	<th {align}>{@render children?.()}</th>
 {:else}
-	<td {align}><slot></slot></td>
+	<td {align}>{@render children?.()}</td>
 {/if}

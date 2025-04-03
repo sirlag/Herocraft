@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import type { PageData } from './$types';
 	import SuperDebug from 'sveltekit-superforms';
 	import colors from 'tailwindcss/colors';
@@ -12,11 +14,15 @@
 	import { SearchInput } from '$lib/components/ui/search-input';
 	import { Plus } from 'lucide-svelte';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
 
-	$: ({ collatedCards, deckList, user } = data);
+	let { data }: Props = $props();
 
-	$: canEdit = deckList.owner === user?.id;
+	let { collatedCards, deckList, user } = $derived(data);
+
+	let canEdit = $derived(deckList.owner === user?.id);
 	// console.log(data)
 
 	type CollatedEntries = {
@@ -38,9 +44,9 @@
 		}
 	};
 
-	$: iterableCards = getKeys(collatedCards);
-	$: traits = iterableCards.find((it) => it.key === 'Trait');
-	$: traitSlots = traits ? 3 - traits.deckEntries.length : 0
+	let iterableCards = $derived(getKeys(collatedCards));
+	let traits = $derived(iterableCards.find((it) => it.key === 'Trait'));
+	let traitSlots = $derived(traits ? 3 - traits.deckEntries.length : 0)
 
 	const getFirstCard = (cards: DeckEntry[]) => {
 		let sorted = cards.toSorted((a, b) => a.card.name.localeCompare(b.card.name));
@@ -51,9 +57,12 @@
 	const setFirstCard = (card: IvionCard) => {
 		firstCard = card;
 	};
-	$: firstCard = getFirstCard(deckList.list);
+	let firstCard;
+	run(() => {
+		firstCard = getFirstCard(deckList.list);
+	});
 
-	let search = ""
+	let search = $state("")
 </script>
 
 <LongHeader {deckList} />

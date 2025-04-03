@@ -1,8 +1,8 @@
 <script>
-	export let text;
 	text;
-	export let raw;
+	/** @type {{text: any, raw: any, children?: import('svelte').Snippet}} */
+	let { text, raw, children } = $props();
 	raw;
 </script>
 
-<slot />
+{@render children?.()}

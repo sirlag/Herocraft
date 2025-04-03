@@ -4,9 +4,13 @@
 	import { Input } from '$lib/components/ui/input'
 	import { LoaderCircle, MinusIcon, PlusIcon } from 'lucide-svelte';
 
-	export let card: IvionCard;
-	export let count: number = 0;
-	export let modify: (card: IvionCard, change: number) => Promise<void>;
+	interface Props {
+		card: IvionCard;
+		count?: number;
+		modify: (card: IvionCard, change: number) => Promise<void>;
+	}
+
+	let { card, count = 0, modify }: Props = $props();
 
 	const onClick = async (change: number) => {
 		if (change > 0) {
@@ -22,8 +26,8 @@
 		}
 	}
 
-	let minLoading = false;
-	let plusLoading = false;
+	let minLoading = $state(false);
+	let plusLoading = $state(false);
 
 </script>
 

@@ -4,9 +4,13 @@
 	import ParsedCardText from '$lib/components/CardText/ParsedCardText.svelte';
 	import { Separator } from '$lib/components/ui/separator';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
 
-	$: card = data.card;
+	let { data }: Props = $props();
+
+	let card = $derived(data.card);
 </script>
 
 <div class="flex w-full p-4 pb-8 justify-center bg-neutral-50">

@@ -3,7 +3,11 @@
 
 	import type { PageData } from './$types';
 	import Herocraft from '$lib/images/herocraft.svelte';
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
 </script>
 
 <div class="flex flex-row min-h-lvh w-lvw">

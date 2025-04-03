@@ -3,7 +3,11 @@
 	import { HeroImage } from '$lib/components/image/hero-image/';
 	import Time from 'svelte-time';
 
-	export let deckList: Deck;
+	interface Props {
+		deckList: Deck;
+	}
+
+	let { deckList }: Props = $props();
 </script>
 
 <div class="w-full bg-red-50 relative">

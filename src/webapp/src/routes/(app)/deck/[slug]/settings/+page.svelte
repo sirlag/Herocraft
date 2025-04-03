@@ -6,9 +6,13 @@
 	import { Button } from '$lib/components/ui/button';
 	import { enhance } from '$app/forms';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
 
-	$: ({ deckList: deck, settingsForm, preFilled } = data);
+	let { data }: Props = $props();
+
+	let { deckList: deck, settingsForm, preFilled } = $derived(data);
 </script>
 
 <ShortHeader page="Settings" deckList={deck} />

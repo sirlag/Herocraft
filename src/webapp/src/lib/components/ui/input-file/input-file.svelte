@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { createBubbler } from 'svelte/legacy';
+
+	const bubble = createBubbler();
 	import type { HTMLInputAttributes } from 'svelte/elements';
 	import type { InputEvents } from './index.js';
 	import { cn } from '$lib/utils.js';
@@ -10,14 +13,25 @@
 	type $$Props = HTMLInputFileAttributes;
 	type $$Events = InputEvents;
 
-	let className: $$Props['class'] = undefined;
-	export let value: $$Props['value'] = undefined;
-	export { className as class };
-	export let files: $$Props['files'] = undefined;
+	
 
 	// Workaround for https://github.com/sveltejs/svelte/issues/9305
 	// Fixed in Svelte 5, but not backported to 4.x.
-	export let readonly: $$Props['readonly'] = undefined;
+	interface Props {
+		class?: $$Props['class'];
+		value?: $$Props['value'];
+		files?: $$Props['files'];
+		readonly?: $$Props['readonly'];
+		[key: string]: any
+	}
+
+	let {
+		class: className = undefined,
+		value = $bindable(undefined),
+		files = $bindable(undefined),
+		readonly = undefined,
+		...rest
+	}: Props = $props();
 </script>
 
 <input
@@ -28,21 +42,21 @@
 	bind:value
 	bind:files
 	{readonly}
-	on:blur
-	on:change
-	on:click
-	on:focus
-	on:focusin
-	on:focusout
-	on:keydown
-	on:keypress
-	on:keyup
-	on:mouseover
-	on:mouseenter
-	on:mouseleave
-	on:paste
-	on:input
-	on:wheel
+	onblur={bubble('blur')}
+	onchange={bubble('change')}
+	onclick={bubble('click')}
+	onfocus={bubble('focus')}
+	onfocusin={bubble('focusin')}
+	onfocusout={bubble('focusout')}
+	onkeydown={bubble('keydown')}
+	onkeypress={bubble('keypress')}
+	onkeyup={bubble('keyup')}
+	onmouseover={bubble('mouseover')}
+	onmouseenter={bubble('mouseenter')}
+	onmouseleave={bubble('mouseleave')}
+	onpaste={bubble('paste')}
+	oninput={bubble('input')}
+	onwheel={bubble('wheel')}
 	type="file"
-	{...$$restProps}
+	{...rest}
 />

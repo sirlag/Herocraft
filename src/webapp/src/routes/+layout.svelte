@@ -1,3 +1,8 @@
+<script>
+	/** @type {{children?: import('svelte').Snippet}} */
+	let { children } = $props();
+</script>
+
 <svelte:head>
 	<!-- SEO -->
 	<link
@@ -17,4 +22,4 @@
 	<link rel="preconnect" type="https://api.herocraft.app" />
 </svelte:head>
 
-<slot />
+{@render children?.()}

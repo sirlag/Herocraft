@@ -3,13 +3,15 @@
 
 	import Header from '../Header.svelte';
 	import Footer from '../footer.svelte';
+	/** @type {{children?: import('svelte').Snippet}} */
+	let { children } = $props();
 </script>
 
 <div class="app">
 	<Header showSearch={false} />
 
 	<main>
-		<slot />
+		{@render children?.()}
 	</main>
 
 	<Footer />

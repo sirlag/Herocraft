@@ -4,9 +4,13 @@
 	import DataTable from './data-table.svelte';
 	import { BulkImportDialog } from '$lib/components/bulk-import/';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
 
-	$: ({ bulkImportForm, decks } = data);
+	let { data }: Props = $props();
+
+	let { bulkImportForm, decks } = $derived(data);
 </script>
 
 <div class="flex-1 flex flex-col bg-neutral-50">
