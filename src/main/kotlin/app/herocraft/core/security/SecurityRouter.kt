@@ -15,9 +15,10 @@ import kotlinx.uuid.toUUID
 fun Application.registerSecurityRouter(
     userService: UserService,
     verificationService: VerificationService,
-    notifcationManager: NotificationManager
+    notificationManager: NotificationManager
 ){
     routing {
+
         post("/login") {
             val user = call.receive<LoginRequest>()
 
@@ -38,11 +39,24 @@ fun Application.registerSecurityRouter(
 
             if (user != null) {
                 val token = verificationService.create(user)
-                notifcationManager.sendVerificationEmail(registration.email, token)
+                notificationManager.sendVerificationEmail(registration.email, token)
                 call.respond(200)
             } else {
                 call.respond(HttpStatusCode.BadRequest, "Invalid registration.")
             }
+        }
+
+        get("account/verification/verify/{token}") {
+            call.parameters["token"]?.let {
+                val verified = verificationService.verify(it)
+                when(verified) {
+                    true -> call.respond(HttpStatusCode.OK)
+                    false -> call.respond(HttpStatusCode.Unauthorized, "Invalid Verification Token")
+                }
+                return@get call.respond(HttpStatusCode.OK)
+            }
+
+            call.respond(HttpStatusCode.BadRequest, "No token found")
         }
 
         authenticate("auth-session") {
@@ -72,7 +86,7 @@ fun Application.registerSecurityRouter(
                 call.respond(HttpStatusCode.OK, user)
             }
 
-            get("/resend") {
+            get("account/verification/resend") {
                 val principal = call.authentication.principal<UserSession>()
                 if (principal == null) {
                     call.respondRedirect("/login")
@@ -80,7 +94,7 @@ fun Application.registerSecurityRouter(
                 }
 
                 val token = verificationService.create(principal.id.toUUID())
-                notifcationManager.sendVerificationEmail(principal.email, token)
+                notificationManager.sendVerificationEmail(principal.email, token)
             }
         }
 

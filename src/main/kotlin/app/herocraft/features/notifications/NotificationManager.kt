@@ -17,17 +17,19 @@ class NotificationManager(val config: ApplicationConfig) {
         val consoleNotifications = ConsoleNotifications(config.property("herocraft.notifications.console.enabled").getString().toBoolean() ?: true)
         if (consoleNotifications.enabled) {
             activeSenders.add(ConsoleService())
+            logger.debug("ConsoleService Registered with Notification Manager")
         }
         val emailProperties = getEmailProperties()
 
         if (emailProperties != null) {
             activeSenders.add(EmailManager(emailProperties))
+            logger.debug("EmailService Registered with Notification Manager")
         }
     }
 
     private fun getEmailProperties(): EmailNotifications? {
 
-        if (config.property("herocraft.notifications.email.enabled").getString().toBoolean() ?: false) {
+        if (!(config.property("herocraft.notifications.email.enabled").getString().toBoolean() ?: false)) {
             return null
         }
 
@@ -43,8 +45,8 @@ class NotificationManager(val config: ApplicationConfig) {
 
         val emailSender = EmailSender(email, name, username, password)
 
-        val startTlSRequired = config.property("herocraft.notifications.email.sender.StartTLSRequired").getString().toBoolean() ?: false
-        val SSLOnConnect = config.property("herocraft.notifications.email.sender.SSLOnConnect").getString().toBoolean() ?: false
+        val startTlSRequired = config.property("herocraft.notifications.email.security.StartTLSRequired").getString().toBoolean() ?: false
+        val SSLOnConnect = config.property("herocraft.notifications.email.security.SSLOnConnect").getString().toBoolean() ?: false
 
         val emailSecurity = EmailSecurity(startTlSRequired, SSLOnConnect)
 
@@ -60,7 +62,10 @@ class NotificationManager(val config: ApplicationConfig) {
     }
 
     fun sendVerificationEmail(to: String, token: String) {
-        activeSenders.forEach {it.sendVerificationEmail(to, token)}
+        activeSenders.forEach {
+            logger.debug("Logging to ${it::class.qualifiedName} ")
+            it.sendVerificationEmail(to, token)
+        }
     }
 
 }

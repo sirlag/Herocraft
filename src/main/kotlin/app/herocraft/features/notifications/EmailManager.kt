@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory
 
 class EmailManager(private val properties: NotificationManager.EmailNotifications) : NotificationSender {
 
-    val logger = LoggerFactory.getLogger(EmailManager::class.java)!!
+    private val logger = LoggerFactory.getLogger(EmailManager::class.java)!!
 
     override fun sendVerificationEmail(to: String, token: String) {
         val email = newEmail()
