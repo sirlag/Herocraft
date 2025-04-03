@@ -1,14 +1,17 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 
-	import DataTable from './data-table.svelte';
-	import { BulkImportDialog } from '$lib/components/bulk-import/';
+	import DeckDataTable from './deck-data-table.svelte';
+	import { columns } from './deck-columns.ts'
+ 	import { BulkImportDialog } from '$lib/components/bulk-import/';
 
 	interface Props {
 		data: PageData;
 	}
 
 	let { data }: Props = $props();
+	let test = $derived(data.decks);
+
 
 	let { bulkImportForm, decks } = $derived(data);
 </script>
@@ -21,7 +24,7 @@
 	</div>
 	{#if decks !== undefined}
 		<div class="py-10 mx-auto">
-			<DataTable {decks} />
+			<DeckDataTable data={test} columns={columns} />
 		</div>
 	{/if}
 </div>

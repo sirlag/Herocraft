@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { run } from 'svelte/legacy';
 
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { NewDeckDialog } from '$lib/components/NewDeck';
 	import { Input } from '$lib/components/ui/input';
 	import HerocraftWordmark from '$lib/images/herocraft.svelte';
@@ -11,11 +11,14 @@
 	}
 
 	let { showSearch }: Props = $props();
-	let deckForm;
+	// let  deckForm = $page.data
+	// let deckForm = $state();
+	// let session = $state();
+	let {deckForm, session} = $derived(page.data)
+	// let { deckForm = $bindable() } = $props()
 	run(() => {
-		({ deckForm, session } = $page.data);
+		({ deckForm, session } = page.data);
 	});
-	// $: deckForm = $page.data.deckForm
 	let search: string = $state('');
 </script>
 
@@ -25,7 +28,7 @@
 			<ul>
 				<li
 					class="h-8 w-28 pt-1 hover:fill-red-600"
-					aria-current={$page.url.pathname === '/' ? 'page' : undefined}
+					aria-current={page.url.pathname === '/' ? 'page' : undefined}
 				>
 					<a href="/"><HerocraftWordmark /></a>
 				</li>
@@ -46,7 +49,7 @@
 						<a href="/decks/personal">Your Decks</a>
 					</li>
 					<li>
-						<NewDeckDialog bind:form={deckForm}>
+						<NewDeckDialog form={deckForm}>
 							<!-- svelte-ignore a11y_missing_attribute -->
 							<a>New Deck</a>
 						</NewDeckDialog>
