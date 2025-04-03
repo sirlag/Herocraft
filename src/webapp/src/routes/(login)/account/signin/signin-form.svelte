@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Form from '$lib/components/ui/form';
-	import { Input } from '$lib/components/ui/input';
+	import { Input, PasswordInput } from '$lib/components/ui/input';
 	import { formSchema, type FormSchema } from './schema';
 
 	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
@@ -21,21 +21,20 @@
 
 <form method="POST" use:enhance>
 	<Form.Field {form} name="email">
-		<Form.Control >
+		<Form.Control>
 			{#snippet children({ props })}
-					<Form.Label>Email</Form.Label>
-				<Input {...props} bind:value={$formData.email} />
+				<Form.Label>Email</Form.Label>
+				<Input {...props} bind:value={$formData.email} placeholder="example@domain.com" />
 			{/snippet}
 		</Form.Control>
 		<Form.FieldErrors />
 	</Form.Field>
 	<Form.Field {form} name="password" class="mb-4">
-		<Form.Control >
+		<Form.Control>
 			{#snippet children({ props })}
-						<Form.Label>Password</Form.Label>
-				<Input {...props} bind:value={$formData.password} type="password" />
-								{/snippet}
-				</Form.Control>
+				<PasswordInput {...props} bind:value={$formData.password} />
+			{/snippet}
+		</Form.Control>
 		<Form.FieldErrors />
 	</Form.Field>
 	<div>
