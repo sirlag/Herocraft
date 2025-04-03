@@ -1,7 +1,8 @@
 import type { LayoutServerLoad } from './$types';
 import { PUBLIC_API_BASE_URL } from '$env/static/public';
+import { redirect } from '@sveltejs/kit';
 
-export const load: LayoutServerLoad = async ({ request, locals, fetch }) => {
+export const load: LayoutServerLoad = async ({ request, locals, fetch, cookies }) => {
 	let session = locals.user;
 
 	if (session !== undefined && session.isAuthenticated) {
@@ -13,7 +14,16 @@ export const load: LayoutServerLoad = async ({ request, locals, fetch }) => {
 		});
 
 		if (!userResponse.ok) {
+			cookies.delete("user_session", { path: '/'})
+			locals.user = {
+				isAuthenticated: false,
+				session: undefined
+			}
 
+			return {
+				session
+			}
+			// redirect(302, `/account/signin`)
 		}
 
 		let user = await userResponse.json();

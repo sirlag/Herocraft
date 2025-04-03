@@ -38,7 +38,8 @@
 					</li>
 					<li>
 						<NewDeckDialog bind:form={deckForm}>
-							<a href="">New Deck</a>
+							<!-- svelte-ignore a11y-missing-attribute -->
+							<a>New Deck</a>
 						</NewDeckDialog>
 					</li>
 				</ul>
@@ -57,6 +58,9 @@
 			{:else}
 				<ul>
 					<li>
+						<a href="/account">Profile</a>
+					</li>
+					<li>
 						<a href="/account/logout" data-sveltekit-reload>Logout</a>
 					</li>
 				</ul>
@@ -73,46 +77,12 @@
 		justify-content: space-between;
 	}
 
-	header {
-		display: flex;
-		justify-content: space-around;
-		--background: rgba(255, 255, 255, 0.7);
-	}
-
-	.corner {
-		width: 3em;
-		height: 3em;
-	}
-
-	.corner a {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 100%;
-		height: 100%;
-	}
-
-	.corner img {
-		width: 2em;
-		height: 2em;
-		object-fit: contain;
-	}
 
 	nav {
 		display: flex;
 		justify-content: center;
 		width: 100%;
 		background: rgba(255, 255, 255, 0.7);
-	}
-
-	svg {
-		width: 2em;
-		height: 3em;
-		display: block;
-	}
-
-	path {
-		fill: var(--background);
 	}
 
 	ul {

@@ -5,6 +5,7 @@
 	import type { DeckEntry } from '../../../../app';
 
 	import LinkCell from '$lib/components/data-table/link-cell.svelte';
+	import { PlusCircle } from 'lucide-svelte';
 
 	export let cards: DeckEntry[];
 	export let category: string;
@@ -38,7 +39,8 @@
 		<Table.Header>
 			<Table.Row>
 				<Table.Head colspan={2}>
-					<h6>{category} ({totalCards})</h6>
+					<h6 class="block">{category} ({totalCards}) <a href=""><PlusCircle/></a>
+					</h6>
 				</Table.Head>
 			</Table.Row>
 		</Table.Header>

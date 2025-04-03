@@ -23,12 +23,18 @@
 		</Form.Control>
 		<Form.FieldErrors />
 	</Form.Field>
-	<Form.Field {form} name="password">
+	<Form.Field {form} name="password" class="mb-4">
 		<Form.Control let:attrs>
 			<Form.Label>Password</Form.Label>
 			<Input {...attrs} bind:value={$formData.password} type="password" />
 		</Form.Control>
 		<Form.FieldErrors />
 	</Form.Field>
-	<Form.Button>Login</Form.Button>
+	<div>
+		<Form.Button>Login</Form.Button>
+		<a class="mx-8" href="/account/forgot">Forget password?</a>
+	</div>
 </form>
+
+<style>
+</style>

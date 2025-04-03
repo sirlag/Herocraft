@@ -10,6 +10,7 @@
 	import CardTable from './card-table.svelte';
 	import LongHeader from './long-header.svelte'
 	import { SearchInput } from '$lib/components/ui/search-input';
+	import { Plus } from 'lucide-svelte';
 
 	export let data: PageData;
 
@@ -85,7 +86,10 @@
 				{/if}
 				{#if (traitSlots > 0)}
 					<div class="w-56 rounded-lg bg-neutral-300">
-						ADD A NEW TRAIT
+						<a href="/deck/{data.slug}/search?q=f:feat">
+							<span class="text w-full">ADD A NEW TRAIT</span>
+							<Plus class="w-full h-auto p-16"/>
+						</a>
 					</div>
 				{/if}
 			</div>

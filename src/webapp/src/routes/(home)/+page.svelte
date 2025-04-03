@@ -48,7 +48,4 @@
 		width: 100%;
 	}
 
-	body {
-		background: gold;
-	}
 </style>

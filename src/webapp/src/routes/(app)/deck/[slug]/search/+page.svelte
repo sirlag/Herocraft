@@ -39,24 +39,28 @@
 
 		} else {
 			let body = await changeResponse.json();
-			countObj[card.id] = body.count > 0 ? body.count : undefined;
-			// await invalidate(`/deck/${deck.hash}`)
+			// countObj[card.id] = body.count > 0 ? body.count : undefined;
+			// if (body.changeSpec) {
+			// 	deck.primarySpec = body.spec;
+			// }
+			// // await invalidate(`/deck/${deck.hash}`)
 			await(invalidateAll())
 		}
-
-		console.log(countObj[card.id]);
 	}
+	// $: spec = deck.primarySpecarch
 </script>
 
 <svelte:head>
 	<title>{deck.name} // Herocraft</title>
 </svelte:head>
 
-<ShortHeader page="Search" deckList={deck} />
+<ShortHeader page="Search" deckList={deck}/>
 
 <div class="bg-neutral-50 h-full flex justify-center">
 	<div class="max-w-7xl w-full h-full py-4 px-8">
-			<SearchInput value="{query}"/>
+		<form action="/deck/{deck.hash}/search" method="GET">
+			<SearchInput name="q" value="{query}"/>
+		</form>
 	</div>
 </div>
 

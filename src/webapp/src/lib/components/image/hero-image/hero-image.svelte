@@ -81,7 +81,7 @@
 		}
 	};
 
-	let src = getImage(spec)!!;
+	$: src = getImage(spec)!!;
 </script>
 
 <!--{#if src}-->

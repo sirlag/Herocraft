@@ -23,10 +23,6 @@ export const load: PageServerLoad = async ({ request, locals }) => {
 
 	let decks = await decksResponse.json();
 
-	// console.log(decks)
-
-	// let decks= []
-
 	return {
 		decks,
 		bulkImportForm
