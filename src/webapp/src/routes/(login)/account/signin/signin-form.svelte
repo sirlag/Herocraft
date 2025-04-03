@@ -22,18 +22,18 @@
 <form method="POST" use:enhance>
 	<Form.Field {form} name="email">
 		<Form.Control >
-			{#snippet children({ attrs })}
-						<Form.Label>Email</Form.Label>
-				<Input {...attrs} bind:value={$formData.email} />
-								{/snippet}
-				</Form.Control>
+			{#snippet children({ props })}
+					<Form.Label>Email</Form.Label>
+				<Input {...props} bind:value={$formData.email} />
+			{/snippet}
+		</Form.Control>
 		<Form.FieldErrors />
 	</Form.Field>
 	<Form.Field {form} name="password" class="mb-4">
 		<Form.Control >
-			{#snippet children({ attrs })}
+			{#snippet children({ props })}
 						<Form.Label>Password</Form.Label>
-				<Input {...attrs} bind:value={$formData.password} type="password" />
+				<Input {...props} bind:value={$formData.password} type="password" />
 								{/snippet}
 				</Form.Control>
 		<Form.FieldErrors />

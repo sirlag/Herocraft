@@ -22,36 +22,36 @@
 <form method="POST" use:enhance>
 	<Form.Field {form} name="username">
 		<Form.Control >
-			{#snippet children({ attrs })}
+			{#snippet children({ props })}
 						<Form.Label>Username</Form.Label>
-				<Input {...attrs} bind:value={$formData.username} type="text" />
+				<Input {...props} bind:value={$formData.username} type="text" />
 								{/snippet}
 				</Form.Control>
 		<Form.FieldErrors />
 	</Form.Field>
 	<Form.Field {form} name="email">
 		<Form.Control >
-			{#snippet children({ attrs })}
+			{#snippet children({ props })}
 						<Form.Label>Email</Form.Label>
-				<Input {...attrs} bind:value={$formData.email} type="text" />
+				<Input {...props} bind:value={$formData.email} type="text" />
 								{/snippet}
 				</Form.Control>
 		<Form.FieldErrors />
 	</Form.Field>
 	<Form.Field {form} name="password">
 		<Form.Control >
-			{#snippet children({ attrs })}
+			{#snippet children({ props })}
 						<Form.Label>Password</Form.Label>
-				<Input {...attrs} bind:value={$formData.password} type="password" />
+				<Input {...props} bind:value={$formData.password} type="password" />
 								{/snippet}
 				</Form.Control>
 		<Form.FieldErrors />
 	</Form.Field>
-	<Form.Field {form} name="confirmPassword">
+	<Form.Field {form} name="confirmPassword" class="mb-4">
 		<Form.Control >
-			{#snippet children({ attrs })}
+			{#snippet children({ props })}
 						<Form.Label>Confirm Password</Form.Label>
-				<Input {...attrs} bind:value={$formData.confirmPassword} type="password" />
+				<Input {...props} bind:value={$formData.confirmPassword} type="password" />
 								{/snippet}
 				</Form.Control>
 		<Form.FieldErrors />
