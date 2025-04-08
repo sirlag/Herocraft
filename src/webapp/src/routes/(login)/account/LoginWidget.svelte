@@ -7,7 +7,7 @@ let { children, title, alt = null, altDestination = null} = $props()
 
 <div class="mx-auto ">
 	<div class="shadow-lg p-10 rounded-lg border border-gray-200">
-		<div class="prose prose-h2 mb-4">
+		<div class="prose prose-h2 mb-4 text-center">
 			<h1>{title}</h1>
 		</div>
 		<div class="justify-center">

@@ -1,0 +1,38 @@
+<script lang="ts">
+	import * as Form from "$lib/components/ui/form";
+	import { Input } from "$lib/components/ui/input";
+	import { forgotSchema, type ForgotSchema } from './ForgotSchema.ts';
+	import { type Infer, type SuperValidated, superForm } from 'sveltekit-superforms';
+	import { zodClient } from 'sveltekit-superforms/adapters';
+
+	interface Props {
+		data: SuperValidated<Infer<ForgotSchema>>;
+	}
+
+	let { data }: Props = $props();
+
+	const form = superForm(data, {
+		validators: zodClient(forgotSchema)
+	})
+
+	const { form: formData, enhance } = form;
+
+</script>
+
+<form method="POST" use:enhance>
+	<Form.Field { form } name="email">
+		<Form.Control>
+			{#snippet children({ formData })}
+				<Form.Label>Email</Form.Label>
+				<Input bind:value={$formData.email} type="email" placeholder="example@domain.com" />
+			{/snippet}
+		</Form.Control>
+		<Form.FieldErrors />
+	</Form.Field>
+	<div class="mt-4">
+		<Form.Button>Reset Password</Form.Button>
+	</div>
+	<div class="mt-4">
+		<a class="mx-8" href="/account/signin">Back to Sign In</a>
+	</div>
+</form>

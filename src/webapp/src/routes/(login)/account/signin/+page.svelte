@@ -1,3 +1,4 @@
+<!--<script src="+page.server.ts"></script>-->
 <script lang="ts">
 	import SignInForm from './signin-form.svelte';
 
