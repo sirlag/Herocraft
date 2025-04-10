@@ -1,7 +1,7 @@
 CREATE TABLE verification (
     id uuid NOT NULL PRIMARY KEY,
     token varchar(100) UNIQUE NOT NULL,
-    user_id uuid UNIQUE NOT NULL,
+    user_id uuid NOT NULL,
     created_at timestamp NOT NULL,
     expires_at timestamp NOT NULL,
     CONSTRAINT fk_user

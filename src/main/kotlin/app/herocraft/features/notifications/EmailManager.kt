@@ -11,10 +11,30 @@ class EmailManager(private val properties: NotificationManager.EmailNotification
     override fun sendVerificationEmail(to: String, token: String) {
         val email = newEmail()
         email.setSubject("[Herocraft]: Verify your email address")
-        email.setMsg("Hello, Please follow the link below to complete your Herocraft account registration. \n https://herocraft.app/account/verify/$token")
+        email.setMsg("""
+            Hello, Please follow the link below to complete your Herocraft account registration. 
+            
+            https://herocraft.app/account/verify/$token
+            """.trimIndent())
         email.addTo(to)
         email.send()
         logger.info("Verification email sent successfully to $to")
+    }
+
+    override fun sendPasswordReset(to: String, username: String, token: String) {
+        val email = newEmail()
+        email.setSubject("[Herocraft]: Password reset information")
+        email.setMsg("""
+            Hello $username,
+            A password reset was requested for your account. To reset your password, click the link below.
+            
+            https://herocraft.app/account/reset/$token
+            
+            This link will expire in around an hour. If you did not request to have your password reset, you can ignore this email.
+        """.trimIndent())
+        email.addTo(to)
+        email.send()
+        logger.info("Password reset successfully successfully for $to")
     }
 
     private fun newEmail(): SimpleEmail {

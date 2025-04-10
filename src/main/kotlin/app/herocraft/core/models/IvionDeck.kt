@@ -2,16 +2,16 @@ package app.herocraft.core.models
 
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
-import kotlinx.uuid.UUID
+import kotlin.uuid.Uuid
 
 @Serializable
 data class IvionDeck(
-    val id: UUID,
+    val id: Uuid,
     val hash: String,
     val name: String,
     val list: MutableList<IvionDeckEntry>,
     val primarySpec: String?,
-    val owner: UUID,
+    val owner: Uuid,
     val visibility: DeckVisibility,
     val format: DeckFormat,
     val created: Instant,

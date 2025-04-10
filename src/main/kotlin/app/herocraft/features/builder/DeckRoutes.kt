@@ -1,20 +1,20 @@
 package app.herocraft.features.builder
 
 import app.herocraft.plugins.UserSession
+import app.softwork.uuid.toUuid
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.uuid.toUUID
 
-fun Application.registerBuilder(deckService: DeckService) {
+fun Application.registerBuilder(deckRepo: DeckRepo) {
     routing {
 
         get("/deck/{id}") {
             val id = call.parameters["id"] ?: return@get call.respond(HttpStatusCode.BadRequest)
-            val deckList = deckService.getDeckList(id)
+            val deckList = deckRepo.getDeckList(id)
             call.respond(deckList)
         }
 
@@ -28,7 +28,7 @@ fun Application.registerBuilder(deckService: DeckService) {
                 }
 
                 val deck = call.receive<DeckRequest>()
-                val createDeckResponse = deckService.createDeck(session.id.toUUID(), deck.name, deck.format, deck.visibility)
+                val createDeckResponse = deckRepo.createDeck(session.id.toUuid(), deck.name, deck.format, deck.visibility)
                 call.respond(mapOf("hash" to createDeckResponse.hash))
             }
 
@@ -40,7 +40,7 @@ fun Application.registerBuilder(deckService: DeckService) {
                     return@get
                 }
 
-                val decks = deckService.getUserDecks(session.id.toUUID())
+                val decks = deckRepo.getUserDecks(session.id.toUuid())
                 call.respond(decks)
             }
 
@@ -54,7 +54,7 @@ fun Application.registerBuilder(deckService: DeckService) {
 
                 val importedDecks = call.receive<DeckImportRequest>()
 
-                val decks = deckService.importAll(session.id.toUUID(), importedDecks)
+                val decks = deckRepo.importAll(session.id.toUuid(), importedDecks)
                 call.respond(decks)
                 call.respond(hashMapOf("test" to "to"))
             }
@@ -66,10 +66,10 @@ fun Application.registerBuilder(deckService: DeckService) {
                     return@put
                 }
 
-                val deckId = call.parameters["id"]?.toUUID() ?: return@put call.respond(HttpStatusCode.BadRequest)
+                val deckId = call.parameters["id"]?.toUuid() ?: return@put call.respond(HttpStatusCode.BadRequest)
                 val settings = call.receive<DeckSettings>()
 
-                val deckList = deckService.updateSettings(session.id.toUUID(), deckId, settings)
+                val deckList = deckRepo.updateSettings(session.id.toUuid(), deckId, settings)
                 call.respond(deckList)
             }
 
@@ -80,9 +80,9 @@ fun Application.registerBuilder(deckService: DeckService) {
                     return@delete
                 }
 
-                val deckId = call.parameters["id"]?.toUUID() ?: return@delete call.respond(HttpStatusCode.BadRequest)
+                val deckId = call.parameters["id"]?.toUuid() ?: return@delete call.respond(HttpStatusCode.BadRequest)
 
-                deckService.deleteDeck(session.id.toUUID(), deckId)
+                deckRepo.deleteDeck(session.id.toUuid(), deckId)
                 call.respond(hashMapOf("deleted" to deckId))
             }
 
@@ -96,7 +96,7 @@ fun Application.registerBuilder(deckService: DeckService) {
                 val deckId = call.parameters["id"]?: return@post call.respond(HttpStatusCode.BadRequest)
 
                 val editRequest = call.receive<DeckEditRequest>()
-                val response = deckService.editDeck(session.id.toUUID(), deckId, editRequest.cardId, editRequest.count)
+                val response = deckRepo.editDeck(session.id.toUuid(), deckId, editRequest.cardId, editRequest.count)
                 call.respond(response!!)
             }
         }

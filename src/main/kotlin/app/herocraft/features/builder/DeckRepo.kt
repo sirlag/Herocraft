@@ -2,29 +2,30 @@ package app.herocraft.features.builder
 
 import app.herocraft.core.extensions.DataService
 import app.herocraft.core.models.*
-import app.herocraft.core.security.UserService
-import app.herocraft.features.search.CardService
-import app.herocraft.features.search.CardService.Card
+import app.herocraft.core.security.UserRepo
+import app.herocraft.features.search.CardRepo
+import app.herocraft.features.search.CardRepo.Card
 import io.ktor.util.*
 import kotlinx.datetime.Clock
 import kotlinx.serialization.Serializable
-import kotlinx.uuid.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
-import kotlin.random.Random
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
+import kotlin.uuid.toKotlinUuid
 
 
 @Serializable
-data class CreateDeckResponse(val uuid: UUID, val hash: String)
+data class CreateDeckResponse(val uuid: Uuid, val hash: String)
 
 @Serializable
-data class EditDeckResponse(val cardId: UUID, val count: Int, val changeSpec: Boolean, val spec: String?)
+data class EditDeckResponse(val cardId: Uuid, val count: Int, val changeSpec: Boolean, val spec: String?)
 
-class DeckService(
+class DeckRepo(
     database: Database,
-    private val userService: UserService,
-    private val cardService: CardService
+    private val userRepo: UserRepo,
+    private val cardRepo: CardRepo
 ): DataService(database) {
     object Deck : Table() {
         val id = uuid("id")
@@ -92,15 +93,15 @@ class DeckService(
     }
 
     suspend fun createDeck(
-        userId: UUID,
+        userId: Uuid,
         name: String,
         format: DeckFormat,
         visibility: DeckVisibility,
         spec: String? = null
     ): CreateDeckResponse {
 
-        val id = UUID.generateUUID(Random)
-        val hash = id.encodeToByteArray().encodeBase64()
+        val id = Uuid.random()
+        val hash = id.toByteArray().encodeBase64()
             .replace("/", "_")
             .replace("+", "-")
             .substring(0, 22)
@@ -108,13 +109,13 @@ class DeckService(
         val now = Clock.System.now()
 
         dbQuery {
-            Deck.selectAll().where(Deck.id.eq(id.toJavaUUID()))
+            Deck.selectAll().where(Deck.id.eq(id.toJavaUuid()))
             Deck.insert {
-                it[Deck.id] = id.toJavaUUID()
+                it[Deck.id] = id.toJavaUuid()
                 it[Deck.hash] = hash
                 it[Deck.name] = name
                 it[primarySpec] = spec
-                it[owner] = userId.toJavaUUID()
+                it[owner] = userId.toJavaUuid()
                 it[Deck.visibility] = visibility
                 it[Deck.format] = format
                 it[created] = now
@@ -125,7 +126,7 @@ class DeckService(
         return CreateDeckResponse(id, hash);
     }
 
-    suspend fun importAll(userId: UUID, deckImportRequest: DeckImportRequest): List<CreateDeckResponse>  {
+    suspend fun importAll(userId: Uuid, deckImportRequest: DeckImportRequest): List<CreateDeckResponse>  {
 
         val newDeckIds = mutableListOf<CreateDeckResponse>()
         for (deck: DeckImportRequestDeck in deckImportRequest.decks) {
@@ -138,27 +139,27 @@ class DeckService(
             dbQuery {
                 for (card: DeckImportRequestCard in deck.list) {
                     DeckEntry.insert {
-                        it[deckId] = deckIds.uuid.toJavaUUID()
-                        it[cardId] = CardService.Card
-                            .select(CardService.Card.id)
-                            .where(CardService.Card.name eq card.name)
+                        it[deckId] = deckIds.uuid.toJavaUuid()
+                        it[cardId] = CardRepo.Card
+                            .select(CardRepo.Card.id)
+                            .where(CardRepo.Card.name eq card.name)
                         it[count] = card.count
                     }
                 }
                 for (name: String in deck.traits) {
                     DeckEntry.insert {
-                        it[deckId] = deckIds.uuid.toJavaUUID()
-                        it[cardId] = CardService.Card
-                            .select(CardService.Card.id)
-                            .where(CardService.Card.name eq name)
+                        it[deckId] = deckIds.uuid.toJavaUuid()
+                        it[cardId] = CardRepo.Card
+                            .select(CardRepo.Card.id)
+                            .where(CardRepo.Card.name eq name)
                         it[count] = 1
                     }
                 }
                 DeckEntry.insert {
-                    it[deckId] = deckIds.uuid.toJavaUUID()
-                    it[cardId] = CardService.Card
-                        .select(CardService.Card.id)
-                        .where(CardService.Card.archetype eq deck.specialization and (CardService.Card.type eq "Ultimate"))
+                    it[deckId] = deckIds.uuid.toJavaUuid()
+                    it[cardId] = CardRepo.Card
+                        .select(CardRepo.Card.id)
+                        .where(CardRepo.Card.archetype eq deck.specialization and (CardRepo.Card.type eq "Ultimate"))
                     it[count] = 1
                 }
                 newDeckIds.add(deckIds)
@@ -168,10 +169,10 @@ class DeckService(
 
     }
 
-    suspend fun getUserDecks(userId: UUID): List<IvionDeck> = dbQuery {
+    suspend fun getUserDecks(userId: Uuid): List<IvionDeck> = dbQuery {
         Deck
             .selectAll()
-            .where { Deck.owner eq (userId.toJavaUUID()) }
+            .where { Deck.owner eq (userId.toJavaUuid()) }
             .map { Deck.fromResultRow(it) }
             .toList()
     }
@@ -182,19 +183,19 @@ class DeckService(
             .where { Deck.hash eq (deckHash)}
             .map { Deck.fromResultRow(it) }
             .first()
-        val name = userService.getUsername(deck.owner)
+        val name = userRepo.getUsername(deck.owner)
         deck.ownerName = name
         val deckList = getDeckList(deck.id)
         deck.list.addAll(deckList)
         return@dbQuery deck
     }
 
-    suspend fun updateSettings(userId: UUID, deckId: UUID, settings: DeckSettings) = dbQuery {
+    suspend fun updateSettings(userId: Uuid, deckId: Uuid, settings: DeckSettings) = dbQuery {
         val now = Clock.System.now()
 
         val updatedDeck = Deck
             .updateReturning(
-                where = { Deck.id eq deckId.toJavaUUID() and (Deck.owner eq userId.toJavaUUID()) }
+                where = { Deck.id eq deckId.toJavaUuid() and (Deck.owner eq userId.toJavaUuid()) }
             ) {
                 it[name] = settings.name
                 it[visibility] = settings.visibility
@@ -206,19 +207,19 @@ class DeckService(
         return@dbQuery updatedDeck
     }
 
-    suspend fun deleteDeck(userId: UUID, deckId: UUID) = dbQuery {
+    suspend fun deleteDeck(userId: Uuid, deckId: Uuid) = dbQuery {
         return@dbQuery Deck
-            .deleteWhere { owner eq userId.toJavaUUID() and (id eq deckId.toJavaUUID())}
+            .deleteWhere { owner eq userId.toJavaUuid() and (id eq deckId.toJavaUuid())}
     }
 
     private fun Deck.fromResultRow(result: ResultRow): IvionDeck =
         IvionDeck(
-            result[id].toKotlinUUID(),
+            result[id].toKotlinUuid(),
             result[hash],
             result[name],
             mutableListOf(),
             result[primarySpec],
-            result[owner].toKotlinUUID(),
+            result[owner].toKotlinUuid(),
             result[visibility],
             result[format],
             result[created],
@@ -227,7 +228,7 @@ class DeckService(
 
     // DECK ENTRY STUFF
 
-    suspend fun getDeckList(deckId: UUID) = dbQuery {
+    suspend fun getDeckList(deckId: Uuid) = dbQuery {
         return@dbQuery DeckEntry
             .join(Card, JoinType.INNER, DeckEntry.cardId, Card.id)
             .select(
@@ -259,35 +260,35 @@ class DeckService(
                 Card.season,
                 Card.type,
             )
-            .where{ DeckEntry.deckId eq deckId.toJavaUUID() }
+            .where{ DeckEntry.deckId eq deckId.toJavaUuid() }
             .map { it.toIvionDeckEntry() }
             .toList()
 
     }
 
-    suspend fun editDeck(userId: UUID, deckHash: String, cardId: UUID, count: Int): EditDeckResponse? = dbQuery {
+    suspend fun editDeck(userId: Uuid, deckHash: String, cardId: Uuid, count: Int): EditDeckResponse? = dbQuery {
         val deck = Deck.selectAll()
-            .where{ Deck.owner eq userId.toJavaUUID() and (Deck.hash eq deckHash)}
+            .where{ Deck.owner eq userId.toJavaUuid() and (Deck.hash eq deckHash)}
             .limit(1)
             .map { Deck.fromResultRow(it) }
             .firstOrNull()
-        val card = cardService.getOne(cardId)
+        val card = cardRepo.getOne(cardId)
 
         if (deck == null || card == null) {
             return@dbQuery null
         }
 
-        val deckUUID = deck.id.toJavaUUID()
+        val deckUUID = deck.id.toJavaUuid()
         val now = Clock.System.now()
 
         if (count > 0) {
             DeckEntry.upsert {
                 it[deckId] = deckUUID
-                it[DeckEntry.cardId] = cardId.toJavaUUID()
+                it[DeckEntry.cardId] = cardId.toJavaUuid()
                 it[DeckEntry.count] = count
             }
         } else {
-            DeckEntry.deleteWhere { deckId eq deckUUID and (DeckEntry.cardId eq cardId.toJavaUUID())}
+            DeckEntry.deleteWhere { deckId eq deckUUID and (DeckEntry.cardId eq cardId.toJavaUuid())}
         }
 
 //        println((card.toString()))
@@ -321,7 +322,7 @@ class DeckService(
         IvionDeckEntry(
             count = this[DeckEntry.count],
             card = IvionCard(
-                this[DeckEntry.cardId].toKotlinUUID(),
+                this[DeckEntry.cardId].toKotlinUuid(),
                 this[Card.collectorsNumber],
                 this[Card.format],
                 this[Card.name],
@@ -338,8 +339,8 @@ class DeckService(
                 this[Card.rulesText],
                 this[Card.flavorText],
                 this[Card.artist],
-                this[Card.ivionUUID].toKotlinUUID(),
-                this[Card.secondUUID]?.toKotlinUUID(),
+                this[Card.ivionUUID].toKotlinUuid(),
+                this[Card.secondUUID]?.toKotlinUuid(),
                 this[Card.colorPip1],
                 this[Card.colorPip2],
                 this[Card.season],

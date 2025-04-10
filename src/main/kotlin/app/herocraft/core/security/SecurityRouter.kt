@@ -1,8 +1,8 @@
 package app.herocraft.core.security
 
 import app.herocraft.core.api.UserRequest
-import app.herocraft.features.notifications.NotificationManager
 import app.herocraft.plugins.UserSession
+import app.softwork.uuid.toUuid
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -10,19 +10,17 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
-import kotlinx.uuid.toUUID
 
 fun Application.registerSecurityRouter(
-    userService: UserService,
-    verificationService: VerificationService,
-    notificationManager: NotificationManager
+    userRepo: UserRepo,
+    userService: UserService
 ){
     routing {
 
-        post("/login") {
+        post("/account/login") {
             val user = call.receive<LoginRequest>()
 
-            val foundUser = userService.getUser(user.email, user.password)
+            val foundUser = userRepo.getUser(user.email, user.password)
 
             if (foundUser != null) {
                 call.sessions.set(UserSession(foundUser.id.toString(), foundUser.email, foundUser.verified))
@@ -32,23 +30,33 @@ fun Application.registerSecurityRouter(
             }
         }
 
-        post("/register") {
+        post("/account/register") {
             val registration = call.receive<RegistrationRequest>()
 
-            val user = userService.create(UserRequest(registration.username, registration.email, registration.password))
+            val userRequest = UserRequest(registration.username, registration.email, registration.password)
+            val userId = userService.registerUser(userRequest)
 
-            if (user != null) {
-                val token = verificationService.create(user)
-                notificationManager.sendVerificationEmail(registration.email, token)
+            if (userId != null) {
                 call.respond(200)
             } else {
                 call.respond(HttpStatusCode.BadRequest, "Invalid registration.")
             }
         }
 
-        get("account/verification/verify/{token}") {
+        post("/account/forgot") {
+            val forgotRequest = call.receive<ResetPasswordRequest>()
+
+            val user = userService.sendForgotPasswordEmail(forgotRequest.email)
+
+            when(user) {
+                true -> call.respond(HttpStatusCode.OK)
+                false -> call.respond(HttpStatusCode.NotFound, "Unable to find user registration")
+            }
+        }
+
+        get("/account/verification/verify/{token}") {
             call.parameters["token"]?.let {
-                val verified = verificationService.verify(it)
+                val verified = userService.verifyEmail(it)
                 when(verified) {
                     true -> call.respond(HttpStatusCode.OK)
                     false -> call.respond(HttpStatusCode.Unauthorized, "Invalid Verification Token")
@@ -82,7 +90,7 @@ fun Application.registerSecurityRouter(
                     return@get
                 }
 
-                val user = userService.getUser(principal.id.toUUID())!!
+                val user = userRepo.getUser(principal.id.toUuid())!!
                 call.respond(HttpStatusCode.OK, user)
             }
 
@@ -93,8 +101,7 @@ fun Application.registerSecurityRouter(
                     return@get
                 }
 
-                val token = verificationService.create(principal.id.toUUID())
-                notificationManager.sendVerificationEmail(principal.email, token)
+                userService.sendEmailVerificationEmail(principal.id.toUuid(), principal.email)
             }
         }
 

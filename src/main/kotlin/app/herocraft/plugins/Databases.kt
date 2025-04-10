@@ -1,9 +1,9 @@
 package app.herocraft.plugins
 
-import app.herocraft.core.DatabaseFactory
 import app.herocraft.core.api.UserRequest
-import app.herocraft.core.security.UserService
-import app.herocraft.features.search.CardService
+import app.herocraft.core.security.UserRepo
+import app.herocraft.features.search.CardRepo
+import app.softwork.uuid.toUuidOrNull
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -11,15 +11,13 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import kotlinx.uuid.toUUIDOrNull
-import org.jetbrains.exposed.sql.*
 
-fun Application.configureDatabases(userService: UserService, cardService: CardService) {
+fun Application.configureDatabases(userRepo: UserRepo, cardRepo: CardRepo) {
     routing {
         // Create user
         post("/users") {
             val user = call.receive<UserRequest>()
-            val id = userService.create(user)
+            val id = userRepo.create(user)
             call.respond(HttpStatusCode.Created, id)
         }
 
@@ -50,7 +48,7 @@ fun Application.configureDatabases(userService: UserService, cardService: CardSe
 //        }
 
         post("/cards/reload") {
-            val results = cardService.resetTable()
+            val results = cardRepo.resetTable()
             call.respond(HttpStatusCode.OK, results)
         }
 
@@ -64,7 +62,7 @@ fun Application.configureDatabases(userService: UserService, cardService: CardSe
 
             println(call.request.queryString())
             val results = searchString
-                ?.let { cardService.search(searchString, page=page) } ?: cardService.getPaging(page = page)
+                ?.let { cardRepo.search(searchString, page=page) } ?: cardRepo.getPaging(page = page)
             println(results.toString())
 //            results.hasNext //synthetic call to populate
             println(Json.encodeToJsonElement(results))
@@ -73,7 +71,7 @@ fun Application.configureDatabases(userService: UserService, cardService: CardSe
 
         get("card/{uuid}") {
             val uuid = call.parameters["uuid"]!!
-            val card = uuid.toUUIDOrNull()?.let { cardService.getOne(it) }
+            val card = uuid.toUuidOrNull()?.let { cardRepo.getOne(it) }
             card?.let { call.respond(HttpStatusCode.OK, it) } ?: call.respond(HttpStatusCode.NotFound)
         }
     }

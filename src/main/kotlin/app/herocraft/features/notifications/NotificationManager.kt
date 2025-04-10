@@ -61,10 +61,17 @@ class NotificationManager(val config: ApplicationConfig) {
         return EmailNotifications(true, hostName = host, port = port, sender = emailSender, security = emailSecurity)
     }
 
-    fun sendVerificationEmail(to: String, token: String) {
+    fun sendEmailVerification(to: String, token: String) {
         activeSenders.forEach {
-            logger.debug("Logging to ${it::class.qualifiedName} ")
+            logger.debug("Logging Verification Email for ${it::class.qualifiedName} ")
             it.sendVerificationEmail(to, token)
+        }
+    }
+
+    fun sendPasswordReset(to: String, username: String, token: String) {
+        activeSenders.forEach {
+            logger.debug("Logging Password Reset for ${it::class.qualifiedName} ")
+            it.sendPasswordReset(to, username, token)
         }
     }
 

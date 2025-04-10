@@ -4,22 +4,20 @@ package app.herocraft.core.security
 import app.herocraft.core.extensions.DataService
 import io.ktor.util.*
 import kotlinx.datetime.Clock
-import kotlinx.uuid.UUID
-import kotlinx.uuid.encodeToByteArray
-import kotlinx.uuid.generateUUID
-import kotlinx.uuid.toJavaUUID
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 import org.slf4j.LoggerFactory
 import kotlin.time.Duration.Companion.days
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
-class VerificationService(database: Database): DataService(database) {
+class VerificationRepo(database: Database): DataService(database) {
     object Verification : Table() {
         val id = uuid("id").autoGenerate()
         val token = text("token").uniqueIndex()
         val userId = reference(
             name = "user_id",
-            refColumn = UserService.Users.id,
+            refColumn = UserRepo.Users.id,
             onDelete = ReferenceOption.CASCADE
         ).index(isUnique = false)
         val createdAt = timestamp("created_at")
@@ -30,16 +28,16 @@ class VerificationService(database: Database): DataService(database) {
 
     private val logger = LoggerFactory.getLogger(Verification::class.java)!!
 
-    suspend fun create(refId: UUID):String  = dbQuery {
+    suspend fun create(refId: Uuid):String  = dbQuery {
         val now = Clock.System.now()
 
-        val uuid = UUID.generateUUID()
-        val newToken = uuid.encodeToByteArray().encodeBase64()
+        val uuid = Uuid.random()
+        val newToken = uuid.toByteArray().encodeBase64()
             .replace("/", "")
             .replace("+", "")
 
         Verification.insert {
-            it[userId] = refId.toJavaUUID()
+            it[userId] = refId.toJavaUuid()
             it[token] = newToken
             it[createdAt] = now
             it[expiresAt] = now.plus(2.days)
@@ -57,7 +55,7 @@ class VerificationService(database: Database): DataService(database) {
 
         if (verifiedUserId != null) {
             logger.debug("Found verification for user {}", verifiedUserId)
-            val updateCount = UserService.Users.update ({ UserService.Users.id eq verifiedUserId }) {
+            val updateCount = UserRepo.Users.update ({ UserRepo.Users.id eq verifiedUserId }) {
                 it[verified] = true
                 it[verifiedAt] = now
                 it[lastModified] = now

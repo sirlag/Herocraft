@@ -1,13 +1,12 @@
 package app.herocraft.core.models
 
 import kotlinx.serialization.Serializable
-import kotlinx.uuid.UUID
-import kotlinx.uuid.generateUUID
-import kotlin.random.Random
+
+import kotlin.uuid.Uuid
 
 @Serializable
 data class IvionCard(
-    val id: UUID = UUID.generateUUID(Random),
+    val id: Uuid = Uuid.random(),
     val collectorsNumber: String?,
     val format: String?,
     val name: String,
@@ -24,8 +23,8 @@ data class IvionCard(
     val rulesText: String?,
     val flavorText: String?,
     val artist: String,
-    val ivionUUID: UUID,
-    val secondUUID: UUID?,
+    val ivionUUID: Uuid,
+    val secondUUID: Uuid?,
     val colorPip1: String?,
     val colorPip2: String?,
     val season: String,

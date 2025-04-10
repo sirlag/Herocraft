@@ -3,7 +3,7 @@ package app.herocraft.features.builder
 import app.herocraft.core.models.DeckFormat
 import app.herocraft.core.models.DeckVisibility
 import kotlinx.serialization.Serializable
-import kotlinx.uuid.UUID
+import kotlin.uuid.Uuid
 
 @Serializable
 data class DeckRequest(
@@ -36,12 +36,12 @@ data class DeckImportRequestDeck(
 @Serializable
 data class DeckImportRequestCard (
     val name: String,
-    val uuid: UUID,
+    val uuid: Uuid,
     val count: Int
 )
 
 @Serializable
 data class DeckEditRequest(
-    val cardId: UUID,
+    val cardId: Uuid,
     val count: Int
 )

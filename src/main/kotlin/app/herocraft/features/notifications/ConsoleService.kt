@@ -10,5 +10,9 @@ class ConsoleService : NotificationSender {
         logger.warn("Verification URL for $to is: https://herocraft.app/account/verify/$token")
     }
 
+    override fun sendPasswordReset(to: String, username: String, token: String) {
+        logger.warn("Password reset for $to is: https://herocraft.app/account/reset/$token")
+    }
+
 
 }

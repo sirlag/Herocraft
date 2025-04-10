@@ -10,10 +10,25 @@ plugins {
     kotlin("jvm") version "2.1.20"
     id("org.jetbrains.kotlin.plugin.serialization") version "2.1.20"
     id("io.ktor.plugin") version "3.1.2"
+    id("org.flywaydb.flyway") version "11.7.0"
+}
+
+kotlin {
+    compilerOptions {
+        optIn.add("kotlin.uuid.ExperimentalUuidApi")
+        optIn.add("kotlin.ExperimentalStdlibApi")
+        optIn.add("kotlin.time.ExperimentalTime")
+    }
 }
 
 group = "app.herocraft"
 version = "0.0.1"
+
+buildscript {
+    dependencies {
+        classpath("org.flywaydb:flyway-database-postgresql:11.7.0")
+    }
+}
 
 application {
     mainClass.set("io.ktor.server.netty.EngineMain")
@@ -30,8 +45,10 @@ ktor {
     fatJar
 }
 
-repositories {
-    mavenCentral()
+flyway {
+    url = "jdbc:postgresql://localhost:5432/herocrafter"
+    user = "postgres"
+    password = "password"
 }
 
 dependencies {
@@ -59,9 +76,12 @@ dependencies {
     implementation("io.ktor:ktor-server-netty-jvm")
     implementation("ch.qos.logback:logback-classic:$logback_version")
 
-    implementation("app.softwork:kotlinx-uuid-core:0.0.25")
+    implementation("app.softwork:kotlinx-uuid-core:0.1.5")
 
     implementation("org.apache.commons:commons-email:1.6.0")
+
+    implementation(kotlincrypto.random.crypto.rand)
+
 
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")

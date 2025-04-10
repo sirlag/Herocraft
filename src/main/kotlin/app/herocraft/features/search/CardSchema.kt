@@ -3,18 +3,18 @@ package app.herocraft.features.search
 import app.herocraft.core.extensions.ilike
 import app.herocraft.core.models.IvionCard
 import app.herocraft.core.models.Page
+import app.softwork.uuid.toUuidOrNull
 import kotlinx.coroutines.Dispatchers
-import kotlinx.uuid.UUID
-import kotlinx.uuid.toJavaUUID
-import kotlinx.uuid.toKotlinUUID
-import kotlinx.uuid.toUUIDOrNull
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.slf4j.LoggerFactory
 import java.util.*
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
+import kotlin.uuid.toKotlinUuid
 
-class CardService(private val database: Database) {
+class CardRepo(private val database: Database) {
     object Card : Table() {
         val id = uuid("id")
         val collectorsNumber = text("collectors_number").nullable()
@@ -47,15 +47,15 @@ class CardService(private val database: Database) {
 //        val card
 //    }
 
-    val logger = LoggerFactory.getLogger(CardService::class.java)
+    val logger = LoggerFactory.getLogger(CardRepo::class.java)
 
     suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO, database) { block() }
 
-    suspend fun getOne(id: UUID) = dbQuery {
+    suspend fun getOne(id: Uuid) = dbQuery {
         Card
             .selectAll()
-            .where{Card.id eq id.toJavaUUID()}
+            .where{Card.id eq id.toJavaUuid()}
             .limit(1)
             .map { it.toIvionCard() }
             .firstOrNull()
@@ -188,12 +188,12 @@ class CardService(private val database: Database) {
                         rulesText = cols[15],
                         flavorText = cols[16],
                         artist = cols[17],
-                        ivionUUID = UUID(cols[18]),
+                        ivionUUID = Uuid.parse(cols[18]),
                         colorPip1 = cols[19],
                         colorPip2 = cols[20],
                         season = cols[21],
                         type = cols[22],
-                        secondUUID = cols[23].toUUIDOrNull()
+                        secondUUID = cols[23].toUuidOrNull()
                     )
                 }
                 .toList()
@@ -235,8 +235,8 @@ class CardService(private val database: Database) {
         it[rulesText] = card.rulesText
         it[flavorText] = card.flavorText
         it[artist] = card.artist
-        it[ivionUUID] = card.ivionUUID.toJavaUUID()
-        it[secondUUID] = card.secondUUID?.toJavaUUID()
+        it[ivionUUID] = card.ivionUUID.toJavaUuid()
+        it[secondUUID] = card.secondUUID?.toJavaUuid()
         it[colorPip1] = card.colorPip1
         it[colorPip2] = card.colorPip2
         it[season] = card.season
@@ -245,7 +245,7 @@ class CardService(private val database: Database) {
 
     private fun ResultRow.toIvionCard(): IvionCard =
         IvionCard(
-            this[Card.id].toKotlinUUID(),
+            this[Card.id].toKotlinUuid(),
             this[Card.collectorsNumber],
             this[Card.format],
             this[Card.name],
@@ -262,8 +262,8 @@ class CardService(private val database: Database) {
             this[Card.rulesText],
             this[Card.flavorText],
             this[Card.artist],
-            this[Card.ivionUUID].toKotlinUUID(),
-            this[Card.secondUUID]?.toKotlinUUID(),
+            this[Card.ivionUUID].toKotlinUuid(),
+            this[Card.secondUUID]?.toKotlinUuid(),
             this[Card.colorPip1],
             this[Card.colorPip2],
             this[Card.season],

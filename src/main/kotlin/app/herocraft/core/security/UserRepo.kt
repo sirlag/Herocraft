@@ -1,20 +1,18 @@
 package app.herocraft.core.security
 
 import app.herocraft.core.api.UserRequest
-import app.herocraft.core.extensions.isEmailAddress
+import app.herocraft.core.extensions.DataService
 import app.herocraft.core.models.User
-import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Clock
-import kotlinx.uuid.UUID
-import kotlinx.uuid.toJavaUUID
-import kotlinx.uuid.toKotlinUUID
 import org.jetbrains.exposed.crypt.Algorithms
 import org.jetbrains.exposed.crypt.encryptedVarchar
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
+import kotlin.uuid.toKotlinUuid
 
-class UserRepo(private val database: Database) {
+class UserRepo(private val database: Database) : DataService(database) {
     object Users : Table() {
         val id = uuid("id").autoGenerate()
         val username = text("username")
@@ -24,14 +22,12 @@ class UserRepo(private val database: Database) {
         val lastModified = timestamp("last_modified")
         val verified = bool("verified").default(false)
         val verifiedAt = timestamp("verified_at").nullable()
+        val active = bool("active").default(false)
 
         override val primaryKey = PrimaryKey(id)
     }
 
-    suspend fun <T> dbQuery(block: suspend () -> T): T =
-        newSuspendedTransaction(Dispatchers.IO, database) { block() }
-
-    suspend fun create(user: UserRequest): UUID = dbQuery {
+    suspend fun create(user: UserRequest): Uuid = dbQuery {
         val now = Clock.System.now()
 
         Users.insert {
@@ -41,42 +37,43 @@ class UserRepo(private val database: Database) {
             it[createdAt] = now
             it[lastModified] = now
             it[verified] = false
-        }[Users.id].toKotlinUUID()
+            it[active] = true
+        }[Users.id].toKotlinUuid()
     }
 
-    suspend fun getUser(username: String, password: String): User?
-        = dbQuery {
-            Users
-                .selectAll()
-                .where { Users.email eq username }
-                .filter { it[Users.password] == password }
-                .map { Users.fromResultRow(it) }
-                .firstOrNull()
+    suspend fun getUser(username: String, password: String): User? = dbQuery {
+        Users
+            .selectAll()
+            .where { Users.email eq username }
+            .filter { it[Users.password] == password }
+            .map { Users.fromResultRow(it) }
+            .firstOrNull()
 
-        }
-
-    suspend fun getUser(id: UUID): User?
-        = dbQuery {
-            Users.select(Users.id, Users.email, Users.username, Users.verified)
-                .where { Users.id eq id.toJavaUUID() }
-                .map { Users.fromResultRow(it) }
-                .firstOrNull()
     }
 
-    suspend fun getUsername(id: UUID): String?
-        = dbQuery {
-            Users
-                .select(Users.username)
-                .where { Users.id eq id.toJavaUUID()}
-                .map { it[Users.username] }
-                .firstOrNull()
-        }
+    suspend fun getUser(id: Uuid): User? = dbQuery {
+        Users.select(Users.id, Users.email, Users.username, Users.verified)
+            .where { Users.id eq id.toJavaUuid() }
+            .map { Users.fromResultRow(it) }
+            .firstOrNull()
+    }
+
+    suspend fun getUserWithEmail(email: String): User? = dbQuery {
+        Users.selectAll()
+            .where { (Users.email eq email) and (Users.active eq true) }
+            .map { Users.fromResultRow(it) }
+            .firstOrNull()
+    }
+
+    suspend fun getUsername(id: Uuid): String? = dbQuery {
+        Users
+            .select(Users.username)
+            .where { Users.id eq id.toJavaUuid() }
+            .map { it[Users.username] }
+            .firstOrNull()
+    }
 
 //    suspend fun resetPassword(email: String) = dbQuery {
-//        if (!email.isEmailAddress()) {
-//            return@dbQuery
-//        }
-//
 //        Users
 //            .select(user)
 //
@@ -108,7 +105,7 @@ class UserRepo(private val database: Database) {
 
     fun Users.fromResultRow(result: ResultRow): User =
         User(
-            result[id].toKotlinUUID(),
+            result[id].toKotlinUuid(),
             result[username],
             result[email],
             result[verified],

@@ -1,11 +1,11 @@
 package app.herocraft.core.api
 
 import kotlinx.serialization.Serializable
-import kotlinx.uuid.UUID
+import kotlin.uuid.Uuid
 
 @Serializable
 data class UserInfo(
-    val id: UUID,
+    val id: Uuid,
     val username: String,
     val email: String,
     val verified: Boolean,
