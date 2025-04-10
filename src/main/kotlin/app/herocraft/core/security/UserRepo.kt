@@ -3,6 +3,7 @@ package app.herocraft.core.security
 import app.herocraft.core.api.UserRequest
 import app.herocraft.core.extensions.DataService
 import app.herocraft.core.models.User
+import io.ktor.server.engine.*
 import kotlinx.datetime.Clock
 import org.jetbrains.exposed.crypt.Algorithms
 import org.jetbrains.exposed.crypt.encryptedVarchar
@@ -12,12 +13,15 @@ import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
 import kotlin.uuid.toKotlinUuid
 
-class UserRepo(private val database: Database) : DataService(database) {
+class UserRepo(database: Database) : DataService(database) {
     object Users : Table() {
+        private val salt = applicationEnvironment().config.propertyOrNull("herocraft.db.salt")?.toString()
+            ?: "CHANGETHIS"
+
         val id = uuid("id").autoGenerate()
         val username = text("username")
         val email = text("email")
-        val password = encryptedVarchar("password", 80, Algorithms.AES_256_PBE_GCM("enchantress", "E3FA597D8D9C98E5"))
+        val password = encryptedVarchar("password", 80, Algorithms.BLOW_FISH(this.salt))
         val createdAt = timestamp("created_at")
         val lastModified = timestamp("last_modified")
         val verified = bool("verified").default(false)
@@ -44,8 +48,7 @@ class UserRepo(private val database: Database) : DataService(database) {
     suspend fun getUser(username: String, password: String): User? = dbQuery {
         Users
             .selectAll()
-            .where { Users.email eq username }
-            .filter { it[Users.password] == password }
+            .where { Users.email eq username and (Users.password eq password) }
             .map { Users.fromResultRow(it) }
             .firstOrNull()
 
@@ -73,11 +76,16 @@ class UserRepo(private val database: Database) : DataService(database) {
             .firstOrNull()
     }
 
-//    suspend fun resetPassword(email: String) = dbQuery {
-//        Users
-//            .select(user)
-//
-//    }
+    suspend fun changePassword(userId: Uuid, newPassword: String): Int = dbQuery {
+        val now = Clock.System.now()
+        return@dbQuery Users
+            .update(
+                where = { Users.id eq userId.toJavaUuid() and (Users.active eq true) }
+            ) {
+                it[password] = newPassword
+                it[lastModified] = now
+            }
+    }
 
 //    suspend fun read(id: Int): User? {
 //        return dbQuery {
@@ -103,7 +111,7 @@ class UserRepo(private val database: Database) : DataService(database) {
 //    }
 
 
-    fun Users.fromResultRow(result: ResultRow): User =
+    private fun Users.fromResultRow(result: ResultRow): User =
         User(
             result[id].toKotlinUuid(),
             result[username],

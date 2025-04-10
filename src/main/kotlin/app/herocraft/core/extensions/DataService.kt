@@ -8,4 +8,5 @@ abstract class DataService(private val database: Database) {
 
     suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO, database) { block() }
+
 }

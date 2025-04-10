@@ -3,7 +3,7 @@ package app.herocraft.features.notifications
 import io.ktor.server.config.*
 import org.slf4j.LoggerFactory
 
-class NotificationManager(val config: ApplicationConfig) {
+class NotificationManager(private val config: ApplicationConfig) {
 
     data class ConsoleNotifications(val enabled: Boolean = true)
     data class EmailNotifications(val enabled: Boolean = false, val hostName: String?, val port: Int, val sender: EmailSender, val security: EmailSecurity)

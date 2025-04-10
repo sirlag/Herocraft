@@ -1,20 +1,19 @@
 package app.herocraft.features.search
 
+import app.herocraft.core.extensions.DataService
 import app.herocraft.core.extensions.ilike
 import app.herocraft.core.models.IvionCard
 import app.herocraft.core.models.Page
 import app.softwork.uuid.toUuidOrNull
-import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.InsertStatement
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.slf4j.LoggerFactory
 import java.util.*
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
 import kotlin.uuid.toKotlinUuid
 
-class CardRepo(private val database: Database) {
+class CardRepo(database: Database) : DataService(database) {
     object Card : Table() {
         val id = uuid("id")
         val collectorsNumber = text("collectors_number").nullable()
@@ -42,15 +41,8 @@ class CardRepo(private val database: Database) {
 
         override val primaryKey = PrimaryKey(id)
     }
-//
-//    object CardMapping : Table() {
-//        val card
-//    }
 
-    val logger = LoggerFactory.getLogger(CardRepo::class.java)
-
-    suspend fun <T> dbQuery(block: suspend () -> T): T =
-        newSuspendedTransaction(Dispatchers.IO, database) { block() }
+    private val logger = LoggerFactory.getLogger(CardRepo::class.java)
 
     suspend fun getOne(id: Uuid) = dbQuery {
         Card

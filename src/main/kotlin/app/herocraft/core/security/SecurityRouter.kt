@@ -10,11 +10,14 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
+import org.slf4j.LoggerFactory
 
 fun Application.registerSecurityRouter(
     userRepo: UserRepo,
     userService: UserService
 ){
+    val logger = LoggerFactory.getLogger("app.herocraft.core.security.registerSecurityRouter")
+
     routing {
 
         post("/account/login") {
@@ -44,13 +47,27 @@ fun Application.registerSecurityRouter(
         }
 
         post("/account/forgot") {
-            val forgotRequest = call.receive<ResetPasswordRequest>()
+            val forgotRequest = call.receive<RequestPasswordResetRequest>()
 
             val user = userService.sendForgotPasswordEmail(forgotRequest.email)
 
             when(user) {
                 true -> call.respond(HttpStatusCode.OK)
                 false -> call.respond(HttpStatusCode.NotFound, "Unable to find user registration")
+            }
+        }
+
+        post("/account/reset") {
+            val resetRequest = call.receive<PasswordResetRequest>()
+
+            val user = userService.resetPassword(resetRequest)
+
+            when (user) {
+                true -> call.respond(HttpStatusCode.OK)
+                false -> {
+                    logger.error("Failed to reset password")
+                    call.respond(HttpStatusCode.NotFound, "Unable to find associated user")
+                }
             }
         }
 

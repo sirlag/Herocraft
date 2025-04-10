@@ -26,7 +26,9 @@ class Services(app: Application) {
     val userService: UserService
 
     init {
-        val jdbcUrl = app.environment.config.property("herocraft.db.postgres.url").getString()
+
+        val config = app.environment.config
+        val jdbcUrl = config.property("herocraft.db.postgres.url").getString()
         val datasource = DatabaseFactory.hikari(jdbcUrl)
         DatabaseFactory.init(datasource)
 
@@ -39,7 +41,7 @@ class Services(app: Application) {
 
         deckRepo = DeckRepo(database, userRepo, cardRepo)
 
-        notificationManager = NotificationManager(app.environment.config)
+        notificationManager = NotificationManager(config)
 
         userService = UserService(userRepo, resetTokenRepo, notificationManager, verificationRepo)
     }

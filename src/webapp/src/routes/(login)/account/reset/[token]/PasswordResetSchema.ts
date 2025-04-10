@@ -1,11 +1,8 @@
 import { z } from 'zod';
 
-export const formSchema = z.object({
-	username: z.string(),
-	email: z.string().email(),
+export const resetPasswordSchema = z.object({
 	password: z.string().min(4),
-	confirmPassword: z.string().min(4),
-	agree: z.boolean()
+	confirmPassword: z.string().min(4)
 }).superRefine(({ password, confirmPassword }, ctx) => {
 	if (confirmPassword != password) {
 		ctx.addIssue({
@@ -14,6 +11,6 @@ export const formSchema = z.object({
 			path: ['confirmPassword']
 		})
 	}
-});
+})
 
-export type FormSchema = typeof formSchema;
+export type ResetPasswordSchema = typeof resetPasswordSchema;
