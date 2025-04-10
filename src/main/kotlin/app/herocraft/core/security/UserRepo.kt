@@ -1,6 +1,7 @@
 package app.herocraft.core.security
 
 import app.herocraft.core.api.UserRequest
+import app.herocraft.core.extensions.isEmailAddress
 import app.herocraft.core.models.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Clock
@@ -13,7 +14,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
-class UserService(private val database: Database) {
+class UserRepo(private val database: Database) {
     object Users : Table() {
         val id = uuid("id").autoGenerate()
         val username = text("username")
@@ -70,6 +71,16 @@ class UserService(private val database: Database) {
                 .map { it[Users.username] }
                 .firstOrNull()
         }
+
+//    suspend fun resetPassword(email: String) = dbQuery {
+//        if (!email.isEmailAddress()) {
+//            return@dbQuery
+//        }
+//
+//        Users
+//            .select(user)
+//
+//    }
 
 //    suspend fun read(id: Int): User? {
 //        return dbQuery {
