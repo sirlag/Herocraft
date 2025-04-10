@@ -3,7 +3,7 @@ import { superValidate } from 'sveltekit-superforms';
 import { formSchema } from './schema';
 import { zod } from 'sveltekit-superforms/adapters';
 import { fail, redirect } from '@sveltejs/kit';
-import { PUBLIC_API_BASE_URL } from '$env/static/public';
+import { AccountURLs } from '$lib/routes.ts'
 import Cookie from 'cookie';
 
 export const load: PageServerLoad = async () => {
@@ -23,7 +23,7 @@ export const actions: Actions = {
 
 		let data = form.data;
 
-		let loginResponse = await fetch(new URL(PUBLIC_API_BASE_URL + '/login'), {
+		let loginResponse = await fetch(new URL(AccountURLs.signin), {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'

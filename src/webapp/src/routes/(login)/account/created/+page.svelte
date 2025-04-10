@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
 
 	import LoginWidget from '../LoginWidget.svelte'
 	import { CircleCheckBig } from 'lucide-svelte';

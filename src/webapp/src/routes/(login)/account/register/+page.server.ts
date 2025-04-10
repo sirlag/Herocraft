@@ -3,7 +3,7 @@ import { formSchema } from './schema.ts';
 import { zod } from 'sveltekit-superforms/adapters';
 import type { Actions, PageServerLoad } from './$types.js';
 import { fail, redirect } from '@sveltejs/kit';
-import { PUBLIC_API_BASE_URL } from '$env/static/public';
+import { AccountURLs } from '$lib/routes.ts';
 
 export const load: PageServerLoad = async () => {
 	return {
@@ -22,7 +22,7 @@ export const actions: Actions = {
 
 		let data = form.data;
 
-		let registerResponse = await fetch(new URL(PUBLIC_API_BASE_URL + '/register'), {
+		let registerResponse = await fetch(new URL(AccountURLs.register), {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'

@@ -4,7 +4,7 @@ import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { forgotSchema } from './ForgotSchema.ts';
 import { fail, redirect } from '@sveltejs/kit';
-import { PUBLIC_API_BASE_URL } from '$env/static/public';
+import { AccountURLs } from '$lib/routes.ts';
 
 export const load: PageServerLoad = async ()=> {
 	return {
@@ -23,7 +23,7 @@ export const actions: Actions = {
 
 		let data = form.data;
 
-		let forgotResponse = await fetch(new URL(PUBLIC_API_BASE_URL + '/forgot'), {
+		let forgotResponse = await fetch(new URL(AccountURLs.forgotPassword), {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'

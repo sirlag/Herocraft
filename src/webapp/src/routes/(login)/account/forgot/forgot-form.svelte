@@ -22,9 +22,9 @@
 <form method="POST" use:enhance>
 	<Form.Field { form } name="email">
 		<Form.Control>
-			{#snippet children({ formData })}
+			{#snippet children({ props })}
 				<Form.Label>Email</Form.Label>
-				<Input bind:value={$formData.email} type="email" placeholder="example@domain.com" />
+				<Input {...props} bind:value={$formData.email} type="email" placeholder="example@domain.com" />
 			{/snippet}
 		</Form.Control>
 		<Form.FieldErrors />
