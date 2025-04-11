@@ -27,7 +27,7 @@
 		<NewDeckForm data={form} {handleSubmit} />
 
 		<Dialog.Footer>
-			<Button form="deckForm" type="submit">Create</Button>
+			<Button form="deckForm" type="submit" >Create</Button>
 		</Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>

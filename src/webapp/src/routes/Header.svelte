@@ -1,24 +1,19 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import { page } from '$app/state';
 	import { NewDeckDialog } from '$lib/components/NewDeck';
 	import { Input } from '$lib/components/ui/input';
 	import HerocraftWordmark from '$lib/images/herocraft.svelte';
+	import type { NewDeckSchema } from '$lib/components/NewDeck/schema.ts';
+	import type { Infer, SuperValidated } from 'sveltekit-superforms';
 
 	interface Props {
 		showSearch: boolean;
+		deckForm: SuperValidated<Infer<NewDeckSchema>>;
 	}
 
-	let { showSearch }: Props = $props();
-	// let  deckForm = $page.data
-	// let deckForm = $state();
-	// let session = $state();
-	let {deckForm, session} = $derived(page.data)
-	// let { deckForm = $bindable() } = $props()
-	run(() => {
-		({ deckForm, session } = page.data);
-	});
+	let { showSearch, deckForm = $bindable()}: Props = $props();
+
+	let { session } = $derived(page.data)
 	let search: string = $state('');
 </script>
 

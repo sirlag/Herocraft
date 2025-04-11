@@ -7,8 +7,12 @@ import { fail, redirect } from '@sveltejs/kit';
 
 export const actions: Actions = {
 	default: async (event) => {
+
 		const form = await superValidate(event, zod(DeckSchema));
 		if (!form.valid) {
+
+			console.error("Invalid Form Sent", form)
+
 			return fail(400, {
 				form
 			});

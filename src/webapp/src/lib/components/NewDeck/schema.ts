@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const formSchema = z.object({
+export const newDeckSchema = z.object({
 	name: z
 		.string({
 			required_error: 'Name is required'
@@ -14,4 +14,4 @@ export const formSchema = z.object({
 	})
 });
 
-export type FormSchema = typeof formSchema;
+export type NewDeckSchema = typeof newDeckSchema;

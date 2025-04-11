@@ -1,5 +1,5 @@
 import Root from './NewDeckDialog.svelte';
-import { formSchema as DeckSchema } from './schema.ts';
+import { newDeckSchema as DeckSchema } from './schema.ts';
 
 export {
 	Root,
