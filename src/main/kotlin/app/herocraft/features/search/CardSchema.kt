@@ -56,8 +56,10 @@ class CardRepo(database: Database) : DataService(database) {
     enum class SearchOps() {
         ARCHETYPE,
         FORMAT,
+        FLAVOR,
         NAME,
-        TYPE;
+        TYPE,
+        RULES;
 
         companion object {
             fun parse(string: String): SearchOps =
@@ -65,6 +67,8 @@ class CardRepo(database: Database) : DataService(database) {
                     "t", "type" -> TYPE
                     "a", "archetype", "c", "class" -> ARCHETYPE
                     "f", "format" -> FORMAT
+                    "ft", "flavor" -> FLAVOR
+                    "r", "rules", "o" -> RULES
                     else -> NAME
                 }
         }
@@ -82,6 +86,8 @@ class CardRepo(database: Database) : DataService(database) {
                     SearchOps.TYPE -> queryTerms[SearchOps.TYPE] = tokens[1]
                     SearchOps.ARCHETYPE -> queryTerms[SearchOps.ARCHETYPE] = tokens[1]
                     SearchOps.FORMAT -> queryTerms[SearchOps.FORMAT] = tokens[1]
+                    SearchOps.FLAVOR -> queryTerms[SearchOps.FLAVOR] = tokens[1]
+                    SearchOps.RULES -> queryTerms[SearchOps.RULES] = tokens[1]
                     else -> {}
                 }
             }
@@ -101,6 +107,14 @@ class CardRepo(database: Database) : DataService(database) {
 
         if (queryTerms.contains(SearchOps.FORMAT)) {
             query = query and (Card.format ilike "%${queryTerms[SearchOps.FORMAT]}%")
+        }
+
+        if (queryTerms.contains(SearchOps.FLAVOR)) {
+            query = query and (Card.flavorText ilike "%${queryTerms[SearchOps.FLAVOR]}%")
+        }
+
+        if (queryTerms.contains(SearchOps.RULES)) {
+            query = query and (Card.rulesText ilike "%${queryTerms[SearchOps.RULES]}%")
         }
 
 
