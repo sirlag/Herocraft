@@ -2,10 +2,15 @@ package app.herocraft
 
 import app.herocraft.antlr.generated.HQLLexer
 import app.herocraft.antlr.generated.HQLParser
+import app.herocraft.features.search.FieldSearchItem
+import app.herocraft.features.search.NotSearchItem
+import app.herocraft.features.search.SearchField
 import app.herocraft.features.search.SearchVisitor
 import org.antlr.v4.kotlinruntime.CharStreams
 import org.antlr.v4.kotlinruntime.CommonTokenStream
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 
 class SearchTests {
@@ -40,7 +45,8 @@ class SearchTests {
         val result = vistor.visit(ctx)
 
         println(result)
-
+        assertEquals(result::class, FieldSearchItem::class)
+        assertEquals((result as FieldSearchItem).field, SearchField.TYPE)
     }
 
     @Test
@@ -115,4 +121,16 @@ class SearchTests {
         println(result)
     }
 
+
+    @Test
+    fun testImplicitNot() {
+        val ctx = getContext("-r:stun")
+        val visitor = SearchVisitor()
+        val result = visitor.visit(ctx)
+
+        println(result)
+
+        assertEquals(result::class, NotSearchItem::class)
+        assertNotNull((result as NotSearchItem).child)
+    }
 }

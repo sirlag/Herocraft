@@ -45,14 +45,14 @@ class SearchVisitor : HQLBaseVisitor<SearchItem>() {
 
     override fun visitPrimaryExpression(ctx: HQLParser.PrimaryExpressionContext): SearchItem {
         println("Visiting Primary Expression: ${ctx.text}")
-        return if (ctx.NOT() != null) {
+        return if (ctx.negationOperator() != null) {
             NotSearchItem(this.visitChildren(ctx))
         } else {
             this.visitChildren(ctx)
         }
     }
 
-    override fun visitTerm(ctx: HQLParser.TermContext): SearchItem {
+    override fun visitBaseTerm(ctx: HQLParser.BaseTermContext): SearchItem {
 
         return when (ctx.childCount) {
             1 -> FieldSearchItem(SearchField.NAME, FieldOperation.EQ, ctx.text)
@@ -61,7 +61,7 @@ class SearchVisitor : HQLBaseVisitor<SearchItem>() {
                     ?.let { SearchField.parse(it) }
                     ?: SearchField.UNKNOWN
 
-                val operation = (ctx.COLON()?.text ?: ctx.comparisonOperator()?.text)
+                val operation = ctx.comparisonOperator()?.text
                     ?.let { FieldOperation.parse(it) }
                     ?: FieldOperation.UNKNOWN
 

@@ -1,15 +1,16 @@
 /*
- * ANTLR 4 Grammar for the Herocraft Query Language
+ * ANTLR 4 Grammar for the Herocraft Query Language (HQL)
  * Supports:
  * - Implicit and Explicit AND
- * - Explicit OR, NOT
+ * - Explicit OR
+ * - Explicit NOT and prefix '-' for negation
  * - Parentheses for grouping
  * - Field queries with colon (field:value)
  * - Field queries with comparison operators (field > value, field <= value etc.)
  * - WORD (unquoted) and QUOTED_STRING values
- * Generated: 2025-04-11 // Adjusted to current date provided in context
+ * Last Updated: 2025-04-12 // Use current date
  */
-grammar HQL;
+grammar HQL; // Using the name from your file
 
 /*------------------------------------------------------------------
  * PARSER RULES
@@ -37,20 +38,23 @@ andExpression
     : primaryExpression (AND? primaryExpression)*
     ;
 
-// Handles individual terms, negation, and parenthesized groups (highest precedence).
+// Handles highest precedence: negation, basic terms, or parenthesized expressions.
+// Separates negation+baseTerm from parentheses for potentially clearer parsing.
 primaryExpression
-    : NOT? (term | LPAREN expression RPAREN)
+    : negationOperator? baseTerm         // A potentially negated base term
+    | LPAREN expression RPAREN           // Or a parenthesized expression
     ;
 
-// Represents a single searchable item. Can be:
-// 1. A field-based query (field:value or field > value)
-// 2. A simple value query
-term
-    : fieldSpecifier COLON atomicValue
-    | fieldSpecifier comparisonOperator atomicValue // Starts with WORD followed by : or operator
+// Defines the allowed negation operators.
+negationOperator
+    : NOT | NEGATE // Allow either 'NOT' keyword or '-' symbol
+    ;
+
+// Represents the core part of a term, without negation. This replaces the old 'term' structure.
+baseTerm
+    : fieldSpecifier comparisonOperator atomicValue // Starts with WORD followed by : or operator
     | simpleTerm                     // Is just a WORD or QUOTED_STRING value
     ;
-
 
 // The identifier used for a field query (interpreted by the application).
 fieldSpecifier
@@ -59,7 +63,7 @@ fieldSpecifier
 
 // Groups the comparison operators.
 comparisonOperator
-    : GT | LT | EQ | GTE | LTE | NEQ
+    : GT | LT | EQ | GTE | LTE | NEQ | IS
     ;
 
 // A simple term query (not associated with a specific field).
@@ -78,11 +82,12 @@ atomicValue
  * LEXER RULES
  *------------------------------------------------------------------*/
 
-// -- Boolean Operators --
-// IMPORTANT: Define keywords *before* the generic WORD rule.
+// -- Boolean/Negation Operators --
+// IMPORTANT: Define keywords/operators *before* the generic WORD rule.
 AND           : 'AND';
 OR            : 'OR';
 NOT           : 'NOT';
+NEGATE        : '-';   // Negation operator token
 
 // -- Comparison Operators --
 // IMPORTANT: Define multi-character operators (>=, <=, !=) *before*
@@ -93,16 +98,17 @@ NEQ           : '!=';
 GT            : '>';
 LT            : '<';
 EQ            : '=';
+IS            : ':';
 
 // -- Structural Characters --
 LPAREN        : '(';
 RPAREN        : ')';
-COLON         : ':'; // Separator for standard field queries
 
 // -- Values --
-// Basic unquoted query terms/field names.
-// IMPORTANT: Must come AFTER specific keywords (AND, OR, NOT) in the grammar file.
-WORD          : [a-zA-Z0-9_/-]+ ; // Adjust character set if needed
+// Basic unquoted query terms/field names. Allows internal hyphens.
+// IMPORTANT: Must come AFTER specific keywords/operators (AND, OR, NOT, NEGATE, operators)
+//            in the grammar file for correct tokenization.
+WORD : [a-zA-Z0-9_/] [a-zA-Z0-9_/-]* ; // First char cannot be '-', subsequent can.
 
 // Quoted strings to allow spaces, special chars, etc. Handles escaped quotes (\").
 QUOTED_STRING : '"' ( ('\\"') | ~["] )*? '"'; // Non-greedy match

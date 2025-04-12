@@ -103,7 +103,7 @@ class CardRepo(database: Database) : DataService(database) {
                 val query = buildQuery(searchItem.child)
                 when  {
                     (query.first == null) -> Query(null, query.second)
-                    else -> Query(query.first, query.second)
+                    else -> Query(NotOp(query.first!!), query.second)
                 }
             }
             is ValuesSearchItem, EmptySearchItem, TerminalSearchItem -> throw RuntimeException("IllegalSearchState")
