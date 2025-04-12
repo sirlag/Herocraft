@@ -1,4 +1,6 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.strumenta.antlrkotlin.gradle.AntlrKotlinTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 val ktor_version: String by project
 val kotlin_version: String by project
@@ -11,6 +13,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "2.1.20"
     id("io.ktor.plugin") version "3.1.2"
     id("org.flywaydb.flyway") version "11.7.0"
+    id("com.strumenta.antlr-kotlin") version "1.0.2"
 }
 
 kotlin {
@@ -18,6 +21,13 @@ kotlin {
         optIn.add("kotlin.uuid.ExperimentalUuidApi")
         optIn.add("kotlin.ExperimentalStdlibApi")
         optIn.add("kotlin.time.ExperimentalTime")
+    }
+    sourceSets {
+        main {
+            kotlin {
+                srcDir(layout.buildDirectory.dir("generatedAntlr"))
+            }
+        }
     }
 }
 
@@ -46,7 +56,7 @@ ktor {
 }
 
 flyway {
-    url = "jdbc:postgresql://localhost:5432/herocrafter"
+    url = "jdbc:postgresql://tower:5432/herocrafter"
     user = "postgres"
     password = "password"
 }
@@ -82,7 +92,29 @@ dependencies {
 
     implementation(kotlincrypto.random.crypto.rand)
 
+    implementation("com.strumenta:antlr-kotlin-runtime:1.0.2")
+
 
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+}
+
+val generateKotlinGrammerSource = tasks.register<AntlrKotlinTask>("generateKotlinGrammerSource") {
+    dependsOn("cleanGenerateKotlinGrammerSource")
+
+    source = fileTree(layout.projectDirectory.dir("antlr")) {
+        include("**/*.g4")
+    }
+
+    val pkgName = "app.herocraft.antlr.generated"
+    packageName = pkgName
+
+    arguments = listOf("-visitor")
+
+    val outDir = "generatedAntlr/${pkgName.replace(".", "/")}"
+    outputDirectory = layout.buildDirectory.dir(outDir).get().asFile
+}
+
+tasks.withType<KotlinCompilationTask<*>> {
+    dependsOn(generateKotlinGrammerSource)
 }

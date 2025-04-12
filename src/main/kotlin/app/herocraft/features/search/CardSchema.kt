@@ -1,17 +1,22 @@
 package app.herocraft.features.search
 
+import app.herocraft.antlr.generated.HQLLexer
+import app.herocraft.antlr.generated.HQLParser
 import app.herocraft.core.extensions.DataService
 import app.herocraft.core.extensions.ilike
 import app.herocraft.core.models.IvionCard
 import app.herocraft.core.models.Page
 import app.softwork.uuid.toUuidOrNull
+import org.antlr.v4.kotlinruntime.CharStreams
+import org.antlr.v4.kotlinruntime.CommonTokenStream
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.slf4j.LoggerFactory
-import java.util.*
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
 import kotlin.uuid.toKotlinUuid
+
+typealias Query = Pair<Op<Boolean>?, List<SearchItem>?>
 
 class CardRepo(database: Database) : DataService(database) {
     object Card : Table() {
@@ -53,70 +58,74 @@ class CardRepo(database: Database) : DataService(database) {
             .firstOrNull()
     }
 
-    enum class SearchOps() {
-        ARCHETYPE,
-        FORMAT,
-        FLAVOR,
-        NAME,
-        TYPE,
-        RULES;
 
-        companion object {
-            fun parse(string: String): SearchOps =
-                when(string.lowercase(Locale.getDefault())) {
-                    "t", "type" -> TYPE
-                    "a", "archetype", "c", "class" -> ARCHETYPE
-                    "f", "format" -> FORMAT
-                    "ft", "flavor" -> FLAVOR
-                    "r", "rules", "o" -> RULES
-                    else -> NAME
+    private fun colummMap(searchField: SearchField) =
+        when(searchField) {
+            SearchField.ARCHETYPE -> Card.archetype to String::class
+            SearchField.FORMAT -> Card.format to String::class
+            SearchField.FLAVOR -> Card.flavorText to String::class
+            SearchField.NAME -> Card.name to String::class
+            SearchField.RULES -> Card.rulesText to String::class
+            SearchField.TYPE -> Card.type to String::class
+            SearchField.UNKNOWN -> null
+    }
+
+//    data class Query(val expression: Expression<Boolean>?, val discardedFields: List<SearchField>?)
+
+    fun buildQuery(searchItem: SearchItem): Query {
+
+        return when (searchItem) {
+            is BooleanSearchItem -> {
+
+                val (fields, errors) = searchItem.children.map { buildQuery(it) }.toList().unzip()
+
+                when (searchItem.type) {
+                    BooleanSearchType.AND -> {
+                        Query(AndOp(fields.filterNotNull()), errors.filterNotNull().flatten())
+                    }
+                    BooleanSearchType.OR -> {
+                        Query(OrOp(fields.filterNotNull()), errors.filterNotNull().flatten())
+
+                    }
                 }
+            }
+            is FieldSearchItem -> {
+
+                val column = colummMap(searchItem.field)
+
+                when {
+                    column == null -> Query(null, listOf(searchItem))
+                    (column.second == String::class) -> Query(column.first ilike "%${searchItem.value}%", emptyList())
+                    else -> Query(null, listOf(searchItem))
+                }
+            }
+            is NotSearchItem -> {
+                val query = buildQuery(searchItem.child)
+                when  {
+                    (query.first == null) -> Query(null, query.second)
+                    else -> Query(query.first, query.second)
+                }
+            }
+            is ValuesSearchItem, EmptySearchItem, TerminalSearchItem -> throw RuntimeException("IllegalSearchState")
         }
     }
 
     suspend fun search(searchString: String, size: Int = 60, page: Int = 1): Page<IvionCard> {
 
-        val queryTerms = mutableMapOf(SearchOps.NAME to "")
+        val inputStream = CharStreams.fromString(searchString)
+        val lexer = HQLLexer(inputStream)
+        val tokens = CommonTokenStream(lexer)
+        val parser = HQLParser(tokens)
 
+        val ctx = parser.query()
+        val visitor = SearchVisitor()
+        val searchField = visitor.visit(ctx)
 
-        for (str: String in searchString.split(" ")) {
-            if (str.contains(":")) {
-                val tokens = str.split(":")
-                when (SearchOps.parse(tokens[0])) {
-                    SearchOps.TYPE -> queryTerms[SearchOps.TYPE] = tokens[1]
-                    SearchOps.ARCHETYPE -> queryTerms[SearchOps.ARCHETYPE] = tokens[1]
-                    SearchOps.FORMAT -> queryTerms[SearchOps.FORMAT] = tokens[1]
-                    SearchOps.FLAVOR -> queryTerms[SearchOps.FLAVOR] = tokens[1]
-                    SearchOps.RULES -> queryTerms[SearchOps.RULES] = tokens[1]
-                    else -> {}
-                }
-            }
-            else {
-                queryTerms[SearchOps.NAME] += "$str "
-            }
+        val (query, errors) = buildQuery(searchField)
+
+        if (query == null) {
+            throw RuntimeException("Empty search string")
         }
-
-        var query = Card.name ilike "%${queryTerms[SearchOps.NAME]?.trim()}%";
-        if (queryTerms.contains(SearchOps.TYPE)) {
-            query = query and (Card.type ilike "%${queryTerms[SearchOps.TYPE]}%")
-        }
-
-        if (queryTerms.contains(SearchOps.ARCHETYPE)) {
-            query = query and (Card.archetype ilike "%${queryTerms[SearchOps.ARCHETYPE]}%")
-        }
-
-        if (queryTerms.contains(SearchOps.FORMAT)) {
-            query = query and (Card.format ilike "%${queryTerms[SearchOps.FORMAT]}%")
-        }
-
-        if (queryTerms.contains(SearchOps.FLAVOR)) {
-            query = query and (Card.flavorText ilike "%${queryTerms[SearchOps.FLAVOR]}%")
-        }
-
-        if (queryTerms.contains(SearchOps.RULES)) {
-            query = query and (Card.rulesText ilike "%${queryTerms[SearchOps.RULES]}%")
-        }
-
 
         return paged(size, page, {Card.id.count()}, {query})
     }
