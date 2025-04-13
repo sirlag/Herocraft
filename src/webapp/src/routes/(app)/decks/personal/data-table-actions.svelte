@@ -23,7 +23,7 @@
 		</DropdownMenu.Trigger>
 		<DropdownMenu.Content>
 			<DropdownMenu.Group>
-				<DropdownMenu.Item>
+				<DropdownMenu.Item closeOnSelect={false}>
 					<form method="POST" action="?/delete" use:enhance>
 						<input class="hidden" aria-hidden="true" type="text" name="id" value={id} />
 						<button><span class="text-red-600">Delete Deck</span></button>
