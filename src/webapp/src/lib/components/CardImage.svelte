@@ -32,7 +32,7 @@
 <div class="relative rounded-lg overflow-hidden">
 	{#if imageData}
 		{#if href}
-			<a {href}>
+			<a data-sveltekit-preload-data="off" {href}>
 				<img src={imageData.src} alt={card.name} />
 			</a>
 		{:else}
@@ -41,7 +41,7 @@
 
 		{#if imageData.hasBack}
 			<div class="absolute right-4 top-4">
-				<Button variant="secondary" size="sm-icon" type="button" on:click={() => (front = !front)}><Repeat /></Button>
+				<Button variant="secondary" size="sm-icon" type="button" onclick={() => (front = !front)}><Repeat /></Button>
 			</div>
 		{/if}
 	{:else}
