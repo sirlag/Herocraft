@@ -1,14 +1,17 @@
-<script>
+<script lang="ts">
 	import '../../app.css';
 
 	import Header from '../Header.svelte';
 	import Footer from '../footer.svelte';
-	/** @type {{children?: import('svelte').Snippet}} */
-	let { children } = $props();
+	import type { LayoutData } from './$types';
+	import type { Snippet } from 'svelte';
+
+	let { data = $bindable(), children }: {data: LayoutData, children: Snippet} = $props();
+
 </script>
 
 <div class="app">
-	<Header showSearch={false} />
+	<Header showSearch={false} deckForm={data.deckForm}/>
 
 	<main>
 		{@render children?.()}

@@ -37,7 +37,7 @@
 	</div>
 	<div class="absolute top-12 right-4 z-10 flex align-middle space-x-1 box-border text-right">
 		{#if count > 0}
-				<Button size="sm-icon" variant="secondary" class="p-1" disabled={minLoading} on:click={() => onClick(-1)} >
+				<Button size="sm-icon" variant="secondary" class="p-1" disabled={minLoading} onclick={() => onClick(-1)} >
 					{#if (minLoading)}
 						<LoaderCircle class="animate-spin"/>
 					{:else}
@@ -45,7 +45,7 @@
 					{/if}
 				</Button>
 				<Input class="h-6 w-16 inline text-right mb-8" readonly value={count}/>
-				<Button size="sm-icon" variant="secondary" class="p-1" disabled={plusLoading} on:click={() => onClick(+1)} >
+				<Button size="sm-icon" variant="secondary" class="p-1" disabled={plusLoading} onclick={() => onClick(+1)} >
 					{#if (plusLoading)}
 						<LoaderCircle class="animate-spin"/>
 					{:else}
@@ -53,7 +53,7 @@
 					{/if}
 				</Button>
 		{:else}
-			<Button size="sm-icon" variant="secondary" class="p-1" disabled={plusLoading} on:click={() => onClick(+1)} >
+			<Button size="sm-icon" variant="secondary" class="p-1" disabled={plusLoading} onclick={() => onClick(+1)} >
 				{#if (plusLoading)}
 					<LoaderCircle class="animate-spin"/>
 				{:else}

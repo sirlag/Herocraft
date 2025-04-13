@@ -1,9 +1,5 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import type { PageData } from './$types';
-	import SuperDebug from 'sveltekit-superforms';
-	import colors from 'tailwindcss/colors';
 	import type { DeckEntry } from '../../../../app';
 	import { string } from 'zod';
 	import IvionIcon from '$lib/components/IvionIcon.svelte';
@@ -13,6 +9,10 @@
 	import LongHeader from './long-header.svelte'
 	import { SearchInput } from '$lib/components/ui/search-input';
 	import { Plus } from 'lucide-svelte';
+
+	import DeckListDropdown from './deck-list-dropdown.svelte';
+	import { PUBLIC_API_BASE_URL } from '$env/static/public';
+	import { invalidateAll } from '$app/navigation';
 
 	interface Props {
 		data: PageData;
@@ -25,10 +25,50 @@
 	let canEdit = $derived(deckList.owner === user?.id);
 	// console.log(data)
 
+	const modify = async (card: IvionCard, count: number) => {
+
+		console.warn("Modify Called")
+		if (card === undefined || count === undefined) {
+			return
+		}
+
+		let changeResponse = await fetch(`${PUBLIC_API_BASE_URL}/decks/${deckList.hash}/edit`, {
+			method: 'POST',
+			credentials: 'include',
+			headers: {
+				'Content-Type': 'application/json',
+				'accept': 'application/json',
+			},
+			body: JSON.stringify({cardId: card.id, count: count})
+		})
+
+		if (!changeResponse.ok) {
+			console.error('Unable to update deck list', changeResponse.statusText)
+		} else {
+			let body = await changeResponse.json();
+			// countObj[card.id] = body.count > 0 ? body.count : undefined;
+			// if (body.changeSpec) {
+			// 	deck.primarySpec = body.spec;
+			// }
+			// // await invalidate(`/deck/${deck.hash}`)
+			await(invalidateAll())
+		}
+	}
+
+
 	type CollatedEntries = {
 		key: string;
 		deckEntries: DeckEntry[];
+		totalCount: number;
 	};
+
+	const totalCount = (entries: DeckEntry[]) => {
+		let totalCount = 0;
+		entries.forEach(entry => {
+			totalCount += entry.count
+		})
+		return totalCount;
+	}
 
 	const getKeys = (cards: CollatedDeckList | undefined) => {
 		if (cards !== undefined) {
@@ -36,7 +76,8 @@
 			return keys.map((key) => {
 				return {
 					key: key,
-					deckEntries: cards[key]!!
+					deckEntries: cards[key]!!,
+					totalCount: totalCount(cards[key]!!),
 				};
 			});
 		} else {
@@ -57,10 +98,7 @@
 	const setFirstCard = (card: IvionCard) => {
 		firstCard = card;
 	};
-	let firstCard;
-	run(() => {
-		firstCard = getFirstCard(deckList.list);
-	});
+	let firstCard = $derived(getFirstCard(deckList.list));
 
 	let search = $state("")
 </script>
@@ -105,9 +143,9 @@
 		{/if}
 		<div class="flex flex-row justify-around">
 			{#if iterableCards === undefined || iterableCards.length === 0}
-				<div>
+				<div class="prose">
 					<p>There is nothing here now. A blank slate, A new hero.</p>
-					<p>Add a Specialization, a Class, or a Card to continue.</p>
+					<p>Add a <a href="/deck/{data.slug}/search?q=f:feat">Specialization</a>, a <a href="/deck/{data.slug}/search?q=t:ultimate">Class</a>, or a <a href="/deck/{data.slug}/search">Card</a> to continue.</p>
 				</div>
 			{:else}
 				<div class="block w-60">
@@ -116,14 +154,22 @@
 			{/if}
 
 			{#each iterableCards as category}
+
 				<div class="flex-2">
-					<CardTable
-						cards={category.deckEntries}
-						category={category.key}
-						mouseOver={(link) => {
-							return () => setFirstCard(link);
-						}}
-					/>
+					{category.key} ({category.totalCount})
+					<ul>
+						{#each category.deckEntries as entry}
+							<li
+								onmouseover={() => setFirstCard(entry.card)}
+								onfocus={() => setFirstCard(entry.card)}
+							>
+								<div class="m-4">
+									<span>{entry.count}</span> <span>{entry.card.name}</span>
+									<DeckListDropdown card={entry.card} count={entry.count} modify={modify} />
+								</div>
+							</li>
+						{/each}
+					</ul>
 				</div>
 			{/each}
 		</div>

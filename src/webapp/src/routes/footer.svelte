@@ -17,8 +17,7 @@
 				<h6 class="border-b font-thin">Account</h6>
 				<ul>
 					<li>
-						<a href="/">Your Account</a>
-						<!-- TODO: Replace this with settings link -->
+						<a href="/account">Your Account</a>
 					</li>
 					<li>
 						<a href="/account/register">Register</a>

@@ -35,7 +35,6 @@ export const actions: Actions = {
 
 		let id = formData.get('id');
 
-
 		let createResponse = await fetch(`${PUBLIC_API_BASE_URL}/decks/${id}`, {
 			method: 'DELETE',
 			headers: {
