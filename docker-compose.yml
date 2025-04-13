@@ -14,6 +14,22 @@ services:
       interval: 5s
     volumes:
       - pg-volume:/var/lib/postgresql/data
+  cache:
+    image: 'redis:8.0-rc1-alpine'
+    ports:
+      - "6379:6379"
+    volumes:
+      - cache:/data
+  minio:
+    image: 'bitnami/minio:latest'
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    environment:
+      - MINIO_ROOT_USER=root-user
+      - MINIO_ROOT_PASSWORD=root-password
+    volumes:
+      - minio:/bitnami/minio/data
   server:
     build: .
     platform: linux/amd64
@@ -23,5 +39,9 @@ services:
       database:
         condition: service_healthy
 
+
+
 volumes:
   pg-volume: {}
+  cache: {}
+  minio: {}

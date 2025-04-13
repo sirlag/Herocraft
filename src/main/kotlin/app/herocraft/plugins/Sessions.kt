@@ -6,13 +6,13 @@ import io.ktor.util.*
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-fun Application.configureSessions() {
+fun Application.configureSessions(sessionStorage: SessionStorage) {
     install(Sessions) {
         val secretSignKey = hex("6819b57a326945c1968f45236589")
 
-        cookie<UserSession>("user_session", SessionStorageMemory()) {
+        cookie<UserSession>("user_session", sessionStorage) {
             cookie.path = "/"
-            cookie.maxAge = 30.toDuration(DurationUnit.MINUTES)
+            cookie.maxAge = 7.toDuration(DurationUnit.DAYS)
             transform(SessionTransportTransformerMessageAuthentication(secretSignKey))
         }
     }

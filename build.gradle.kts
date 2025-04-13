@@ -9,8 +9,8 @@ val exposed_version: String by project
 val flyway_version: String by project
 
 plugins {
-    kotlin("jvm") version "2.1.20"
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.1.20"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
     id("io.ktor.plugin") version "3.1.2"
     id("org.flywaydb.flyway") version "11.7.0"
     id("com.strumenta.antlr-kotlin") version "1.0.2"
@@ -21,6 +21,7 @@ kotlin {
         optIn.add("kotlin.uuid.ExperimentalUuidApi")
         optIn.add("kotlin.ExperimentalStdlibApi")
         optIn.add("kotlin.time.ExperimentalTime")
+        optIn.add("io.lettuce.core.ExperimentalLettuceCoroutinesApi")
     }
     sourceSets {
         main {
@@ -74,16 +75,21 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.3")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.6.0-RC.2")
-    implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
-    implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
-    implementation("org.jetbrains.exposed:exposed-crypt:$exposed_version")
-    implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposed_version")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive")
+
+    implementation(libs.bundles.exposed)
     implementation("com.h2database:h2:2.2.224")
     implementation("org.postgresql:postgresql:42.7.3")
     implementation("com.zaxxer:HikariCP:5.1.0")
     implementation("org.flywaydb:flyway-core:$flyway_version")
     implementation("org.flywaydb:flyway-database-postgresql:$flyway_version")
+    implementation("eu.vendeli:rethis:0.2.9")
+    implementation("io.lettuce:lettuce-core:6.5.5.RELEASE")
+
     implementation("io.ktor:ktor-server-netty-jvm")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
     implementation("ch.qos.logback:logback-classic:$logback_version")
 
     implementation("app.softwork:kotlinx-uuid-core:0.1.5")
@@ -94,6 +100,7 @@ dependencies {
 
     implementation("com.strumenta:antlr-kotlin-runtime:1.0.2")
 
+    implementation(awssdk.services.s3)
 
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")

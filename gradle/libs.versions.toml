@@ -1,0 +1,17 @@
+[versions]
+kotlin = "2.1.20"
+exposed="0.61.0"
+
+[libraries]
+exposed-core = { group = "org.jetbrains.exposed", name= "exposed-core", version.ref= "exposed"}
+exposed-jdbc = { group = "org.jetbrains.exposed", name= "exposed-jdbc", version.ref= "exposed"}
+exposed-crypt = { group = "org.jetbrains.exposed", name= "exposed-crypt", version.ref= "exposed"}
+exposed-kotlin-datetime = { group = "org.jetbrains.exposed", name= "exposed-kotlin-datetime", version.ref= "exposed"}
+
+
+[bundles]
+exposed = ['exposed-core', 'exposed-jdbc', 'exposed-crypt', 'exposed-kotlin-datetime']
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref= "kotlin"}
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref="kotlin"}

@@ -15,7 +15,7 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
     val services = registerServices()
-    configureSessions()
+    configureSessions(services.sessionStorage)
     configureSecurity()
     registerSecurityRouter(services.userRepo, services.userService)
     configureHTTP()

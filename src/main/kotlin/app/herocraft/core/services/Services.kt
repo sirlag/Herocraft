@@ -1,14 +1,13 @@
 package app.herocraft.core.services
 
 import app.herocraft.core.DatabaseFactory
-import app.herocraft.core.security.ResetTokenRepo
-import app.herocraft.core.security.UserRepo
-import app.herocraft.core.security.UserService
-import app.herocraft.core.security.VerificationRepo
+import app.herocraft.core.security.*
 import app.herocraft.features.builder.DeckRepo
 import app.herocraft.features.notifications.NotificationManager
 import app.herocraft.features.search.CardRepo
 import io.ktor.server.application.*
+import io.ktor.server.sessions.*
+import io.lettuce.core.RedisClient
 import org.jetbrains.exposed.sql.Database
 
 class Services(app: Application) {
@@ -25,9 +24,13 @@ class Services(app: Application) {
 
     val userService: UserService
 
+    val sessionStorage: SessionStorage
+
     init {
 
         val config = app.environment.config
+
+        // Database
         val jdbcUrl = config.property("herocraft.db.postgres.url").getString()
         val datasource = DatabaseFactory.hikari(jdbcUrl)
         DatabaseFactory.init(datasource)
@@ -40,6 +43,9 @@ class Services(app: Application) {
         verificationRepo = VerificationRepo(database)
 
         deckRepo = DeckRepo(database, userRepo, cardRepo)
+
+        val lettuce = RedisClient.create("redis://localhost")
+        sessionStorage = RedisSessionStorage(lettuce)
 
         notificationManager = NotificationManager(config)
 
