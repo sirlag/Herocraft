@@ -3,6 +3,7 @@ package app.herocraft.core.security
 import app.herocraft.core.api.UserRequest
 import app.herocraft.plugins.UserSession
 import app.softwork.uuid.toUuid
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -10,13 +11,12 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
-import org.slf4j.LoggerFactory
 
 fun Application.registerSecurityRouter(
     userRepo: UserRepo,
     userService: UserService
 ){
-    val logger = LoggerFactory.getLogger("app.herocraft.core.security.registerSecurityRouter")
+    val logger = KotlinLogging.logger {}
 
     routing {
 
@@ -47,7 +47,14 @@ fun Application.registerSecurityRouter(
         }
 
         post("/account/forgot") {
-            val forgotRequest = call.receive<RequestPasswordResetRequest>()
+            val forgotRequest = try {
+                 call.receive<RequestPasswordResetRequest>()
+            } catch (ex: ContentTransformationException) {
+                logger.error { "Unable to properly transform request body: ${ex.message}" }
+                logger.error { "Dumping request body: $call" }
+                call.respond(HttpStatusCode.BadRequest, "Invalid request.")
+                return@post
+            }
 
             val user = userService.sendForgotPasswordEmail(forgotRequest.email)
 
