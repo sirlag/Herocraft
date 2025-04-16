@@ -31,8 +31,9 @@ export const actions: Actions = {
 			body: JSON.stringify({...data})
 		});
 
-		if (!forgotResponse) {
-			console.error("Not Okay");
+
+		if (!forgotResponse.ok) {
+			console.error("Unable to send password Reset", forgotResponse);
 			return fail(500, {
 				form
 			})
