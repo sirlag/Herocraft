@@ -35,6 +35,7 @@ class S3Processor(
             credentialsProvider = s3CredentialsProvider
             forcePathStyle = true
             endpointUrl = Url.parse(s3EndpointUrl)
+            useDualStack = false
         }.use { s3 ->
             val response = s3.putObject(request)
             logger.info { response.toString() }
@@ -64,7 +65,8 @@ class S3Processor(
                 key = pathKey
                 body = outputStream
                 contentType = myContentType
-                tagging = "public=yes"
+                // Tagging doesn't seem to be support on cloudflare r2. Tagfer
+                // tagging = "public=yes"
             }
 
         S3Client {
@@ -72,6 +74,7 @@ class S3Processor(
             credentialsProvider = s3CredentialsProvider
             forcePathStyle = true
             endpointUrl = Url.parse(s3EndpointUrl)
+            useDualStack = false
         }.use { s3 ->
             val response = s3.putObject(request)
         }
