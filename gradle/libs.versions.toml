@@ -1,9 +1,13 @@
 [versions]
-kotlin = "2.1.20"
+arrow = "2.0.1"
 exposed="0.61.0"
+kotlin = "2.1.20"
 ktor="3.1.2"
 
 [libraries]
+arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
+arrow-fx-coroutines = { module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "arrow" }
+
 exposed-core = { group = "org.jetbrains.exposed", name= "exposed-core", version.ref= "exposed"}
 exposed-jdbc = { group = "org.jetbrains.exposed", name= "exposed-jdbc", version.ref= "exposed"}
 exposed-crypt = { group = "org.jetbrains.exposed", name= "exposed-crypt", version.ref= "exposed"}
@@ -13,6 +17,7 @@ exposed-kotlin-datetime = { group = "org.jetbrains.exposed", name= "exposed-kotl
 ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio"}
 
 [bundles]
+arrow = ['arrow-core', 'arrow-fx-coroutines']
 exposed = ['exposed-core', 'exposed-jdbc', 'exposed-crypt', 'exposed-kotlin-datetime']
 
 [plugins]

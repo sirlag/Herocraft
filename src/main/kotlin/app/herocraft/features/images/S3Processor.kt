@@ -19,7 +19,30 @@ class S3Processor(
 
     private val logger = KotlinLogging.logger {}
 
-    suspend fun storeInBucket(
+    suspend fun testConnection() {
+
+        logger.info { "Testing s3 bucket connection" }
+        val request =
+            PutObjectRequest {
+                bucket = "cards"
+                key = "ping.txt"
+                body = ByteStream.fromString("pong")
+                contentType = "text/plain"
+            }
+
+        S3Client {
+            region = "auto"
+            credentialsProvider = s3CredentialsProvider
+            forcePathStyle = true
+            endpointUrl = Url.parse(s3EndpointUrl)
+        }.use { s3 ->
+            val response = s3.putObject(request)
+            logger.info { response.toString() }
+        }
+
+    }
+
+    suspend fun storeCardImage(
         bytes: ByteArray,
         face: CardFace,
         size: ImageProcessor.ImageSize,

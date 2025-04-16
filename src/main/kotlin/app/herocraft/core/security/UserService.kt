@@ -3,8 +3,13 @@ package app.herocraft.core.security
 import app.herocraft.core.api.UserRequest
 import app.herocraft.core.extensions.isEmailAddress
 import app.herocraft.features.notifications.NotificationManager
+import arrow.core.Either
+import io.ktor.server.plugins.*
 import org.slf4j.LoggerFactory
 import kotlin.uuid.Uuid
+
+data class UserNotFoundException(val key: String): RuntimeException()
+data class UserNotVerifiedExeception(val key: String): RuntimeException()
 
 class UserService(
     private val userRepo: UserRepo,
@@ -41,19 +46,15 @@ class UserService(
         return changedPass > 0
     }
 
-    suspend fun sendForgotPasswordEmail(email: String): Boolean {
-        if (!email.isEmailAddress()) {
-            return false
-        }
+    suspend fun sendForgotPasswordEmail(email: String): Result<Uuid> = runCatching{
+        require(email.isEmailAddress())
 
-        val user = userRepo.getUserWithEmail(email) ?: return false
-        if (!user.verified) {
-            return false
-        }
+        val user = userRepo.getUserWithEmail(email) ?: throw UserNotFoundException("email = $email")
+        if (!user.verified) throw UserNotVerifiedExeception("")
         val token = resetTokenRepo.create(user.id)
 
         notificationManager.sendPasswordReset(user.email, user.username, token)
-        return true
+        user.id
     }
 
     suspend fun sendEmailVerificationEmail(id: Uuid, email: String) {

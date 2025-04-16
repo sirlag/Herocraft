@@ -1,5 +1,5 @@
 import type { Actions, PageServerLoad } from './$types.js';
-import { superValidate } from 'sveltekit-superforms';
+import { type ErrorStatus, message, superValidate } from 'sveltekit-superforms';
 import { formSchema } from './schema';
 import { zod } from 'sveltekit-superforms/adapters';
 import { fail, redirect } from '@sveltejs/kit';
@@ -33,13 +33,26 @@ export const actions: Actions = {
 		});
 
 		if (!loginResponse.ok) {
-			console.log('Not Okay');
-			return fail(500, {
-				form
+
+			let errorBody = await loginResponse.json();
+
+			let errorMessage = errorBody.error == 'INVALID_LOGIN'
+				? "Incorrect username or password."
+					: 'An unknown error occurred. Try again in a few minutes.';
+
+			console.error('Login Failed', loginResponse);
+
+			let errorStatus: ErrorStatus = 500;
+			if (loginResponse.status >= 400 && loginResponse.status < 600) {
+				// @ts-ignore
+				errorStatus = loginResponse.status;
+			}
+
+			return message(form, errorMessage, {
+				status: errorStatus,
 			});
 		}
 
-		// console.log(loginResponse)
 		let cookie = loginResponse.headers.getSetCookie()[0];
 		let parsedCookie = Cookie.parse(cookie);
 

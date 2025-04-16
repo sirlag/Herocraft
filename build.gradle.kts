@@ -104,6 +104,8 @@ dependencies {
 
     implementation(awssdk.services.s3)
 
+    implementation(libs.bundles.arrow)
+
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }

@@ -71,10 +71,10 @@ class ImageService(
         val normalImage = imageProcessor.resizeImage(sourceImage.inputStream(), targetSize = ImageSize.NORMAL)
         val smallImage = imageProcessor.resizeImage(sourceImage.inputStream(), targetSize = ImageSize.SMALL)
 
-        val cardFull = s3Processor.storeInBucket(sourceImage, face, ImageSize.FULL, ImageFormat.PNG, card.id)
-        val cardLarge = s3Processor.storeInBucket(largeImage, face, ImageSize.LARGE, ImageFormat.JPEG, card.id)
-        val cardNormal = s3Processor.storeInBucket(normalImage, face, ImageSize.NORMAL, ImageFormat.JPEG, card.id)
-        val cardSmall = s3Processor.storeInBucket(smallImage, face, ImageSize.SMALL, ImageFormat.JPEG, card.id)
+        val cardFull = s3Processor.storeCardImage(sourceImage, face, ImageSize.FULL, ImageFormat.PNG, card.id)
+        val cardLarge = s3Processor.storeCardImage(largeImage, face, ImageSize.LARGE, ImageFormat.JPEG, card.id)
+        val cardNormal = s3Processor.storeCardImage(normalImage, face, ImageSize.NORMAL, ImageFormat.JPEG, card.id)
+        val cardSmall = s3Processor.storeCardImage(smallImage, face, ImageSize.SMALL, ImageFormat.JPEG, card.id)
 
         return listOfNotNull(cardFull, cardLarge, cardNormal, cardSmall)
 

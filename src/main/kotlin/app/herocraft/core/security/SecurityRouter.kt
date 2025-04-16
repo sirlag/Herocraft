@@ -1,6 +1,7 @@
 package app.herocraft.core.security
 
 import app.herocraft.core.api.UserRequest
+import app.herocraft.core.models.ErrorMessage
 import app.herocraft.plugins.UserSession
 import app.softwork.uuid.toUuid
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -15,7 +16,7 @@ import io.ktor.server.sessions.*
 fun Application.registerSecurityRouter(
     userRepo: UserRepo,
     userService: UserService
-){
+) {
     val logger = KotlinLogging.logger {}
 
     routing {
@@ -27,9 +28,11 @@ fun Application.registerSecurityRouter(
 
             if (foundUser != null) {
                 call.sessions.set(UserSession(foundUser.id.toString(), foundUser.email, foundUser.verified))
-                call.respond(200)
+                call.respond(HttpStatusCode.OK)
             } else {
-                call.respond(HttpStatusCode.Unauthorized, "Invalid login credentials")
+                call.respond(HttpStatusCode.Unauthorized,
+                    ErrorMessage("INVALID_LOGIN","Invalid login credentials")
+                )
             }
         }
 
@@ -40,7 +43,7 @@ fun Application.registerSecurityRouter(
             val userId = userService.registerUser(userRequest)
 
             if (userId != null) {
-                call.respond(200)
+                call.respond(HttpStatusCode.OK)
             } else {
                 call.respond(HttpStatusCode.BadRequest, "Invalid registration.")
             }
@@ -48,7 +51,7 @@ fun Application.registerSecurityRouter(
 
         post("/account/forgot") {
             val forgotRequest = try {
-                 call.receive<RequestPasswordResetRequest>()
+                call.receive<RequestPasswordResetRequest>()
             } catch (ex: ContentTransformationException) {
                 logger.error { "Unable to properly transform request body: ${ex.message}" }
                 logger.error { "Dumping request body: $call" }
@@ -58,9 +61,30 @@ fun Application.registerSecurityRouter(
 
             val user = userService.sendForgotPasswordEmail(forgotRequest.email)
 
-            when(user) {
-                true -> call.respond(HttpStatusCode.OK)
-                false -> call.respond(HttpStatusCode.NotFound, "Unable to find user registration")
+            user.onSuccess {
+                call.respond(HttpStatusCode.OK)
+            }.onFailure {
+                when (it) {
+                    is UserNotFoundException ->
+                        call.respond(
+                            HttpStatusCode.NotFound,
+                            ErrorMessage("USER_NOT_FOUND", "Unable to find user registration")
+                        )
+
+                    is UserNotVerifiedExeception ->
+                        call.respond(
+                            HttpStatusCode.Unauthorized,
+                            ErrorMessage(
+                                "USER_NOT_VERIFIED",
+                                "Unable to send reset request for this email, please contact support"
+                            )
+                        )
+
+                    else -> call.respond(
+                        HttpStatusCode.InternalServerError,
+                        ErrorMessage.UnknownError
+                    )
+                }
             }
         }
 
@@ -72,7 +96,7 @@ fun Application.registerSecurityRouter(
             when (user) {
                 true -> call.respond(HttpStatusCode.OK)
                 false -> {
-                    logger.error("Failed to reset password")
+                    logger.error { "Failed to reset password" }
                     call.respond(HttpStatusCode.NotFound, "Unable to find associated user")
                 }
             }
@@ -81,7 +105,7 @@ fun Application.registerSecurityRouter(
         get("/account/verification/verify/{token}") {
             call.parameters["token"]?.let {
                 val verified = userService.verifyEmail(it)
-                when(verified) {
+                when (verified) {
                     true -> call.respond(HttpStatusCode.OK)
                     false -> call.respond(HttpStatusCode.Unauthorized, "Invalid Verification Token")
                 }
@@ -93,15 +117,15 @@ fun Application.registerSecurityRouter(
 
         authenticate("auth-session") {
 
-            post( "/logout") {
+            post("/logout") {
                 val principal = call.authentication.principal<UserSession>()
                 if (principal != null) {
                     call.sessions.clear<UserSession>()
-                    call.respond(200)
+                    call.respond(HttpStatusCode.OK)
                 }
             }
 
-            get ("/protected") {
+            get("/protected") {
                 val principal = call.authentication.principal<UserSession>()
                 val email = principal?.email
                 call.respondText("Hello, $email!")

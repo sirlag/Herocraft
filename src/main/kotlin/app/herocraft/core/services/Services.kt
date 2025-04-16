@@ -32,6 +32,7 @@ class Services(app: Application) {
     val imageService: ImageService
 
     val sessionStorage: SessionStorage
+    val s3Processor: S3Processor
 
     init {
 
@@ -69,9 +70,9 @@ class Services(app: Application) {
         val endpointUrl = config.property("herocraft.s3.endpoint").getString()
 
 
-        val s3 = S3Processor(s3CredentialsProvider, baseUrl, endpointUrl)
+        s3Processor = S3Processor(s3CredentialsProvider, baseUrl, endpointUrl)
 
-        imageService = ImageService(imageProcessor, s3, cardImageRepo)
+        imageService = ImageService(imageProcessor, s3Processor, cardImageRepo)
         userService = UserService(userRepo, resetTokenRepo, notificationManager, verificationRepo)
 
 

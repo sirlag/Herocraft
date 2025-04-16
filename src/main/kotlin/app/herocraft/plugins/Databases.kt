@@ -4,6 +4,7 @@ import app.herocraft.core.api.UserRequest
 import app.herocraft.core.security.UserRepo
 import app.herocraft.features.images.ImageProcessor
 import app.herocraft.features.images.ImageService
+import app.herocraft.features.images.S3Processor
 import app.herocraft.features.search.CardImageRepo
 import app.herocraft.features.search.CardRepo
 import app.softwork.uuid.toUuidOrNull
@@ -16,7 +17,12 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotlin.uuid.Uuid
 
-fun Application.configureDatabases(userRepo: UserRepo, cardRepo: CardRepo, imageService: ImageService) {
+fun Application.configureDatabases(
+    userRepo: UserRepo,
+    cardRepo: CardRepo,
+    imageService: ImageService,
+    s3Processor: S3Processor
+) {
     routing {
         // Create user
         post("/users") {
@@ -66,7 +72,7 @@ fun Application.configureDatabases(userRepo: UserRepo, cardRepo: CardRepo, image
 
             println(call.request.queryString())
             val results = searchString
-                ?.let { cardRepo.search(searchString, page=page) } ?: cardRepo.getPaging(page = page)
+                ?.let { cardRepo.search(searchString, page = page) } ?: cardRepo.getPaging(page = page)
             println(results.toString())
 //            results.hasNext //synthetic call to populate
             println(Json.encodeToJsonElement(results))
@@ -86,6 +92,10 @@ fun Application.configureDatabases(userRepo: UserRepo, cardRepo: CardRepo, image
             imageService.processAll(cards)
 
             call.respond(200)
+        }
+
+        get("/testing/test-s3-connection") {
+            s3Processor.testConnection()
         }
 
     }
