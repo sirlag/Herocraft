@@ -96,6 +96,8 @@ fun Application.configureDatabases(
 
         get("/testing/test-s3-connection") {
             s3Processor.testConnection()
+
+            call.respond(200)
         }
 
     }
