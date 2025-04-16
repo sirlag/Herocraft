@@ -21,7 +21,7 @@ fun Application.module() {
     configureHTTP()
     configureMonitoring()
     configureSerialization()
-    configureDatabases(services.userRepo, services.cardRepo)
+    configureDatabases(services.userRepo, services.cardRepo, services.imageService)
     registerBuilder(services.deckRepo)
     configureRouting()
     install(CORS) {

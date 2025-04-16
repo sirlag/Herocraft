@@ -11,7 +11,7 @@ val flyway_version: String by project
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
-    id("io.ktor.plugin") version "3.1.2"
+    alias(libs.plugins.ktor)
     id("org.flywaydb.flyway") version "11.7.0"
     id("com.strumenta.antlr-kotlin") version "1.0.2"
 }
@@ -20,7 +20,6 @@ kotlin {
     compilerOptions {
         optIn.add("kotlin.uuid.ExperimentalUuidApi")
         optIn.add("kotlin.ExperimentalStdlibApi")
-        optIn.add("kotlin.time.ExperimentalTime")
         optIn.add("io.lettuce.core.ExperimentalLettuceCoroutinesApi")
     }
     sourceSets {
@@ -73,6 +72,9 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus:1.12.5")
     implementation("io.ktor:ktor-server-content-negotiation-jvm")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
+
+    implementation(libs.ktor.client.cio)
+
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.3")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.6.0-RC.2")
 

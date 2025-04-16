@@ -3,8 +3,13 @@ package app.herocraft.core.services
 import app.herocraft.core.DatabaseFactory
 import app.herocraft.core.security.*
 import app.herocraft.features.builder.DeckRepo
+import app.herocraft.features.images.ImageProcessor
+import app.herocraft.features.images.ImageService
+import app.herocraft.features.images.S3Processor
 import app.herocraft.features.notifications.NotificationManager
+import app.herocraft.features.search.CardImageRepo
 import app.herocraft.features.search.CardRepo
+import aws.sdk.kotlin.runtime.auth.credentials.StaticCredentialsProvider
 import io.ktor.server.application.*
 import io.ktor.server.sessions.*
 import io.lettuce.core.RedisClient
@@ -15,6 +20,7 @@ class Services(app: Application) {
     private val database: Database
 
     val cardRepo: CardRepo
+    val cardImageRepo: CardImageRepo
     val deckRepo: DeckRepo
     val resetTokenRepo: ResetTokenRepo
     val userRepo: UserRepo
@@ -23,6 +29,7 @@ class Services(app: Application) {
     val notificationManager: NotificationManager
 
     val userService: UserService
+    val imageService: ImageService
 
     val sessionStorage: SessionStorage
 
@@ -38,6 +45,7 @@ class Services(app: Application) {
         database = Database.connect(datasource)
 
         cardRepo = CardRepo(database)
+        cardImageRepo = CardImageRepo(database)
         resetTokenRepo = ResetTokenRepo(database)
         userRepo = UserRepo(database)
         verificationRepo = VerificationRepo(database)
@@ -49,7 +57,24 @@ class Services(app: Application) {
 
         notificationManager = NotificationManager(config)
 
+        val imageProcessor = ImageProcessor()
+
+        val s3CredentialsProvider =  StaticCredentialsProvider() {
+            accountId = config.property("herocraft.s3.id").getString()
+            accessKeyId = config.property("herocraft.s3.key").getString()
+            secretAccessKey = config.property("herocraft.s3.secret").getString()
+        }
+
+        val baseUrl = config.property("herocraft.s3.baseUrl").getString()
+        val endpointUrl = config.property("herocraft.s3.endpoint").getString()
+
+
+        val s3 = S3Processor(s3CredentialsProvider, baseUrl, endpointUrl)
+
+        imageService = ImageService(imageProcessor, s3, cardImageRepo)
         userService = UserService(userRepo, resetTokenRepo, notificationManager, verificationRepo)
+
+
     }
 }
 

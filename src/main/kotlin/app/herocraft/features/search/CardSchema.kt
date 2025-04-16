@@ -10,6 +10,7 @@ import app.softwork.uuid.toUuidOrNull
 import org.antlr.v4.kotlinruntime.CharStreams
 import org.antlr.v4.kotlinruntime.CommonTokenStream
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.slf4j.LoggerFactory
 import kotlin.uuid.Uuid
@@ -56,6 +57,12 @@ class CardRepo(database: Database) : DataService(database) {
             .limit(1)
             .map { it.toIvionCard() }
             .firstOrNull()
+    }
+
+    suspend fun getAll() = dbQuery {
+        Card.selectAll()
+            .map { it.toIvionCard() }
+            .toList()
     }
 
 

@@ -1,6 +1,7 @@
 [versions]
 kotlin = "2.1.20"
 exposed="0.61.0"
+ktor="3.1.2"
 
 [libraries]
 exposed-core = { group = "org.jetbrains.exposed", name= "exposed-core", version.ref= "exposed"}
@@ -9,9 +10,12 @@ exposed-crypt = { group = "org.jetbrains.exposed", name= "exposed-crypt", versio
 exposed-kotlin-datetime = { group = "org.jetbrains.exposed", name= "exposed-kotlin-datetime", version.ref= "exposed"}
 
 
+ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio"}
+
 [bundles]
 exposed = ['exposed-core', 'exposed-jdbc', 'exposed-crypt', 'exposed-kotlin-datetime']
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref= "kotlin"}
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref="kotlin"}
+ktor = { id = "io.ktor.plugin", version.ref="ktor"}
