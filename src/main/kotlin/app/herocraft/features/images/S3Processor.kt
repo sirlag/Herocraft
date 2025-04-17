@@ -51,7 +51,7 @@ class S3Processor(
         id: Uuid
     ): IvionCardImage {
 
-        val pathKey = "/$face/$size/${id.toHexDashString()}$format"
+        val pathKey = "$face/$size/${id.toHexDashString()}$format"
         val myContentType = when (format) {
             ImageProcessor.ImageFormat.PNG -> "image/png"
             ImageProcessor.ImageFormat.JPEG -> "image/jpeg"
@@ -84,7 +84,7 @@ class S3Processor(
             cardId = id,
             face = face,
             variant = size,
-            uri = "$s3BaseUrl$pathKey",
+            uri = "$s3BaseUrl/$pathKey",
             mimeType = myContentType,
             byteSize = bytes.size,
         )
