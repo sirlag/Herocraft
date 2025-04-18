@@ -1,26 +1,26 @@
 [versions]
 arrow = "2.0.1"
-exposed="0.61.0"
+exposed = "0.61.0"
 kotlin = "2.1.20"
-ktor="3.1.2"
+ktor = "3.1.2"
 
 [libraries]
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 arrow-fx-coroutines = { module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "arrow" }
 
-exposed-core = { group = "org.jetbrains.exposed", name= "exposed-core", version.ref= "exposed"}
-exposed-jdbc = { group = "org.jetbrains.exposed", name= "exposed-jdbc", version.ref= "exposed"}
-exposed-crypt = { group = "org.jetbrains.exposed", name= "exposed-crypt", version.ref= "exposed"}
-exposed-kotlin-datetime = { group = "org.jetbrains.exposed", name= "exposed-kotlin-datetime", version.ref= "exposed"}
+exposed-core = { group = "org.jetbrains.exposed", name = "exposed-core", version.ref = "exposed" }
+exposed-jdbc = { group = "org.jetbrains.exposed", name = "exposed-jdbc", version.ref = "exposed" }
+exposed-crypt = { group = "org.jetbrains.exposed", name = "exposed-crypt", version.ref = "exposed" }
+exposed-dao = { group = "org.jetbrains.exposed", name = "exposed-dao", version.ref = "exposed" }
+exposed-kotlin-datetime = { group = "org.jetbrains.exposed", name = "exposed-kotlin-datetime", version.ref = "exposed" }
 
-
-ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio"}
+ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio" }
 
 [bundles]
 arrow = ['arrow-core', 'arrow-fx-coroutines']
-exposed = ['exposed-core', 'exposed-jdbc', 'exposed-crypt', 'exposed-kotlin-datetime']
+exposed = ['exposed-core', 'exposed-jdbc', 'exposed-crypt', 'exposed-kotlin-datetime', 'exposed-dao']
 
 [plugins]
-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref= "kotlin"}
-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref="kotlin"}
-ktor = { id = "io.ktor.plugin", version.ref="ktor"}
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ktor = { id = "io.ktor.plugin", version.ref = "ktor" }

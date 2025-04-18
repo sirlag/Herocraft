@@ -31,7 +31,8 @@ data class IvionCard(
     val colorPip1: String?,
     val colorPip2: String?,
     val season: String,
-    val type: String?
+    val type: String?,
+    val imageUris: IvionCardImageURIs? = null,
 ) {
     fun isUltimate() = type == "Ultimate"
 }
@@ -47,21 +48,14 @@ data class IvionCard(
 //    )
 //}
 
+@Serializable
+data class IvionCardImageURIs(
+    val full: String,
+    val large: String,
+    val normal: String,
+    val small: String,
+)
 
-//    object CardImage: Table("cardimages") {
-//        val id = uuid("image_id")
-//        val card_id = reference(
-//            name = "card_id",
-//            refColumn = Card.id,
-//            onDelete = ReferenceOption.CASCADE)
-//        val variant = text("variant")
-//        val face = varchar("face", 5)
-//        val uri = text("uri")
-//        val mimeType = varchar(name = "mime_type", length = 100)
-//        val byteSize = integer("byte_size")
-//        val createdAt = datetime("created_at")
-//        val updatedAt = datetime("updated_at")
-//    }
 
 data class IvionCardImage(
     val id: Uuid = Uuid.random(),

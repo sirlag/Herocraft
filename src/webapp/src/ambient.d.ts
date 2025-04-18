@@ -1,3 +1,10 @@
+type ImageUris = {
+	full: string;
+	large: string;
+	normal: string;
+	small: string;
+}
+
 type IvionCard = {
 	id: string;
 	collectorsNumber: string | null;
@@ -22,4 +29,5 @@ type IvionCard = {
 	colorPip2: string | null;
 	season: string;
 	type: string | null;
+	imageUris: ImageUris
 };

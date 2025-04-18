@@ -2,10 +2,8 @@ package app.herocraft.plugins
 
 import app.herocraft.core.api.UserRequest
 import app.herocraft.core.security.UserRepo
-import app.herocraft.features.images.ImageProcessor
 import app.herocraft.features.images.ImageService
 import app.herocraft.features.images.S3Processor
-import app.herocraft.features.search.CardImageRepo
 import app.herocraft.features.search.CardRepo
 import app.softwork.uuid.toUuidOrNull
 import io.ktor.http.*
@@ -15,7 +13,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import kotlin.uuid.Uuid
 
 fun Application.configureDatabases(
     userRepo: UserRepo,

@@ -28,7 +28,7 @@
 <div class="w-full py-2 bg-neutral-50">
 	<div class="flex flex-row max-w-5xl mx-auto my-0">
 		<Button
-			on:click={() => navigateTo((1).toString())}
+			onclick={() => navigateTo((1).toString())}
 			disabled={!hasPrevious}
 			size="icon"
 			variant="secondary"
@@ -36,7 +36,7 @@
 			<ChevronFirst class="h-4 w-4" />
 		</Button>
 		<Button
-			on:click={() => navigateTo((pageNum - 1).toString())}
+			onclick={() => navigateTo((pageNum - 1).toString())}
 			disabled={!hasPrevious}
 			variant="secondary"
 		>
@@ -44,7 +44,7 @@
 			Previous
 		</Button>
 		<Button
-			on:click={() => navigateTo((pageNum + 1).toString())}
+			onclick={() => navigateTo((pageNum + 1).toString())}
 			disabled={!hasNext}
 			class="h-10"
 			variant="secondary"
@@ -53,7 +53,7 @@
 			<ChevronRight class="ml-3 h-4 w-4" />
 		</Button>
 		<Button
-			on:click={() => navigateTo(data.page.totalPages.toString())}
+			onclick={() => navigateTo(data.page.totalPages.toString())}
 			disabled={!hasNext}
 			size="icon"
 			variant="secondary"

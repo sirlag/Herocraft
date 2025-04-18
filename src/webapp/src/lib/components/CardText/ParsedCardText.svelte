@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
 
 	import charge from '$lib/images/IvionIcons/Charge.png';
 	import IvionIcon from '$lib/components/IvionIcon.svelte';
 	import Parser from '$lib/components/CardText/Parser.svelte';
-	import { createEventDispatcher, setContext } from 'svelte';
 	import { Lexer, defaultRenderers } from './card-parser';
+	import { onMount } from 'svelte';
 
 	interface Props {
 		source?: string | Array<string>;
@@ -21,14 +20,14 @@
 		isInline = false
 	}: Props = $props();
 
-	const dispatch = createEventDispatcher();
 
 	let tokens = $state();
 	let lexer = $state();
 	let mounted;
 
 	let preprocessed = $derived(Array.isArray(source));
-	run(() => {
+
+	onMount(() => {
 		if (preprocessed) {
 			tokens = source;
 		} else {
@@ -40,20 +39,20 @@
 				.replaceAll(/[<>]/g, '*')
 				.replaceAll(/\[(\w+)]/g, '<$1>');
 
+			//@ts-ignore
 			tokens = isInline ? lexer.inlineTokens(str) : lexer.lex(str);
 
-			console.log(source);
-			console.log(tokens);
-
-			dispatch('parsed', { tokens });
+			console.log($inspect(source));
+			console.log($inspect(tokens));
 		}
-	});
+	})
 
-	let combindedRenderers = $derived({ ...defaultRenderers, ...renderers });
+	// run(() => {
 
-	run(() => {
-		mounted && !preprocessed && dispatch('parsed', { tokens });
-	});
+	// });
+
+	let combinedRenderers = $derived({ ...defaultRenderers, ...renderers });
+
 </script>
 
-<Parser {tokens} renderers={combindedRenderers} />
+<Parser {tokens} renderers={combinedRenderers} />

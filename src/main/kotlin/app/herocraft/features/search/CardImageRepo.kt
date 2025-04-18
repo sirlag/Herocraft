@@ -3,22 +3,26 @@ package app.herocraft.features.search
 import app.herocraft.core.extensions.DataService
 import app.herocraft.core.models.IvionCardImage
 import app.herocraft.features.search.CardRepo.Card
+import org.jetbrains.exposed.dao.UUIDEntity
+import org.jetbrains.exposed.dao.UUIDEntityClass
+import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
-import kotlin.time.toJavaInstant
+import java.util.*
 import kotlin.uuid.toJavaUuid
 
-class CardImageRepo(database: Database): DataService(database) {
+class CardImageRepo(database: Database) : DataService(database) {
 
-    object CardImage: Table("cardimages") {
-        val id = uuid("image_id")
+    object CardImage : UUIDTable("cardimages", "image_id") {
         val card_id = reference(
             name = "card_id",
             refColumn = Card.id,
-            onDelete = ReferenceOption.CASCADE)
+            onDelete = ReferenceOption.CASCADE
+        )
         val variant = text("variant")
         val face = varchar("face", 5)
         val uri = text("uri")
@@ -26,6 +30,20 @@ class CardImageRepo(database: Database): DataService(database) {
         val byteSize = integer("byte_size")
         val createdAt = timestamp("created_at")
         val updatedAt = timestamp("updated_at")
+
+    }
+
+    class CardImageEntity(id: EntityID<UUID>) : UUIDEntity(id) {
+        companion object : UUIDEntityClass<CardImageEntity>(CardImage)
+
+        val card by CardRepo.CardEntity referencedOn CardImage.card_id
+        val variant by CardImage.variant
+        val face by CardImage.face
+        val uri by CardImage.uri
+        val mimeType by CardImage.mimeType
+        val byteSize by CardImage.byteSize
+        val createdAt by CardImage.createdAt
+        val updatedAt by CardImage.updatedAt
     }
 
     suspend fun addAllCardImages(cards: List<IvionCardImage>) = dbQuery {
