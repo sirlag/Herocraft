@@ -1,28 +1,42 @@
 package app.herocraft
 
+import app.herocraft.core.security.UserRepo
+import app.herocraft.core.security.UserService
 import app.herocraft.core.security.registerSecurityRouter
-import app.herocraft.core.services.registerServices
+import app.herocraft.features.builder.DeckRepo
 import app.herocraft.features.builder.registerBuilder
+import app.herocraft.features.images.ImageService
+import app.herocraft.features.images.S3Processor
+import app.herocraft.features.search.CardRepo
 import app.herocraft.plugins.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.cors.routing.*
+import org.koin.ktor.ext.inject
 
 fun main(args: Array<String>) {
     EngineMain.main(args)
 }
 
 fun Application.module() {
-    val services = registerServices()
-    configureSessions(services.sessionStorage)
+
+    val userRepo:UserRepo by inject()
+    val cardRepo: CardRepo by inject()
+    val deckRepo: DeckRepo by inject()
+    val userService: UserService by inject()
+
+    val imageService: ImageService by inject()
+    val s3Processor: S3Processor by inject()
+
+    configureSessions()
     configureSecurity()
-    registerSecurityRouter(services.userRepo, services.userService)
+    registerSecurityRouter(userRepo, userService)
     configureHTTP()
     configureMonitoring()
     configureSerialization()
-    configureDatabases(services.userRepo, services.cardRepo, services.imageService, services.s3Processor)
-    registerBuilder(services.deckRepo)
+    configureDatabases(userRepo, cardRepo, imageService, s3Processor)
+    registerBuilder(deckRepo)
     configureRouting()
     install(CORS) {
         allowHost("localhost:5173")

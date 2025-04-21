@@ -7,9 +7,10 @@ import javax.sql.DataSource
 
 object DatabaseFactory {
 
-    fun init(dataSource: DataSource) {
+    fun init(dataSource: DataSource): DataSource {
         val flyway = Flyway.configure().dataSource(dataSource).load()
         flyway.migrate()
+        return dataSource
     }
 
     fun hikari(url: String): HikariDataSource {

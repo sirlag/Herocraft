@@ -2,11 +2,14 @@
 arrow = "2.0.1"
 exposed = "0.61.0"
 kotlin = "2.1.20"
+koin-bom = "4.1.0-Beta7"
 ktor = "3.1.2"
 
 [libraries]
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 arrow-fx-coroutines = { module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "arrow" }
+
+config4k = { module = "io.github.config4k:config4k", version = "0.7.0"}
 
 exposed-core = { group = "org.jetbrains.exposed", name = "exposed-core", version.ref = "exposed" }
 exposed-jdbc = { group = "org.jetbrains.exposed", name = "exposed-jdbc", version.ref = "exposed" }
@@ -16,9 +19,19 @@ exposed-kotlin-datetime = { group = "org.jetbrains.exposed", name = "exposed-kot
 
 ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio" }
 
+koin-bom = { group = "io.insert-koin", name = "koin-bom", version.ref = "koin-bom" }
+koin-core = { group = "io.insert-koin", name = "koin-core" }
+koin-core-coroutines = { group = "io.insert-koin", name = "koin-core-coroutines" }
+koin-ktor = { group = 'io.insert-koin', name = 'koin-ktor' }
+koin-ktor3 = { group = 'io.insert-koin', name = 'koin-ktor3' }
+koin-logger-slf4j = { group = 'io.insert-koin', name = 'koin-logger-slf4j' }
+
 [bundles]
 arrow = ['arrow-core', 'arrow-fx-coroutines']
 exposed = ['exposed-core', 'exposed-jdbc', 'exposed-crypt', 'exposed-kotlin-datetime', 'exposed-dao']
+
+koin = ['koin-ktor3', 'koin-logger-slf4j']
+
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

@@ -153,6 +153,7 @@ class CardRepo(database: Database) : DataService(database) {
     private fun colummMap(searchField: SearchField) =
         when (searchField) {
             SearchField.ARCHETYPE -> Card.archetype to String::class
+            SearchField.ARTIST -> Card.artist to String::class
             SearchField.FORMAT -> Card.format to String::class
             SearchField.FLAVOR -> Card.flavorText to String::class
             SearchField.NAME -> Card.name to String::class

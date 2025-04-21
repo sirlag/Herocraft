@@ -51,6 +51,7 @@ enum class FieldOperation {
 
 enum class SearchField {
     ARCHETYPE,
+    ARTIST,
     FORMAT,
     FLAVOR,
     NAME,
@@ -63,6 +64,7 @@ enum class SearchField {
         fun parse(string: String): SearchField =
             when (string.lowercase(Locale.getDefault())) {
                 "a", "archetype", "c", "class" -> ARCHETYPE
+                "artist"-> ARTIST
                 "ft", "flavor" -> FLAVOR
                 "f", "format" -> FORMAT
                 "r", "rules", "o" -> RULES

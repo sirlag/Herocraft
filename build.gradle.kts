@@ -106,6 +106,12 @@ dependencies {
 
     implementation(libs.bundles.arrow)
 
+    implementation(libs.config4k)
+
+    implementation (project.dependencies.platform(libs.koin.bom))
+    implementation(libs.bundles.koin)
+//    implementation("io.insert-koin:koin-logger-slf4j:3.5.6")
+
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }
