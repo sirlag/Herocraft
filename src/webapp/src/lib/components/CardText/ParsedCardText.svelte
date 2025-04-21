@@ -42,8 +42,8 @@
 			//@ts-ignore
 			tokens = isInline ? lexer.inlineTokens(str) : lexer.lex(str);
 
-			console.log($inspect(source));
-			console.log($inspect(tokens));
+			$inspect(source).with(console.log);
+			$inspect(tokens).with(console.log);
 		}
 	})
 
