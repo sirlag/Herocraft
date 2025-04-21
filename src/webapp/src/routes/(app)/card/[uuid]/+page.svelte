@@ -48,7 +48,7 @@
 
 	let colorStyle = $derived(`--color-1:${c1};--color-2:${c2}`);
 
-	console.log($inspect(colorStyle))
+	$inspect(colorStyle).with(console.log)
 
 
 </script>
