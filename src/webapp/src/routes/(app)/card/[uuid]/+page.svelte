@@ -98,6 +98,12 @@
 					<Separator />
 					<p class="pl-16 pr-4"><i>{card.flavorText}</i></p>
 				{/if}
+				{#if card.artist}
+					<Separator />
+					<p class="pl-16 pr-4 prose">
+						<i>Illustrated by <a href={`/cards?q=artist%3A\"${card.artist}\"`}>{card.artist}</a></i>
+					</p>
+				{/if}
 			</div>
 		{/if}
 	</div>
