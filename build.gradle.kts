@@ -5,14 +5,12 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 val ktor_version: String by project
 val kotlin_version: String by project
 val logback_version: String by project
-val exposed_version: String by project
-val flyway_version: String by project
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ktor)
-    id("org.flywaydb.flyway") version "11.7.0"
+    alias(libs.plugins.flyway)
     id("com.strumenta.antlr-kotlin") version "1.0.2"
 }
 
@@ -84,11 +82,11 @@ dependencies {
     implementation(libs.bundles.exposed)
     implementation("com.h2database:h2:2.2.224")
     implementation("org.postgresql:postgresql:42.7.3")
-    implementation("com.zaxxer:HikariCP:5.1.0")
-    implementation("org.flywaydb:flyway-core:$flyway_version")
-    implementation("org.flywaydb:flyway-database-postgresql:$flyway_version")
+    implementation("com.zaxxer:HikariCP:6.3.0")
+    implementation(libs.bundles.flyway)
+
     implementation("eu.vendeli:rethis:0.2.9")
-    implementation("io.lettuce:lettuce-core:6.5.5.RELEASE")
+    implementation("io.lettuce:lettuce-core:6.6.0.RELEASE")
 
     implementation("io.ktor:ktor-server-netty-jvm")
     implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
@@ -110,7 +108,6 @@ dependencies {
 
     implementation (project.dependencies.platform(libs.koin.bom))
     implementation(libs.bundles.koin)
-//    implementation("io.insert-koin:koin-logger-slf4j:3.5.6")
 
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
