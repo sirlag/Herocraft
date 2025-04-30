@@ -3,7 +3,7 @@ COPY --chown=gradle:gradle . /home/gradle/src
 WORKDIR /home/gradle/src
 RUN gradle buildFatJar --no-daemon
 
-FROM openjdk:21
+FROM eclipse-temurin:21-jre-alpine
 EXPOSE 8080:8080
 RUN mkdir /app
 RUN mkdir /app/conf
