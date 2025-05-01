@@ -42,8 +42,8 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ${{ github.repository_owner}}/${{IMAGE_NAME}}:${{ steps.version.outputs.version }}
-            ${{ github.repository_owner}}/${{IMAGE_NAME}}:latest
+            ${{ github.repository_owner}}/herocraft:${{ steps.version.outputs.version }}
+            ${{ github.repository_owner}}/herocraft:latest
 
 
 #      - name: Build the Docker image
