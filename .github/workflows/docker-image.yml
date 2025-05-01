@@ -3,8 +3,6 @@ name: Docker Image CI
 on:
   push:
     branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
 
 env:
   IMAGE_NAME: herocraft
@@ -16,16 +14,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}"
-    - name: Log in to registry
-      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-    - name: Push image
-      run: |
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Get next version
+        uses: reecetech/version-increment@2024.10.1
+        id: version
+        with:
+          scheme: calver
+
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag $IMAGE_NAME --tag ${{ steps.version.outputs.version }} --label "runnumber=${GITHUB_RUN_ID}"
+
+      - name: Log in to registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Push image
+        run: |
           IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          VERSION=$(echo "${{ steps.version.outputs.version }}" | sed -e 's,.*/\(.*\),\1,')
 
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
           [ "$VERSION" == "main" ] && VERSION=latest
