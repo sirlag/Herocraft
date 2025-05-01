@@ -89,7 +89,7 @@ dependencies {
     implementation("io.lettuce:lettuce-core:6.6.0.RELEASE")
 
     implementation("io.ktor:ktor-server-netty-jvm")
-    implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.7")
     implementation("ch.qos.logback:logback-classic:$logback_version")
 
     implementation("app.softwork:kotlinx-uuid-core:0.1.5")
