@@ -13,12 +13,16 @@ object DatabaseFactory {
         return dataSource
     }
 
-    fun hikari(url: String): HikariDataSource {
+    fun hikari(
+        url: String,
+        user: String,
+        password: String
+    ): HikariDataSource {
         val config = with(HikariConfig()) {
             driverClassName = "org.postgresql.Driver"
             jdbcUrl = url
-            username = "postgres"
-            password = "password"
+            username = user
+            this.password = password
             maximumPoolSize = 30
             isAutoCommit = false
             transactionIsolation = "TRANSACTION_REPEATABLE_READ"

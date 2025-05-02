@@ -21,8 +21,10 @@ val databaseModule = module {
         val application: Application = get()
 
         val jdbcUrl = application.environment.config.property("herocraft.db.postgres.url").getString()
+        val user = application.environment.config.property("herocraft.db.postgres.user").getString()
+        val password = application.environment.config.property("herocraft.db.postgres.password").getString()
 
-        Database.connect(DatabaseFactory.init(DatabaseFactory.hikari(jdbcUrl)))
+        Database.connect(DatabaseFactory.init(DatabaseFactory.hikari(jdbcUrl, user, password)))
     }
 
     singleOf(::CardRepo)
@@ -40,14 +42,5 @@ val databaseModule = module {
     }
 
     singleOf(::RedisSessionStorage)
-//    single {
-//        val application: Application = get()
-//
-//
-//        val redisUrl = application.environment.config.property("herocraft.db.redis.url").getString()
-//        val client = RedisClient.create(redisUrl)
-//
-//        RedisSessionStorage(client)
-//    }
 
 }
