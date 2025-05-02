@@ -2,7 +2,6 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.strumenta.antlrkotlin.gradle.AntlrKotlinTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
-val ktor_version: String by project
 val kotlin_version: String by project
 val logback_version: String by project
 
@@ -74,14 +73,14 @@ dependencies {
     implementation(libs.ktor.client.cio)
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.6.0-RC.2")
+    implementation(libs.kotlinx.datetime)
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive")
 
     implementation(libs.bundles.exposed)
     implementation("com.h2database:h2:2.2.224")
-    implementation("org.postgresql:postgresql:42.7.3")
+    implementation(libs.postgres)
     implementation("com.zaxxer:HikariCP:6.3.0")
     implementation(libs.bundles.flyway)
 
@@ -89,7 +88,7 @@ dependencies {
     implementation("io.lettuce:lettuce-core:6.6.0.RELEASE")
 
     implementation("io.ktor:ktor-server-netty-jvm")
-    implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.7")
     implementation("ch.qos.logback:logback-classic:$logback_version")
 
     implementation("app.softwork:kotlinx-uuid-core:0.1.5")
@@ -98,7 +97,7 @@ dependencies {
 
     implementation(kotlincrypto.random.crypto.rand)
 
-    implementation("com.strumenta:antlr-kotlin-runtime:1.0.2")
+    implementation("com.strumenta:antlr-kotlin-runtime:1.0.3")
 
     implementation(awssdk.services.s3)
 

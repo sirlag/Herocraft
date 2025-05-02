@@ -11,7 +11,7 @@ ktor = "3.1.2"
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 arrow-fx-coroutines = { module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "arrow" }
 
-config4k = { module = "io.github.config4k:config4k", version = "0.7.0"}
+config4k = { module = "io.github.config4k:config4k", version = "0.7.0" }
 
 exposed-core = { group = "org.jetbrains.exposed", name = "exposed-core", version.ref = "exposed" }
 exposed-jdbc = { group = "org.jetbrains.exposed", name = "exposed-jdbc", version.ref = "exposed" }
@@ -19,10 +19,9 @@ exposed-crypt = { group = "org.jetbrains.exposed", name = "exposed-crypt", versi
 exposed-dao = { group = "org.jetbrains.exposed", name = "exposed-dao", version.ref = "exposed" }
 exposed-kotlin-datetime = { group = "org.jetbrains.exposed", name = "exposed-kotlin-datetime", version.ref = "exposed" }
 
-flyway = { module = "org.flywaydb:flyway-core", version.ref = "flyway"}
-flyway-postgres = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway"}
+flyway = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
+flyway-postgres = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
-ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio" }
 
 koin-bom = { group = "io.insert-koin", name = "koin-bom", version.ref = "koin-bom" }
 koin-core = { group = "io.insert-koin", name = "koin-core" }
@@ -30,6 +29,13 @@ koin-core-coroutines = { group = "io.insert-koin", name = "koin-core-coroutines"
 koin-ktor = { group = 'io.insert-koin', name = 'koin-ktor' }
 koin-ktor3 = { group = 'io.insert-koin', name = 'koin-ktor3' }
 koin-logger-slf4j = { group = 'io.insert-koin', name = 'koin-logger-slf4j' }
+
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime-jvm", version = "0.6.2" }
+
+ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio" }
+
+
+postgres = { module = "org.postgresql:postgresql", version = "42.7.3" }
 
 [bundles]
 arrow = ['arrow-core', 'arrow-fx-coroutines']
@@ -40,7 +46,7 @@ koin = ['koin-ktor3', 'koin-logger-slf4j']
 
 
 [plugins]
-flyway = { id = "org.flywaydb.flyway", version.ref="flyway" }
+flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
