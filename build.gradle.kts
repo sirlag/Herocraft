@@ -74,7 +74,7 @@ dependencies {
     implementation(libs.ktor.client.cio)
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.6.0-RC.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.6.2")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive")
