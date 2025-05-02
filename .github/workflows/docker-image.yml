@@ -33,7 +33,7 @@ jobs:
       - name: Tag Version
         uses: rickstaa/action-create-tag@v1
         with:
-          tag: ${{ steps.version.outputs.v-version}
+          tag: ${{ steps.version.outputs.v-version }}
           message: "Version ${{ steps.version.outputs.version }}"
 
       - name: Docker Metadata
