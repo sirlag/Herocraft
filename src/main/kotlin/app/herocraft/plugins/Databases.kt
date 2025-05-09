@@ -5,19 +5,23 @@ import app.herocraft.core.security.UserRepo
 import app.herocraft.features.images.ImageService
 import app.herocraft.features.images.S3Processor
 import app.herocraft.features.search.CardRepo
+import app.herocraft.features.search.SearchService
 import app.softwork.uuid.toUuidOrNull
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import org.koin.ktor.ext.inject
 
-fun Application.configureDatabases(
-    userRepo: UserRepo,
-    cardRepo: CardRepo,
-    imageService: ImageService,
-    s3Processor: S3Processor
-) {
+fun Application.configureDatabases() {
+
+    val userRepo by inject<UserRepo>()
+    val cardRepo by inject<CardRepo>()
+    val imageService by inject<ImageService>()
+    val searchService by inject<SearchService>()
+    val s3Processor by inject<S3Processor>()
+
     routing {
         // Create user
         post("/users") {
@@ -39,14 +43,19 @@ fun Application.configureDatabases(
                 page = 1
             }
 
-            log.info("Search string: $searchString, page: $page")
-            val results =
-                if (!searchString.isNullOrEmpty()) cardRepo.search(searchString, page = page)
-                else cardRepo.getPaging(page = page)
+            // Filter parameters
 
-//            results.hasNext //synthetic call to populate
+            val classes = call.parameters.getAll("c")
+            val specs = call.parameters.getAll("s")
+            val types = call.parameters.getAll("f")
+
+            log.info("Search string: $searchString, page: $page")
+            val results = searchService.search(searchString, classes, specs, types, page)
+
+            // results.hasNext //synthetic call to populate
             call.respond(HttpStatusCode.OK, results)
         }
+
 
         get("card/{uuid}") {
             val uuid = call.parameters["uuid"]!!

@@ -22,12 +22,8 @@ fun main(args: Array<String>) {
 fun Application.module() {
 
     val userRepo:UserRepo by inject()
-    val cardRepo: CardRepo by inject()
     val deckRepo: DeckRepo by inject()
     val userService: UserService by inject()
-
-    val imageService: ImageService by inject()
-    val s3Processor: S3Processor by inject()
 
     configureSessions()
     configureSecurity()
@@ -35,7 +31,7 @@ fun Application.module() {
     configureHTTP()
     configureMonitoring()
     configureSerialization()
-    configureDatabases(userRepo, cardRepo, imageService, s3Processor)
+    configureDatabases()
     registerBuilder(deckRepo)
     configureRouting()
     install(CORS) {

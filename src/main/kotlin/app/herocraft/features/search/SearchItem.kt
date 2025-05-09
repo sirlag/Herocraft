@@ -16,6 +16,7 @@ data object TerminalSearchItem : SearchItem {
         return "TerminalSearchItem"
     }
 }
+
 data class BooleanSearchItem(val type: BooleanSearchType, val children: List<SearchItem>) : SearchItem
 data class ValuesSearchItem(val children: List<SearchItem>) : SearchItem
 data class NotSearchItem(val child: SearchItem) : SearchItem
@@ -52,10 +53,12 @@ enum class FieldOperation {
 enum class SearchField {
     ARCHETYPE,
     ARTIST,
+    COLOR,
     FORMAT,
     FLAVOR,
     NAME,
     RULES,
+    SEASON,
     TYPE,
     UNKNOWN
     ;
@@ -63,11 +66,13 @@ enum class SearchField {
     companion object {
         fun parse(string: String): SearchField =
             when (string.lowercase(Locale.getDefault())) {
-                "a", "archetype", "c", "class" -> ARCHETYPE
-                "artist"-> ARTIST
+                "a", "archetype", "c", "class", "s", "spec", "specialization" -> ARCHETYPE
+                "artist" -> ARTIST
+                "co", "color" -> COLOR
                 "ft", "flavor" -> FLAVOR
                 "f", "format" -> FORMAT
                 "r", "rules", "o" -> RULES
+                "se", "set", "season", "e" -> SEASON
                 "t", "type" -> TYPE
                 else -> UNKNOWN
             }

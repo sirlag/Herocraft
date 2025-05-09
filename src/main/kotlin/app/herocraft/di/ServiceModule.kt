@@ -4,10 +4,10 @@ import app.herocraft.core.security.UserService
 import app.herocraft.features.images.ImageProcessor
 import app.herocraft.features.images.ImageService
 import app.herocraft.features.images.S3Processor
+import app.herocraft.features.search.SearchService
 import app.herocraft.features.notifications.NotificationManager
 import aws.sdk.kotlin.runtime.auth.credentials.StaticCredentialsProvider
 import io.ktor.server.application.*
-import io.ktor.server.engine.*
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
@@ -40,5 +40,7 @@ val serviceModule = module {
     }
 
     singleOf(::ImageService)
+
+    singleOf(::SearchService)
 
 }
