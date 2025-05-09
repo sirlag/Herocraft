@@ -87,8 +87,14 @@ fun Application.registerBuilder(deckRepo: DeckRepo) {
             }
 
             post ("/decks/{id}/edit") {
+
+                val cookies = call.request.cookies.rawCookies
+
+                log.debug("Received Cookies: {}", cookies)
+
                 val session = call.authentication.principal<UserSession>()
                 if (session == null) {
+                    log.error("Authentication failed for edit route")
                     call.respondRedirect("/login")
                     return@post
                 }

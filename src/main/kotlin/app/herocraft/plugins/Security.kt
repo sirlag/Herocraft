@@ -12,6 +12,7 @@ fun Application.configureSecurity() {
     authentication {
         session<UserSession>("auth-session") {
             validate { session ->
+                log.debug("Validation user session: id = ${session.id}, email = ${session.email}, verified = ${session.verified}")
                 session
             }
             challenge {
