@@ -21,7 +21,7 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
 
-    val userRepo:UserRepo by inject()
+    val userRepo: UserRepo by inject()
     val deckRepo: DeckRepo by inject()
     val userService: UserService by inject()
 
@@ -41,5 +41,7 @@ fun Application.module() {
         allowHeader(HttpHeaders.ContentType)
         allowMethod(HttpMethod.Delete)
         allowMethod(HttpMethod.Put)
+        allowMethod(HttpMethod.Post)
+        allowMethod(HttpMethod.Get)
     }
 }
