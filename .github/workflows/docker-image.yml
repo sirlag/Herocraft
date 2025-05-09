@@ -3,6 +3,8 @@ name: Docker Image CI
 on:
   push:
     branches: [ "master" ]
+    paths-ignore:
+      - 'src/webapp/**'
 
 env:
   IMAGE_NAME: herocraft
@@ -53,9 +55,6 @@ jobs:
           username: ${{github.actor}}
           password: ${{secrets.GITHUB_TOKEN}}
 
-#      - name: Set up QEMU
-#        uses: docker/setup-qemu-action@v3
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -66,26 +65,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.output.labels }}
-#          tags: |
-#            ${{ github.repository_owner}}/herocraft:${{ steps.version.outputs.version }}
-#            ${{ github.repository_owner}}/herocraft:latest
-
-
-#      - name: Build the Docker image
-#        run: docker build . --file Dockerfile --tag $IMAGE_NAME --tag ${{ steps.version.outputs.version }} --label "runnumber=${GITHUB_RUN_ID}"
-
-#      - name: Log in to registry
-#        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-#      - name: Push image
-#        run: |
-#          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
-#          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-#          VERSION=$(echo "${{ steps.version.outputs.version }}" | sed -e 's,.*/\(.*\),\1,')
-#
-#          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-#          [ "$VERSION" == "main" ] && VERSION=latest
-#          echo IMAGE_ID=$IMAGE_ID
-#          echo VERSION=$VERSION
-#          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
-#          docker push $IMAGE_ID:$VERSION

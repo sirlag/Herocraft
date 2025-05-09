@@ -11,8 +11,6 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
 
 fun Application.configureDatabases(
     userRepo: UserRepo,
@@ -28,32 +26,6 @@ fun Application.configureDatabases(
             call.respond(HttpStatusCode.Created, id)
         }
 
-//        // Read user
-//        get("/users/{id}") {
-//            val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
-//            val user = userService.read(id)
-//            if (user != null) {
-//                call.respond(HttpStatusCode.OK, user)
-//            } else {
-//                call.respond(HttpStatusCode.NotFound)
-//            }
-//        }
-//
-//        // Update user
-//        put("/users/{id}") {
-//            val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
-//            val user = call.receive<ExposedUser>()
-//            userService.update(id, user)
-//            call.respond(HttpStatusCode.OK)
-//        }
-//
-//        // Delete user
-//        delete("/users/{id}") {
-//            val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
-//            userService.delete(id)
-//            call.respond(HttpStatusCode.OK)
-//        }
-
         post("/cards/reload") {
             val results = cardRepo.resetTable()
             call.respond(HttpStatusCode.OK, results)
@@ -67,12 +39,12 @@ fun Application.configureDatabases(
                 page = 1
             }
 
-            println(call.request.queryString())
-            val results = searchString
-                ?.let { cardRepo.search(searchString, page = page) } ?: cardRepo.getPaging(page = page)
-            println(results.toString())
+            log.info("Search string: $searchString, page: $page")
+            val results =
+                if (!searchString.isNullOrEmpty()) cardRepo.search(searchString, page = page)
+                else cardRepo.getPaging(page = page)
+
 //            results.hasNext //synthetic call to populate
-            println(Json.encodeToJsonElement(results))
             call.respond(HttpStatusCode.OK, results)
         }
 
