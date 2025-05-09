@@ -3,7 +3,7 @@
 </script>
 
 <footer class="bg-neutral-900">
-	<div class="min-w-[100vw] max-w-[100vw] pt-4 pb-12">
+	<div class="w-full pt-4 pb-12">
 		<div class="flex flex-row space-x-3 justify-center text-neutral-300 text-base font-medium pb-6">
 			<div>
 				<h6 class="border-b font-thin">Cards</h6>

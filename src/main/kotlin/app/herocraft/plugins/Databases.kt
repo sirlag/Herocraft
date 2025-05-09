@@ -5,21 +5,23 @@ import app.herocraft.core.security.UserRepo
 import app.herocraft.features.images.ImageService
 import app.herocraft.features.images.S3Processor
 import app.herocraft.features.search.CardRepo
+import app.herocraft.features.search.SearchService
 import app.softwork.uuid.toUuidOrNull
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
+import org.koin.ktor.ext.inject
 
-fun Application.configureDatabases(
-    userRepo: UserRepo,
-    cardRepo: CardRepo,
-    imageService: ImageService,
-    s3Processor: S3Processor
-) {
+fun Application.configureDatabases() {
+
+    val userRepo by inject<UserRepo>()
+    val cardRepo by inject<CardRepo>()
+    val imageService by inject<ImageService>()
+    val searchService by inject<SearchService>()
+    val s3Processor by inject<S3Processor>()
+
     routing {
         // Create user
         post("/users") {
@@ -27,32 +29,6 @@ fun Application.configureDatabases(
             val id = userRepo.create(user)
             call.respond(HttpStatusCode.Created, id)
         }
-
-//        // Read user
-//        get("/users/{id}") {
-//            val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
-//            val user = userService.read(id)
-//            if (user != null) {
-//                call.respond(HttpStatusCode.OK, user)
-//            } else {
-//                call.respond(HttpStatusCode.NotFound)
-//            }
-//        }
-//
-//        // Update user
-//        put("/users/{id}") {
-//            val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
-//            val user = call.receive<ExposedUser>()
-//            userService.update(id, user)
-//            call.respond(HttpStatusCode.OK)
-//        }
-//
-//        // Delete user
-//        delete("/users/{id}") {
-//            val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
-//            userService.delete(id)
-//            call.respond(HttpStatusCode.OK)
-//        }
 
         post("/cards/reload") {
             val results = cardRepo.resetTable()
@@ -67,14 +43,19 @@ fun Application.configureDatabases(
                 page = 1
             }
 
-            println(call.request.queryString())
-            val results = searchString
-                ?.let { cardRepo.search(searchString, page = page) } ?: cardRepo.getPaging(page = page)
-            println(results.toString())
-//            results.hasNext //synthetic call to populate
-            println(Json.encodeToJsonElement(results))
+            // Filter parameters
+
+            val classes = call.parameters.getAll("c")
+            val specs = call.parameters.getAll("s")
+            val types = call.parameters.getAll("f")
+
+            log.info("Search string: $searchString, page: $page")
+            val results = searchService.search(searchString, classes, specs, types, page)
+
+            // results.hasNext //synthetic call to populate
             call.respond(HttpStatusCode.OK, results)
         }
+
 
         get("card/{uuid}") {
             val uuid = call.parameters["uuid"]!!

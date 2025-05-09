@@ -7,19 +7,30 @@ import app.herocraft.core.extensions.ilike
 import app.herocraft.core.models.IvionCard
 import app.herocraft.core.models.IvionCardImageURIs
 import app.herocraft.core.models.Page
-import app.herocraft.features.search.CardRepo.CardEntity.Companion.referrersOn
 import app.softwork.uuid.toUuidOrNull
 import org.antlr.v4.kotlinruntime.CharStreams
 import org.antlr.v4.kotlinruntime.CommonTokenStream
-import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.UUIDTable
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.AndOp
+import org.jetbrains.exposed.sql.Count
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.NotOp
+import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.OrOp
+import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SizedIterable
+import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder
+import org.jetbrains.exposed.sql.alias
+import org.jetbrains.exposed.sql.count
+import org.jetbrains.exposed.sql.deleteAll
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.slf4j.LoggerFactory
-import java.util.UUID
+import java.util.*
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
 import kotlin.uuid.toKotlinUuid
@@ -154,15 +165,15 @@ class CardRepo(database: Database) : DataService(database) {
         when (searchField) {
             SearchField.ARCHETYPE -> Card.archetype to String::class
             SearchField.ARTIST -> Card.artist to String::class
+            SearchField.COLOR -> Card.colorPip1 to String::class
             SearchField.FORMAT -> Card.format to String::class
             SearchField.FLAVOR -> Card.flavorText to String::class
             SearchField.NAME -> Card.name to String::class
             SearchField.RULES -> Card.rulesText to String::class
+            SearchField.SEASON -> Card.season to String::class
             SearchField.TYPE -> Card.type to String::class
             SearchField.UNKNOWN -> null
         }
-
-//    data class Query(val expression: Expression<Boolean>?, val discardedFields: List<SearchField>?)
 
 
     fun buildQuery(searchItem: SearchItem): Query {
@@ -221,8 +232,9 @@ class CardRepo(database: Database) : DataService(database) {
         val (query, errors) = buildQuery(searchField)
 
         if (query == null) {
-            throw RuntimeException("Empty search string")
+            return paged(size, page, { Card.id.count() }, { Op.TRUE })
         }
+
 
         return paged(size, page, { Card.id.count() }, { query })
     }

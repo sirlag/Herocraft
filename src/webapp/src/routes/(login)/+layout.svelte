@@ -9,7 +9,7 @@
 
 <div>
 	<main class="flex flex-row min-h-lvh w-lvw">
-		<div class="flex flex-col justify-between sidebar-background min-w-96 p-4">
+		<div class="hidden lg:flex flex-col justify-between sidebar-background min-w-96 p-4">
 			<div class="text-gray-50">
 				<a href="/">
 					<Herocraft />
@@ -19,8 +19,20 @@
 				© {year} Herocraft ● <a href="/about/terms">Terms of Service</a> ● <a href="/about/privacy">Privacy Policy</a>
 			</div>
 		</div>
-		<div class="flex flex-col flex-grow justify-center align-middle h-lvh bg-gray-100">
-			{@render children?.()}
+		<div class="grid place-items-center h-lvh w-lvw border-gray-100">
+			<!--		<div class="flex flex-col flex-grow justify-center align-middle h-lvh bg-gray-100">-->
+			<div>
+				<div class="lg:hidden flex justify-center py-8">
+					<Herocraft />
+				</div>
+				{@render children?.()}
+
+			</div>
+			<div class="block text-sm lg:hidden text-red-700 justify-end">
+				<p>
+					© {year} Herocraft ● <a href="/about/terms">Terms of Service</a> ● <a href="/about/privacy">Privacy Policy</a>
+				</p>
+			</div>
 		</div>
 	</main>
 </div>
