@@ -11,8 +11,12 @@ env:
 
 jobs:
 
-  Tag:
+  tag:
     runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      v-version: ${{ steps.version.outputs.v-version }}
 
     steps:
       - name: Checkout
@@ -39,6 +43,7 @@ jobs:
 
 
   build:
+    needs: tag
     runs-on: ubuntu-latest
 
     steps:
@@ -55,12 +60,11 @@ jobs:
 
       - name: Build with Gradle
         run: |
-          RELEASE_TAG=${{steps.version.outputs.version}}
+          RELEASE_TAG=${{needs.tag.outputs.version}}
           ./gradlew buildFatJar --no-daemon
 
       - name: Release
         uses: softprops/action-gh-release@v2
-        if: github.ref_type == 'tag'
         with:
           files: /build/**/*.jar
 
