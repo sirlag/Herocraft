@@ -145,7 +145,7 @@
 			{#if iterableCards === undefined || iterableCards.length === 0}
 				<div class="prose">
 					<p>There is nothing here now. A blank slate, A new hero.</p>
-					<p>Add a <a href="/deck/{data.slug}/search?q=f:feat">Specialization</a>, a <a
+					<p>Add a <a href="/deck/{data.slug}/search?f=feat">Trait</a>, a <a
 						href="/deck/{data.slug}/search?q=t:ultimate">Class</a>, or a <a href="/deck/{data.slug}/search">Card</a> to
 						continue.</p>
 				</div>

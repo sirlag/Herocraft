@@ -4,7 +4,7 @@ import app.herocraft.core.models.IvionCard
 import app.herocraft.core.models.Page
 import io.github.oshai.kotlinlogging.KotlinLogging
 
-class SearchService(val cardRepo: CardRepo) {
+class SearchService(private val cardRepo: CardRepo) {
 
     private val logger = KotlinLogging.logger {}
 
@@ -23,7 +23,9 @@ class SearchService(val cardRepo: CardRepo) {
         ) {
             cardRepo.getPaging(page = page)
         } else {
-            cardRepo.search(buildQuery(queryString, classes, specs, types), page = page)
+            val query = buildQuery(queryString, classes, specs, types)
+            logger.debug { "Query: $query" }
+            cardRepo.search(query, page = page)
         }
     }
 
@@ -58,7 +60,7 @@ class SearchService(val cardRepo: CardRepo) {
         return when {
             filterQuery.isNotEmpty() && !queryString.isNullOrEmpty() -> "$filterQuery $queryString"
             filterQuery.isNotEmpty() -> filterQuery
-            else -> filterQuery
+            else -> queryString.orEmpty()
         }
 
     }
