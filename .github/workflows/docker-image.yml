@@ -60,13 +60,14 @@ jobs:
 
       - name: Build with Gradle
         run: |
-          RELEASE_TAG=${{needs.tag.outputs.version}}
+          RELEASE_TAG=${{ needs.tag.outputs.version }}
           ./gradlew buildFatJar --no-daemon
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: /build/**/*.jar
+          tag_name: ${{ needs.tag.outputs.v-version }}
 
 
 #  build-docker:
