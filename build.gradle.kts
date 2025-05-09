@@ -68,7 +68,7 @@ dependencies {
     implementation("io.ktor:ktor-server-compression-jvm")
     implementation("io.ktor:ktor-server-metrics-micrometer-jvm")
     implementation("io.ktor:ktor-server-cors")
-    implementation("io.micrometer:micrometer-registry-prometheus:1.12.5")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.14.6")
     implementation("io.ktor:ktor-server-content-negotiation-jvm")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
 
