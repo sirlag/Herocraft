@@ -1,7 +1,6 @@
 <script lang="ts">
 
 	import charge from '$lib/images/IvionIcons/Charge.png';
-	import IvionIcon from '$lib/components/IvionIcon.svelte';
 	import Parser from '$lib/components/CardText/Parser.svelte';
 	import { Lexer, defaultRenderers } from './card-parser';
 	import { onMount } from 'svelte';

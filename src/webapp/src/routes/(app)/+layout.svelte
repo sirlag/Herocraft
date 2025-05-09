@@ -9,10 +9,10 @@
 	let { data = $bindable(), children }: {data: LayoutData, children: Snippet} = $props();
 </script>
 
-<div class="flex flex-col min-h-lvh max-w-[100vw]">
+<div class="flex flex-col min-h-lvh">
 	<Header showSearch={true} deckForm={data.deckForm} />
 
-	<main class="flex flex-1 flex-col mx-auto my-0 box-border max-w-max">
+	<main class="flex flex-1 flex-col mx-0 my-0 box-border max-w-wh">
 		{@render children?.()}
 	</main>
 

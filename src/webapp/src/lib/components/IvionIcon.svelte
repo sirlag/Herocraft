@@ -91,7 +91,7 @@
 </script>
 
 {#if ImageMap.hasOwnProperty(icon)}
-	<img class="w-4 inline-block" src={ImageMap[icon].image} alt={ImageMap[icon].alt} />
+	<img class="w-4 inline-block leading-none" src={ImageMap[icon].image} alt={ImageMap[icon].alt} />
 {:else}
 	"UNKNOWN IMAGE TAG - "{icon}"
 {/if}

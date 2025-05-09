@@ -6,14 +6,17 @@
 	import type { NewDeckSchema } from '$lib/components/NewDeck/schema.ts';
 	import type { Infer, SuperValidated } from 'sveltekit-superforms';
 
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.ts';
+	import { Menu } from 'lucide-svelte';
+
 	interface Props {
 		showSearch: boolean;
 		deckForm: SuperValidated<Infer<NewDeckSchema>>;
 	}
 
-	let { showSearch, deckForm = $bindable()}: Props = $props();
+	let { showSearch, deckForm = $bindable() }: Props = $props();
 
-	let { session } = $derived(page.data)
+	let { session } = $derived(page.data);
 	let search: string = $state('');
 </script>
 
@@ -25,7 +28,9 @@
 					class="h-8 w-28 pt-1 hover:fill-red-600"
 					aria-current={page.url.pathname === '/' ? 'page' : undefined}
 				>
-					<a href="/"><HerocraftWordmark /></a>
+					<a href="/">
+						<HerocraftWordmark />
+					</a>
 				</li>
 			</ul>
 		</div>
@@ -65,10 +70,46 @@
 			{:else}
 				<ul>
 					<li>
-						<a href="/account">Profile</a>
-					</li>
-					<li>
-						<a href="/account/logout" data-sveltekit-reload>Logout</a>
+						<!--						    nav a {
+										padding: 0 0.5rem;
+										color: var(--color-text);
+										font-weight: 700;
+										font-size: 0.8rem;
+										text-transform: uppercase;
+										letter-spacing: 0.1em;
+										text-decoration: none;
+										transition: color 0.2s linear;
+								}
+						-->
+						<DropdownMenu.Root>
+							<DropdownMenu.Trigger
+								class="uppercase font-medium h-full text-sm py-2 tracking-widest test "
+							>
+								<Menu />
+							</DropdownMenu.Trigger>
+							<DropdownMenu.Content>
+								<DropdownMenu.Group>
+									<DropdownMenu.GroupHeading>Your Stuff</DropdownMenu.GroupHeading>
+									<a href="/decks/personal"><DropdownMenu.Item>Decks</DropdownMenu.Item></a>
+									<DropdownMenu.Separator />
+								</DropdownMenu.Group>
+								<DropdownMenu.Group>
+									<DropdownMenu.GroupHeading>Profile & Settings</DropdownMenu.GroupHeading>
+									<a href="/account">
+										<DropdownMenu.Item>Profile</DropdownMenu.Item>
+									</a>
+									<a href="/account">
+										<DropdownMenu.Item>Settings</DropdownMenu.Item>
+									</a>
+								</DropdownMenu.Group>
+								<DropdownMenu.Group>
+									<DropdownMenu.Separator />
+									<a href="/account/logout" data-sveltekit-preload-data={false}>
+										<DropdownMenu.Item>Logout</DropdownMenu.Item>
+									</a>
+								</DropdownMenu.Group>
+							</DropdownMenu.Content>
+						</DropdownMenu.Root>
 					</li>
 				</ul>
 			{/if}
@@ -77,55 +118,65 @@
 </nav>
 
 <style>
-	.container {
-		display: flex;
-		flex-wrap: inherit;
-		align-items: center;
-		justify-content: space-between;
-	}
+    .container {
+        display: flex;
+        flex-wrap: inherit;
+        align-items: center;
+        justify-content: space-between;
+    }
 
 
-	nav {
-		display: flex;
-		justify-content: center;
-		width: 100%;
-		background: rgba(255, 255, 255, 0.7);
-	}
+    nav {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.7);
+    }
 
-	ul {
-		position: relative;
-		padding: 0;
-		margin: 0;
-		height: 3em;
-		display: flex;
-		justify-content: space-around;
-		align-items: center;
-		list-style: none;
-		background: var(--background);
-		background-size: contain;
-	}
+    ul {
+        position: relative;
+        padding: 0;
+        margin: 0;
+        height: 3em;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        list-style: none;
+        background: var(--background);
+        background-size: contain;
+    }
 
-	li {
-		/*position: relative;*/
-		height: 100%;
-	}
+    li {
+        /*position: relative;*/
+        height: 100%;
+    }
 
-	nav a {
-		display: flex;
-		height: 100%;
-		align-items: center;
-		padding: 0 0.5rem;
-		color: var(--color-text);
-		font-weight: 700;
-		font-size: 0.8rem;
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
-		text-decoration: none;
-		transition: color 0.2s linear;
-	}
+    nav a {
+        display: flex;
+        height: 100%;
+        align-items: center;
+        padding: 0 0.5rem;
+        color: var(--color-text);
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        text-decoration: none;
+        transition: color 0.2s linear;
+    }
 
-	a:hover {
-		color: var(--color-theme-1);
-		fill: var(--color-theme-1);
-	}
+    .test {
+        color: var(--color-text);
+        transition: color 0.2s linear;
+
+    }
+
+    .test:hover {
+        color: var(--color-theme-1);
+    }
+
+    a:hover {
+        color: var(--color-theme-1);
+        fill: var(--color-theme-1);
+    }
 </style>
