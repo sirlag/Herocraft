@@ -33,6 +33,8 @@
 			return;
 		}
 
+		console.warn("Cookies should be", document.cookie)
+
 		let changeResponse = await fetch(`${PUBLIC_API_BASE_URL}/decks/${deck.hash}/edit`, {
 			method: 'POST',
 			credentials: 'include',
@@ -44,7 +46,7 @@
 		});
 
 		if (!changeResponse.ok) {
-
+			console.error("Unable to modify deck", changeResponse)
 		} else {
 			let body = await changeResponse.json();
 			// countObj[card.id] = body.count > 0 ? body.count : undefined;
