@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:21.0.7_6-jre
 EXPOSE 8080:8080
 RUN mkdir /app
 RUN mkdir /app/conf
