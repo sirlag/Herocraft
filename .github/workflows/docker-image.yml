@@ -2,7 +2,8 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "master" ]
+    tags:
+      - "v*.*.*"
     paths-ignore:
       - 'src/webapp/**'
 
@@ -12,56 +13,83 @@ env:
 jobs:
 
   build:
-
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Get next version
-        uses: reecetech/version-increment@2024.10.1
-        id: version
+      - name: Setup java
+        uses: actions/setup-java@v4
         with:
-          scheme: calver
+          distribution: 'temurin'
+          java-version: 21
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
-      - name: Tag Latest
-        uses: rickstaa/action-create-tag@v1
+      - name: Build with Gradle
+        run: |
+          RELEASE_TAG=${GITHUB_REF_NAME#v}
+          ./gradlew buildFatJar --no-daemon
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag'
         with:
-          tag: "latest"
-          tag_exists_error: false
-          message: "Latest release"
+          files: /build/**/*.jar
 
-      - name: Tag Version
-        uses: rickstaa/action-create-tag@v1
-        with:
-          tag: ${{ steps.version.outputs.v-version }}
-          message: "Version ${{ steps.version.outputs.version }}"
 
-      - name: Docker Metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/sirlag/herocraft
-          tags: |
-            type=raw,value=${{ steps.version.outputs.version }}
-            type=ref,event=branch
-            type=sha,format=long
-
-      - name: Login to ghcr
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{github.actor}}
-          password: ${{secrets.GITHUB_TOKEN}}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build and Push
-        uses: docker/build-push-action@v6
-        with:
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.output.labels }}
+#  build-docker:
+#
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#
+#      - name: Get next version
+#        uses: reecetech/version-increment@2024.10.1
+#        id: version
+#        with:
+#          scheme: calver
+#
+#      - name: Tag Latest
+#        uses: rickstaa/action-create-tag@v1
+#        with:
+#          tag: "latest"
+#          tag_exists_error: false
+#          message: "Latest release"
+#
+#      - name: Tag Version
+#        uses: rickstaa/action-create-tag@v1
+#        with:
+#          tag: ${{ steps.version.outputs.v-version }}
+#          message: "Version ${{ steps.version.outputs.version }}"
+#
+#      - name: Docker Metadata
+#        id: meta
+#        uses: docker/metadata-action@v5
+#        with:
+#          images: ghcr.io/sirlag/herocraft
+#          tags: |
+#            type=raw,value=${{ steps.version.outputs.version }}
+#            type=ref,event=branch
+#            type=sha,format=long
+#
+#      - name: Login to ghcr
+#        uses: docker/login-action@v3
+#        with:
+#          registry: ghcr.io
+#          username: ${{github.actor}}
+#          password: ${{secrets.GITHUB_TOKEN}}
+#
+#      - name: Set up Docker Buildx
+#        uses: docker/setup-buildx-action@v3
+#
+#      - name: Build and Push
+#        uses: docker/build-push-action@v6
+#        with:
+#          platforms: linux/amd64,linux/arm64
+#          push: true
+#          tags: ${{ steps.meta.outputs.tags }}
+#          labels: ${{ steps.meta.output.labels }}

@@ -29,7 +29,7 @@ kotlin {
 }
 
 group = "app.herocraft"
-version = "0.0.1"
+version = System.getenv("RELEASE_TAG") ?: "0.0.1"
 
 buildscript {
     dependencies {
@@ -49,7 +49,9 @@ tasks.withType<ShadowJar> {
 }
 
 ktor {
-    fatJar
+    fatJar {
+        archiveFileName.set(System.getenv("RELEASE_TAG")?.let { "herocraft-$it.jar" } ?: "herocrafter.jar")
+    }
 }
 
 flyway {
