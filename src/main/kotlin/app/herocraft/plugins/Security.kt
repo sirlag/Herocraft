@@ -20,6 +20,7 @@ fun Application.configureSecurity() {
                 session
             }
             challenge {
+                logger.debug { "Something has gone wrong. $it, cookies = ${call.request.cookies.rawCookies}"}
                 call.respondRedirect("/login")
             }
         }
