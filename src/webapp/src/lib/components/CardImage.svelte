@@ -4,7 +4,7 @@
 
 	interface Props {
 		card: IvionCard;
-		size: "small" | "normal" | "large" | "full";
+		size?: "small" | "normal" | "large" | "full";
 		href?: string | undefined;
 	}
 
@@ -36,7 +36,7 @@
 
 		let uuid = front ? card.ivionUUID : card.secondUUID;
 
-		console.log(card)
+		// console.log(card)
 
 		let src =  (card.imageUris !== null && card.imageUris !== undefined) ? getUrl(card.imageUris, cardSize) : fallbackUrl(uuid)
 

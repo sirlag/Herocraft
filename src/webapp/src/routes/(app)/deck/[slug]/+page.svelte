@@ -14,6 +14,11 @@
 	import { PUBLIC_API_BASE_URL } from '$env/static/public';
 	import { invalidateAll } from '$app/navigation';
 
+	import { Separator } from '$lib/components/ui/separator';
+	import { Button } from '$lib/components/ui/button';
+
+	import { ArchetypeLookup } from './data.ts';
+
 	interface Props {
 		data: PageData;
 	}
@@ -54,7 +59,6 @@
 			await (invalidateAll());
 		}
 	};
-
 
 	type CollatedEntries = {
 		key: string;
@@ -113,7 +117,11 @@
 			</div>
 			<div class="pb-3">
 				<form method="GET" action="/deck/{data.slug}/search">
-					<SearchInput name="q" bind:value={search} />
+					<div class="flex space-x-3 p-2">
+						<SearchInput name="q" bind:value={search} />
+						<Button size="sm" type="submit">Add a Card</Button>
+					</div>
+
 				</form>
 			</div>
 		{/if}
@@ -158,31 +166,45 @@
 			{#each iterableCards as category}
 
 				<div class="flex-2">
-					{category.key} ({category.totalCount})
+					<span class="ml-4">
+						{#if canEdit}
+							<a href="/deck/{data.slug}/search?{ArchetypeLookup[category.key]}">
+								{category.key} ({category.totalCount})
+							</a>
+						{:else}
+							{category.key} ({category.totalCount})
+						{/if}
+					</span>
+					<Separator />
 					<ul>
 						{#each category.deckEntries as entry}
 							<li
 								onmouseover={() => setFirstCard(entry.card)}
 								onfocus={() => setFirstCard(entry.card)}
 							>
-								<div class="m-4">
-									{#if canEdit}
-										<input
-											class="input-borderless text-end"
-											value={entry.count}
-											size="2"
-											maxlength="2"
-											inputmode="numeric"
-											type="text"
-											pattern={`[0-9]{1,2}`}
-										/>
-									{:else}
-										<span>{entry.count}</span>
-									{/if}
+								<div class="flex space-between my-1 px-2">
+									<span class="ml-0 mr-4">
+										{#if canEdit}
+											<input
+												class="input-borderless text-end"
+												value={entry.count}
+												size="2"
+												maxlength="2"
+												inputmode="numeric"
+												type="text"
+												pattern={`[0-9]{1,2}`}
+											/>
+										{:else}
+											{entry.count}
+										{/if}
+									</span>
 									<span>{entry.card.name}</span>
-									<DeckListDropdown card={entry.card} count={entry.count} modify={modify} canEdit={canEdit} />
+									<span class="ml-auto mr-0">
+										<DeckListDropdown card={entry.card} count={entry.count} modify={modify} canEdit={canEdit} />
+									</span>
 								</div>
 							</li>
+							<Separator />
 						{/each}
 					</ul>
 				</div>
