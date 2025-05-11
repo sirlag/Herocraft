@@ -38,10 +38,12 @@ fun Application.module() {
         allowHost("localhost:5173")
         allowHost("herocraft.app")
         allowCredentials = true
+        allowNonSimpleContentTypes = true
         allowHeader(HttpHeaders.ContentType)
+        allowHeader(HttpHeaders.AccessControlAllowOrigin)
         allowMethod(HttpMethod.Delete)
+        allowMethod(HttpMethod.Options)
+        allowMethod(HttpMethod.Patch)
         allowMethod(HttpMethod.Put)
-        allowMethod(HttpMethod.Post)
-        allowMethod(HttpMethod.Get)
     }
 }
