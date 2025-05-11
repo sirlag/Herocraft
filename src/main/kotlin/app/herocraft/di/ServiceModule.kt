@@ -5,6 +5,7 @@ import app.herocraft.features.images.ImageProcessor
 import app.herocraft.features.images.ImageService
 import app.herocraft.features.images.S3Processor
 import app.herocraft.features.search.SearchService
+import app.herocraft.features.metrics.MetricService
 import app.herocraft.features.notifications.NotificationManager
 import aws.sdk.kotlin.runtime.auth.credentials.StaticCredentialsProvider
 import io.ktor.server.application.*
@@ -43,4 +44,5 @@ val serviceModule = module {
 
     singleOf(::SearchService)
 
+    singleOf(::MetricService)
 }
