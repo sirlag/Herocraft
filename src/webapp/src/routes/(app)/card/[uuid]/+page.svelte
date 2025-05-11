@@ -86,6 +86,10 @@
 
 </script>
 
+<svelte:head>
+	<title>{card.name} // Search // Herocraft</title>
+</svelte:head>
+
 <div class="flex w-full p-4 pb-8 justify-center bg-neutral-50">
 	<div class="flex flex-row  max-w-5xl flex-wrap lg:flex-nowrap" style={colorStyle}>
 		{#if card}

@@ -59,7 +59,9 @@ export const actions: Actions = {
 		event.cookies.set('user_session', parsedCookie.user_session, {
 			path: parsedCookie.Path,
 			maxAge: parseInt(parsedCookie['Max-Age']),
-			httpOnly: true
+			httpOnly: true,
+			sameSite: 'none',
+			secure: true
 		});
 
 		let destination = event.url.searchParams.get('redirect') || '/';

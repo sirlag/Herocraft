@@ -25,6 +25,10 @@
 	};
 </script>
 
+<svelte:head>
+	<title>Search // Herocraft</title>
+</svelte:head>
+
 <div class="w-full py-2 bg-neutral-50">
 	<div class="flex flex-row max-w-5xl mx-auto my-0">
 		<Button

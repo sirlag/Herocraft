@@ -107,6 +107,10 @@
 	let search = $state('');
 </script>
 
+<svelte:head>
+	<title>{deckList.name} // Herocraft</title>
+</svelte:head>
+
 <LongHeader {deckList} />
 
 <div class="flex p-4 bg-neutral-50">
@@ -153,7 +157,7 @@
 			{#if iterableCards === undefined || iterableCards.length === 0}
 				<div class="prose">
 					<p>There is nothing here now. A blank slate, A new hero.</p>
-					<p>Add a <a href="/deck/{data.slug}/search?f=feat">Trait</a>, a <a
+					<p>Add a <a href="/deck/{data.slug}/search?f=Feat">Trait</a>, a <a
 						href="/deck/{data.slug}/search?q=t:ultimate">Class</a>, or a <a href="/deck/{data.slug}/search">Card</a> to
 						continue.</p>
 				</div>

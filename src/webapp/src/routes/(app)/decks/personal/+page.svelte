@@ -16,6 +16,10 @@
 	let { bulkImportForm, decks } = $derived(data);
 </script>
 
+<svelte:head>
+	<title>Your Decks // Herocraft</title>
+</svelte:head>
+
 <div class="flex-1 flex flex-col bg-neutral-50">
 	<div>
 		<BulkImportDialog data={bulkImportForm}>
