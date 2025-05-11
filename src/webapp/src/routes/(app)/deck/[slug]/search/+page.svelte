@@ -35,7 +35,7 @@
 
 		console.warn("Cookies should be", document.cookie)
 
-		let changeResponse = await fetch(`${PUBLIC_API_BASE_URL}/decks/${deck.hash}/edit`, {
+		let changeResponse = await fetch(`/decks/${deck.hash}/edit`, {
 			method: 'POST',
 			credentials: 'include',
 			headers: {

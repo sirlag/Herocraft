@@ -37,7 +37,7 @@
 			return;
 		}
 
-		let changeResponse = await fetch(`${PUBLIC_API_BASE_URL}/decks/${deckList.hash}/edit`, {
+		let changeResponse = await fetch(`/decks/${deckList.hash}/edit`, {
 			method: 'POST',
 			credentials: 'include',
 			headers: {
