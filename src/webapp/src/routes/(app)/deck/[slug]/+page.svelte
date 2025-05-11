@@ -37,7 +37,7 @@
 			return;
 		}
 
-		let changeResponse = await fetch(`/decks/${deckList.hash}/edit`, {
+		let changeResponse = await fetch(`/deck/${deckList.hash}/edit`, {
 			method: 'POST',
 			credentials: 'include',
 			headers: {
