@@ -1,23 +1,22 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import type { DeckEntry } from '../../../../app';
-	import { string } from 'zod';
-	import IvionIcon from '$lib/components/IvionIcon.svelte';
 	import CardImage from '$lib/components/CardImage.svelte';
 	import type { CollatedDeckList } from './+page.ts';
-	import CardTable from './card-table.svelte';
 	import LongHeader from './long-header.svelte';
 	import { SearchInput } from '$lib/components/ui/search-input';
-	import { Plus } from 'lucide-svelte';
+	import { BadgeCheck, CircleAlert, CircleCheck, Plus } from 'lucide-svelte';
+
+	import * as Tooltip from '$lib/components/ui/tooltip';
 
 	import DeckListDropdown from './deck-list-dropdown.svelte';
-	import { PUBLIC_API_BASE_URL } from '$env/static/public';
 	import { invalidateAll } from '$app/navigation';
 
 	import { Separator } from '$lib/components/ui/separator';
 	import { Button } from '$lib/components/ui/button';
 
 	import { ArchetypeLookup } from './data.ts';
+	import { validateDeck } from './validator.ts';
 
 	interface Props {
 		data: PageData;
@@ -27,12 +26,12 @@
 
 	let { collatedCards, deckList, user } = $derived(data);
 
+	let validated = $derived(validateDeck(deckList, collatedCards));
+
 	let canEdit = $derived(deckList.owner === user?.id);
-	// console.log(data)
 
 	const modify = async (card: IvionCard, count: number) => {
 
-		console.warn('Modify Called');
 		if (card === undefined || count === undefined) {
 			return;
 		}
@@ -181,7 +180,7 @@
 					</span>
 					<Separator />
 					<ul>
-						{#each category.deckEntries as entry}
+						{#each category.deckEntries.sort((a, b) => a.card.name.localeCompare(b.card.name)) as entry}
 							<li
 								onmouseover={() => setFirstCard(entry.card)}
 								onfocus={() => setFirstCard(entry.card)}
@@ -213,6 +212,54 @@
 					</ul>
 				</div>
 			{/each}
+		</div>
+		<div class="flex flex-row space-between space-x-8">
+			<div>
+				{deckList.list.reduce((sum, { card, count }) => card.format !== "Feat" ? sum + count : sum, 0)}
+				Cards / {traits?.totalCount || 0} Traits
+			</div>
+			<div>
+				<Tooltip.Provider>
+					<Tooltip.Root>
+						<Tooltip.Trigger>
+							<span class="flex items-center">
+								<span class="mr-1">
+									{#if validated.results.status}
+										<CircleCheck class="w-4 h-4" />
+									{:else}
+										<CircleAlert class="w-4 h-4" />
+									{/if}
+								</span>
+									{deckList.format.charAt(0).toUpperCase() + deckList.format.substring(1).toLowerCase()}
+							</span>
+						</Tooltip.Trigger>
+						<Tooltip.Content>
+							<ul>
+								{#if validated.validationStatuses !== undefined}
+									{#each validated.validationStatuses.entries() as [key, value]}
+										<li>
+											<span class="flex">
+												<span class="mr-1">
+													{#if value.status}
+														<CircleCheck class="w-4 h-4" />
+													{:else}
+														<CircleAlert class="w-4 h-4" />
+													{/if}
+												</span>
+												{value.metadata.label}
+											</span>
+										</li>
+									{/each}
+								{/if}
+							</ul>
+						</Tooltip.Content>
+					</Tooltip.Root>
+				</Tooltip.Provider>
+			</div>
+			<div></div>
+
+			<!--{validated.validationStatuses.entries().toArray()}-->
+			<!--			Validation Status: {JSON.stringify(validated)}-->
 		</div>
 	</div>
 </div>

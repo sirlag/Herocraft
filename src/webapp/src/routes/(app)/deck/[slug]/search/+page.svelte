@@ -33,8 +33,6 @@
 			return;
 		}
 
-		console.warn("Cookies should be", document.cookie)
-
 		let changeResponse = await fetch(`/deck/${deck.hash}/edit`, {
 			method: 'POST',
 			credentials: 'include',
