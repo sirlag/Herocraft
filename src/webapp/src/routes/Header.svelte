@@ -38,7 +38,7 @@
 			<div class="w-full h-10">
 				<form method="GET" action="/cards">
 					<Input name="q" bind:value={search} class="w-full" />
-					<button type="submit" class="visually-hidden"></button>
+					<button type="submit" class="visually-hidden" />
 				</form>
 			</div>
 		{/if}
@@ -70,17 +70,6 @@
 			{:else}
 				<ul>
 					<li>
-						<!--						    nav a {
-										padding: 0 0.5rem;
-										color: var(--color-text);
-										font-weight: 700;
-										font-size: 0.8rem;
-										text-transform: uppercase;
-										letter-spacing: 0.1em;
-										text-decoration: none;
-										transition: color 0.2s linear;
-								}
-						-->
 						<DropdownMenu.Root>
 							<DropdownMenu.Trigger
 								class="uppercase font-medium h-full text-sm py-2 tracking-widest test "
@@ -104,7 +93,10 @@
 								</DropdownMenu.Group>
 								<DropdownMenu.Group>
 									<DropdownMenu.Separator />
-									<a href="/account/logout" data-sveltekit-preload-data={false}>
+									<a href="/account/logout"
+										 data-sveltekit-preload-data={false}
+										 data-sveltekit-reload
+									>
 										<DropdownMenu.Item>Logout</DropdownMenu.Item>
 									</a>
 								</DropdownMenu.Group>
