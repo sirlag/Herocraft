@@ -100,7 +100,7 @@ dependencies {
 
     implementation(kotlincrypto.random.crypto.rand)
 
-    implementation("com.strumenta:antlr-kotlin-runtime:1.0.3")
+    implementation("com.strumenta:antlr-kotlin-runtime:1.0.5")
 
     implementation(awssdk.services.s3)
 
