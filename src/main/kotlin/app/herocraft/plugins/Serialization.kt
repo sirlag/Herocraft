@@ -12,6 +12,7 @@ fun Application.configureSerialization() {
         json(Json {
             ignoreUnknownKeys = true
             decodeEnumsCaseInsensitive = true
+            encodeDefaults = true
         })
     }
 }

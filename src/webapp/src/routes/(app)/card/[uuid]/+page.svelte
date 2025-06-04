@@ -57,8 +57,8 @@
 	// RELIC LEFT rgb(254, 182, 22)
 	// RELIC RIGHT rgb(248, 150, 41)
 	// TRAP rgb(244, 152, 165)
-// arrow rgb(76, 58, 84)
-// NONE rgb(79, 78, 73)
+	// arrow rgb(76, 58, 84)
+	// NONE rgb(79, 78, 73)
 
 	let getColorString = (color1: String | null, color2: String | null) => {
 		if (color1 && color2) {

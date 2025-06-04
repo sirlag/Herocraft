@@ -1,5 +1,6 @@
 package app.herocraft.features.builder
 
+import app.herocraft.core.extensions.toUuidFromShort
 import app.herocraft.plugins.UserSession
 import app.softwork.uuid.toUuid
 import io.ktor.http.*
@@ -8,13 +9,20 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.sessions.*
 
 fun Application.registerBuilder(deckRepo: DeckRepo) {
     routing {
 
         get("/deck/{id}") {
+
+            val session = call.sessions.get<UserSession>()
+
             val id = call.parameters["id"] ?: return@get call.respond(HttpStatusCode.BadRequest)
-            val deckList = deckRepo.getDeckList(id)
+            val deckList = deckRepo.getDeckList(id, session?.id?.toUuid())
+
+            session?.let { deckList.liked = deckRepo.hasUserLiked(deckList.id, it.id.toUuid()) }
+
             call.respond(deckList)
         }
 
@@ -104,6 +112,68 @@ fun Application.registerBuilder(deckRepo: DeckRepo) {
                 val editRequest = call.receive<DeckEditRequest>()
                 val response = deckRepo.editDeck(session.id.toUuid(), deckId, editRequest.cardId, editRequest.count)
                 call.respond(response!!)
+            }
+
+            post ("/decks/{id}/like") {
+
+                val session = call.authentication.principal<UserSession>()
+                if (session == null) {
+                    log.error("Authentication failed for deck add like route")
+                    call.respondRedirect("/login")
+                    return@post
+                }
+
+                val deckId = call.parameters["id"]?: return@post call.respond(HttpStatusCode.BadRequest)
+
+                deckRepo.upsertLike(deckId.toUuidFromShort(), session.id.toUuid(), false)
+                call.respond(HttpStatusCode.OK)
+
+            }
+
+            delete("/decks/{id}/like") {
+                val session = call.authentication.principal<UserSession>()
+                if (session == null) {
+                    log.error("Authentication failed for deck remove like route")
+                    call.respondRedirect("/login")
+                    return@delete
+                }
+
+                val deckId = call.parameters["id"]?: return@delete call.respond(HttpStatusCode.BadRequest)
+
+                deckRepo.upsertLike(deckId.toUuidFromShort(), session.id.toUuid(), true)
+                call.respond(HttpStatusCode.OK)
+
+            }
+
+            post ("/decks/{id}/favorite") {
+
+                val session = call.authentication.principal<UserSession>()
+                if (session == null) {
+                    log.error("Authentication failed for deck add favorite route")
+                    call.respondRedirect("/login")
+                    return@post
+                }
+
+                val deckId = call.parameters["id"]?: return@post call.respond(HttpStatusCode.BadRequest)
+
+                deckRepo.upsertFavorite(deckId.toUuidFromShort(), session.id.toUuid(), false)
+
+                call.respond(HttpStatusCode.OK)
+            }
+
+            delete("/decks/{id}/favorite") {
+                val session = call.authentication.principal<UserSession>()
+                if (session == null) {
+                    log.error("Authentication failed for deck remove favorite route")
+                    call.respondRedirect("/login")
+                    return@delete
+                }
+
+                val deckId = call.parameters["id"]?: return@delete call.respond(HttpStatusCode.BadRequest)
+
+                deckRepo.upsertFavorite(deckId.toUuidFromShort(), session.id.toUuid(), true)
+                call.respond(HttpStatusCode.OK)
+
             }
         }
     }

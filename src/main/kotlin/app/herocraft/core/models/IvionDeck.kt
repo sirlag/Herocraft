@@ -2,6 +2,7 @@ package app.herocraft.core.models
 
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
+import java.util.*
 import kotlin.uuid.Uuid
 
 @Serializable
@@ -17,6 +18,10 @@ data class IvionDeck(
     val created: Instant,
     val lastModified: Instant,
     var ownerName: String? = null,
+    val likes: Int = 0,
+    val views: Int = 0,
+    val favorite: Boolean = false,
+    var liked: Boolean? = null,
 )
 
 
@@ -39,3 +44,11 @@ enum class DeckFormat {
     PARAGON,
     OTHER
 }
+
+@Serializable
+data class DeckFacts(
+    val id: Uuid,
+    val deckId: Uuid,
+    val likes: Int,
+    val views: Int
+)

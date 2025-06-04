@@ -6,8 +6,6 @@ export async function POST({request, cookies, params}) {
 
 	const { cardId, count } = await request.json();
 	const auth = cookies.get('user_session');
-	console.log(cardId, count)
-	console.log(cookies.get('user_session'))
 
 	if (cardId === undefined || count === undefined || auth === undefined) {
 		return json ({"error": "Invalid request"}, {status: 400});

@@ -22,7 +22,7 @@
 		data: PageData;
 	}
 
-	let { data }: Props = $props();
+	let { data = $bindable() }: Props = $props();
 
 	let { collatedCards, deckList, user } = $derived(data);
 
@@ -58,6 +58,39 @@
 			await (invalidateAll());
 		}
 	};
+
+	const addLike = async (state: boolean) => {
+		let likeResponse = await fetch(`/deck/${deckList.hash}/like`, {
+				method: state ? 'DELETE' : 'POST',
+				credentials: 'include',
+				headers: {
+					'accept': 'application/json'
+				}
+			}
+		)
+		if (!likeResponse.ok) {
+			console.error('Unable to post like', likeResponse.statusText);
+		} else {
+			deckList = {...deckList, likes: state ? deckList.likes - 1 : deckList.likes + 1, liked: !state}
+		}
+	}
+
+	const addFavorite = async (state: boolean) => {
+		let likeResponse = await fetch(`/deck/${deckList.hash}/favorite`, {
+				method: state ? 'DELETE' : 'POST',
+				credentials: 'include',
+				headers: {
+					'accept': 'application/json'
+				}
+			}
+		)
+		if (!likeResponse.ok) {
+			console.error('Unable to post favorite', likeResponse.statusText);
+		} else {
+			deckList = {...deckList, favorite: !state}
+		}
+	}
+
 
 	type CollatedEntries = {
 		key: string;
@@ -110,7 +143,13 @@
 	<title>{deckList.name} // Herocraft</title>
 </svelte:head>
 
-<LongHeader {deckList} />
+<LongHeader
+	deckList={deckList}
+	canEdit={canEdit}
+	user={user}
+	likeFunc={addLike}
+	favoriteFunc={addFavorite}
+/>
 
 <div class="flex p-4 bg-neutral-50">
 	<div class="flex border-b w-full max-w-7xl mx-auto justify-between">
@@ -225,9 +264,9 @@
 							<span class="flex items-center">
 								<span class="mr-1">
 									{#if validated.results.status}
-										<CircleCheck class="w-4 h-4" />
+										<CircleCheck class="w-4 h-4 stroke-green-600" />
 									{:else}
-										<CircleAlert class="w-4 h-4" />
+										<CircleAlert class="w-4 h-4 stroke-red-500" />
 									{/if}
 								</span>
 									{deckList.format.charAt(0).toUpperCase() + deckList.format.substring(1).toLowerCase()}
@@ -241,9 +280,9 @@
 											<span class="flex">
 												<span class="mr-1">
 													{#if value.status}
-														<CircleCheck class="w-4 h-4" />
+														<CircleCheck class="w-4 h-4 stroke-green-600" />
 													{:else}
-														<CircleAlert class="w-4 h-4" />
+														<CircleAlert class="w-4 h-4 stroke-red-500" />
 													{/if}
 												</span>
 												{value.metadata.label}

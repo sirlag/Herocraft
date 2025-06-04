@@ -66,6 +66,7 @@ class CardRepo(database: Database) : DataService(database) {
 
     class CardEntity(id: EntityID<UUID>) : UUIDEntity(id) {
         companion object : UUIDEntityClass<CardEntity>(Card)
+
         val collectorsNumber by Card.collectorsNumber
         val format by Card.format
         val name by Card.name
@@ -89,7 +90,7 @@ class CardRepo(database: Database) : DataService(database) {
         val season by Card.season
         val type by Card.type
 
-        val images by CardImageRepo.CardImageEntity referrersOn  CardImageRepo.CardImage.card_id
+        val images by CardImageRepo.CardImageEntity referrersOn CardImageRepo.CardImage.card_id
 
 
         fun SizedIterable<CardImageRepo.CardImageEntity>.getImageUris(): IvionCardImageURIs? {
@@ -273,7 +274,7 @@ class CardRepo(database: Database) : DataService(database) {
             .orderBy(Card.name to SortOrder.ASC)
             .limit(size)
             .offset(offset)
-            .map (CardEntity::toIvionCard)
+            .map(CardEntity::toIvionCard)
             .toList()
 
 //        val cards = Card

@@ -44,7 +44,12 @@ type Deck = {
 	ownerName: string;
 	visibility: DeckVisibility;
 	format: DeckFormat;
+	created: Date;
 	lastModified: Date;
+	favorite: boolean | null;
+	likes: number;
+	views: number;
+	liked: boolean | null;
 };
 
 type C2Array = {

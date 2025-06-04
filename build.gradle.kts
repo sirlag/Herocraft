@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.ktor)
     alias(libs.plugins.flyway)
     id("com.strumenta.antlr-kotlin") version "1.0.2"
+    id("com.github.ben-manes.versions") version "0.52.0"
 }
 
 kotlin {
@@ -55,7 +56,7 @@ ktor {
 }
 
 flyway {
-    url = "jdbc:postgresql://tower:5432/herocrafter"
+    url = "jdbc:postgresql://localhost:5432/herocrafter"
     user = "postgres"
     password = "password"
 }
