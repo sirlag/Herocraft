@@ -10,7 +10,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ktor)
     alias(libs.plugins.flyway)
-    id("com.strumenta.antlr-kotlin") version "1.0.2"
+    id("com.strumenta.antlr-kotlin") version "1.0.5"
     id("com.github.ben-manes.versions") version "0.52.0"
 }
 
