@@ -82,7 +82,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive")
 
     implementation(libs.bundles.exposed)
-    implementation("com.h2database:h2:2.2.224")
+    implementation("com.h2database:h2:2.3.232")
     implementation(libs.postgres)
     implementation("com.zaxxer:HikariCP:6.3.0")
     implementation(libs.bundles.flyway)
