@@ -35,7 +35,7 @@ kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime-jvm", vers
 ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio" }
 
 
-postgres = { module = "org.postgresql:postgresql", version = "42.7.3" }
+postgres = { module = "org.postgresql:postgresql", version = "42.7.7" }
 
 [bundles]
 arrow = ['arrow-core', 'arrow-fx-coroutines']
