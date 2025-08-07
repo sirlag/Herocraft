@@ -1,7 +1,11 @@
 package app.herocraft.features.builder
 
+import app.herocraft.core.extensions.isUuid
+import app.herocraft.core.extensions.isValidShort
 import app.herocraft.core.extensions.toUuidFromShort
+import app.herocraft.core.extensions.tryUuid
 import app.herocraft.plugins.UserSession
+import app.softwork.uuid.isValidUuidString
 import app.softwork.uuid.toUuid
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -10,6 +14,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
+import kotlin.uuid.Uuid
 
 fun Application.registerBuilder(deckRepo: DeckRepo) {
     routing {
@@ -123,9 +128,9 @@ fun Application.registerBuilder(deckRepo: DeckRepo) {
                     return@post
                 }
 
-                val deckId = call.parameters["id"]?: return@post call.respond(HttpStatusCode.BadRequest)
+                val deckId = call.parameters["id"].tryUuid() ?: return@post call.respond(HttpStatusCode.BadRequest)
 
-                deckRepo.upsertLike(deckId.toUuidFromShort(), session.id.toUuid(), false)
+                deckRepo.upsertLike(deckId, session.id.toUuid(), false)
                 call.respond(HttpStatusCode.OK)
 
             }
@@ -138,9 +143,9 @@ fun Application.registerBuilder(deckRepo: DeckRepo) {
                     return@delete
                 }
 
-                val deckId = call.parameters["id"]?: return@delete call.respond(HttpStatusCode.BadRequest)
+                val deckId = call.parameters["id"].tryUuid() ?: return@delete call.respond(HttpStatusCode.BadRequest)
 
-                deckRepo.upsertLike(deckId.toUuidFromShort(), session.id.toUuid(), true)
+                deckRepo.upsertLike(deckId, session.id.toUuid(), true)
                 call.respond(HttpStatusCode.OK)
 
             }
@@ -154,9 +159,9 @@ fun Application.registerBuilder(deckRepo: DeckRepo) {
                     return@post
                 }
 
-                val deckId = call.parameters["id"]?: return@post call.respond(HttpStatusCode.BadRequest)
+                val deckId = call.parameters["id"]?.tryUuid() ?: return@post call.respond(HttpStatusCode.BadRequest)
 
-                deckRepo.upsertFavorite(deckId.toUuidFromShort(), session.id.toUuid(), false)
+                deckRepo.upsertFavorite(deckId, session.id.toUuid(), false)
 
                 call.respond(HttpStatusCode.OK)
             }
@@ -169,9 +174,9 @@ fun Application.registerBuilder(deckRepo: DeckRepo) {
                     return@delete
                 }
 
-                val deckId = call.parameters["id"]?: return@delete call.respond(HttpStatusCode.BadRequest)
+                val deckId = call.parameters["id"]?.tryUuid() ?: return@delete call.respond(HttpStatusCode.BadRequest)
 
-                deckRepo.upsertFavorite(deckId.toUuidFromShort(), session.id.toUuid(), true)
+                deckRepo.upsertFavorite(deckId, session.id.toUuid(), true)
                 call.respond(HttpStatusCode.OK)
 
             }

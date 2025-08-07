@@ -3,6 +3,9 @@ import { createRawSnippet } from 'svelte';
 import Time from 'svelte-time';
 import { renderComponent, renderSnippet } from '$lib/components/ui/data-table';
 import DataTableActions from './data-table-actions.svelte'
+import FavoriteToggle from './favorite-toggle.svelte'
+import NameRow from './name-row.svelte'
+import { render } from 'svelte/server';
 
 type DeckDisplay = {
 	name: string;
@@ -11,10 +14,12 @@ type DeckDisplay = {
 
 export type DeckListing = {
 	id: string;
+	favorite: boolean;
 	hash: string;
 	name: string;
 	format: string;
 	lastModified: Date;
+	visibility: string;
 };
 
 
@@ -22,27 +27,27 @@ export const columns: ColumnDef<DeckListing>[] = [
 	{
 		accessorKey: 'name',
 		header: "Name",
+		enableSorting: true,
 		cell: ({row}) => {
-			const nameCellSnippet = createRawSnippet<[DeckDisplay]>((getDisplayInfo) => {
-				const {name, hash} = getDisplayInfo();
-				return {
-					render: () => `<div class=""><a href="/deck/${hash}">${name}</a></div>`,
-				}
+			return renderComponent(NameRow, {
+				name: row.original.name,
+				hash: row.original.hash,
+				id: row.original.id,
+				favorite: row.original.favorite,
+				visibility: row.original.visibility
 			})
-
-			return renderSnippet(
-				nameCellSnippet,
-				row.original
-			)
 		}
 	},
 	{
 		accessorKey: 'format',
-		header: "Format"
+		header: "Format",
+		enableSorting: true
 	},
 	{
 		accessorKey: "lastModified",
 		header: "Last Updated",
+		enableSorting: true,
+		sortingFn: "datetime",
 		cell: ({row}) => {
 			// @ts-ignore
 			return renderComponent(Time, {
@@ -53,8 +58,9 @@ export const columns: ColumnDef<DeckListing>[] = [
 	},
 	{
 		id: "actions",
+		enableSorting: false,
 		cell: ({row}) => {
-			return renderComponent(DataTableActions, {id: row.original.id})
+			return renderComponent(DataTableActions, {id: row.original.id, hash: row.original.hash})
 		},
 	},
 ];

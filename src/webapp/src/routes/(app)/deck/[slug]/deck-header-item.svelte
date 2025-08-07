@@ -21,7 +21,7 @@
 {#if action}
 	<Tooltip.Root>
 		<Tooltip.Trigger>
-			<Button variant="round-ghost" size={count ? "default" : "icon" } class="group" onclick={() => action(state)}>
+			<Button variant="round-ghost" size={count || count === 0 ? "default" : "icon" } class="group" onclick={() => action(state)}>
 				<span class="flex flex-row items-center gap-2">
 					<Icon class={"w-4 h-4 " + hoverStyle + " " + (state ? activeStyle: "")} /> {count}
 				</span>

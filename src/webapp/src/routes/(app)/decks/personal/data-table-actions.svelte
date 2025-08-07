@@ -6,9 +6,10 @@
 
 	interface Props {
 		id: string;
+		hash: string;
 	}
 
-	let { id }: Props = $props();
+	let { id, hash }: Props = $props();
 </script>
 
 <div class="flex float-right">
@@ -22,6 +23,13 @@
 			{/snippet}
 		</DropdownMenu.Trigger>
 		<DropdownMenu.Content>
+			<DropdownMenu.Group>
+				<a href="/deck/{hash}/settings">
+					<DropdownMenu.Item closeOnSelect={false}>
+						<button>Settings</button>
+					</DropdownMenu.Item>
+				</a>
+			</DropdownMenu.Group>
 			<DropdownMenu.Group>
 				<DropdownMenu.Item closeOnSelect={false}>
 					<form method="POST" action="?/delete" use:enhance>

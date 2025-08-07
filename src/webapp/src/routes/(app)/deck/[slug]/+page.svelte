@@ -295,11 +295,56 @@
 					</Tooltip.Root>
 				</Tooltip.Provider>
 			</div>
-			<div></div>
-
-			<!--{validated.validationStatuses.entries().toArray()}-->
-			<!--			Validation Status: {JSON.stringify(validated)}-->
 		</div>
+
+		<div class="min-h-[100vh]"></div>
+
+
+	</div>
+
+</div>
+<div class="sticky bottom-0 flex flex-row space-between space-x-8 fixed:bg-purple-600">
+	<div>
+		{deckList.list.reduce((sum, { card, count }) => card.format !== "Feat" ? sum + count : sum, 0)}
+		Cards / {traits?.totalCount || 0} Traits
+	</div>
+	<div>
+		<Tooltip.Provider>
+			<Tooltip.Root>
+				<Tooltip.Trigger>
+							<span class="flex items-center">
+								<span class="mr-1">
+									{#if validated.results.status}
+										<CircleCheck class="w-4 h-4 stroke-green-600" />
+									{:else}
+										<CircleAlert class="w-4 h-4 stroke-red-500" />
+									{/if}
+								</span>
+								{deckList.format.charAt(0).toUpperCase() + deckList.format.substring(1).toLowerCase()}
+							</span>
+				</Tooltip.Trigger>
+				<Tooltip.Content>
+					<ul>
+						{#if validated.validationStatuses !== undefined}
+							{#each validated.validationStatuses.entries() as [key, value]}
+								<li>
+											<span class="flex">
+												<span class="mr-1">
+													{#if value.status}
+														<CircleCheck class="w-4 h-4 stroke-green-600" />
+													{:else}
+														<CircleAlert class="w-4 h-4 stroke-red-500" />
+													{/if}
+												</span>
+												{value.metadata.label}
+											</span>
+								</li>
+							{/each}
+						{/if}
+					</ul>
+				</Tooltip.Content>
+			</Tooltip.Root>
+		</Tooltip.Provider>
 	</div>
 </div>
 
