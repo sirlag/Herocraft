@@ -82,7 +82,6 @@ class DeckRepo(
         val deletedAt = timestamp("deleted_at").nullable()
 
         override val primaryKey = PrimaryKey(id)
-
         val unique = uniqueIndex(customIndexName = "unq_deck_likes_deck_user", deckId, userId)
     }
 
@@ -295,6 +294,23 @@ class DeckRepo(
             .where { Deck.owner eq (userId.toJavaUuid()) }
             .map { Deck.fromResultRow(it) }
             .toList()
+    }
+
+    suspend fun getRecentPublicDecks(limit: Int = 50): List<IvionDeck> = dbQuery {
+        val decks = Deck
+            .selectFields()
+            .where { Deck.visibility eq DeckVisibility.PUBLIC }
+            .orderBy(Deck.lastModified, SortOrder.DESC)
+            .limit(limit)
+            .map { Deck.fromResultRow(it) }
+            .toList()
+        
+        // Populate owner names for each deck
+        decks.forEach { deck ->
+            deck.ownerName = userRepo.getUsername(deck.owner)
+        }
+        
+        return@dbQuery decks
     }
 
     suspend fun getDeckList(deckHash: String, userId: Uuid? = null): IvionDeck = dbQuery {

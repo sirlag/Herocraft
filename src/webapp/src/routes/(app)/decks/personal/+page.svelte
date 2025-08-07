@@ -4,6 +4,7 @@
 	import DeckDataTable from './deck-data-table.svelte';
 	import { columns } from './deck-columns.ts'
  	import { BulkImportDialog } from '$lib/components/bulk-import/';
+	import { Button } from '$lib/components/ui/button';
 
 	interface Props {
 		data: PageData;
@@ -23,7 +24,7 @@
 <div class="flex-1 flex flex-col bg-neutral-50">
 	<div>
 		<BulkImportDialog data={bulkImportForm}>
-			<a>Import Decks</a>
+			<Button variant="outline">Import Decks</Button>
 		</BulkImportDialog>
 	</div>
 	{#if decks !== undefined}

@@ -1,0 +1,84 @@
+[Icons]
+Fix Clover/Luck icon
+Round out silence/slow/disarm
+Add Range Icon <r>
+Add Heroic Icon <h>
+
+
+[Cards]
+Arctic Winds just seems entirely wrong
+Avalanche has the wrong damage value'
+Fix card type info
+
+Misfire is really, really weird. Figure this one out. I *think* there are meant to be three, one for each effect, but there is only one art?
+Yeah that seems right.
+
+https://steamusercontent-a.akamaihd.net/ugc/2269315292160347048/A480226EC9EDB5F95DEFD1A19286F8EB1225B8A4/
+https://steamusercontent-a.akamaihd.net/ugc/2269315292160347601/2FF16002DB8368F021B494E00ABA252A5A639EA2/
+
+Arrows need a whole pass. The code is in there for shadows, but they just... not quite yet.
+
+[] Design / Redesign how MFCs work.
+
+
+[Auth]
+[X] Account verification emails
+    [X] - Use Amazon SES
+    [X] - Verification API endpoint and frontend url.
+    [X] - Splash page after registration telling them to check their email
+    [] - Update account screen for verification info.
+    [] - Account Verification banner
+[X] Password Reset
+    [X] - Send reset emails
+    [X] - Forgot a password screen
+    [X] - Password reset screen
+    [X] - Password reset api
+
+
+[Search]
+? Switch header search to +layout.server.js ?
+
+[] Search Syntax Page
+[] Search ordering
+   [] Power?
+[] Search View Types
+[] Search bar is broken right now.
+
+
+[Decks]
+Make Deck View page
+Make Deck Edit page
+Fix refresh in decks list
+
+Add primary spec to decklist, can be derived if needed
+
+[Builder Concepts]
+N Headers -
+
+Default:
+    Specialization
+    Class
+    Class
+
+Modifiers:
+    With Dilettante Trait:
+        Specialization
+        Class
+        Class
+        Class
+    Paragon:
+        Specialization
+        Specialization
+        Specialization
+
+[Deck Builder WIP]
+Add switch page / card count labels to builder.
+Wire up UI search.
+
+
+[DECK SETTINGS]
+Fix the form data being wrong???
+
+[SECURITY]
+Disable settings page for decks that aren't yours.
+Disable settings editing for decks that aren't yours

@@ -31,6 +31,11 @@ fun Application.registerBuilder(deckRepo: DeckRepo) {
             call.respond(deckList)
         }
 
+        get("/decks/public") {
+            val recentPublicDecks = deckRepo.getRecentPublicDecks(50)
+            call.respond(recentPublicDecks)
+        }
+
         authenticate("auth-session") {
             post("/deck/new") {
                 val session = call.authentication.principal<UserSession>()

@@ -1,0 +1,11 @@
+config:
+  validation: true
+  warningsAsErrors: false
+  excludes: ''
+
+style:
+  WildCardImport:
+    excludeImports:
+      - 'java.util.*'
+      - 'io.ktor.**'
+      - 'org.jetbrains.exposed.sql.*'
