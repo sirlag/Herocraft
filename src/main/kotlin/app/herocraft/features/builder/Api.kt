@@ -20,6 +20,13 @@ data class DeckSettings(
 )
 
 @Serializable
+data class DeckPatchSettings(
+    val name: String? = null,
+    val format: DeckFormat? = null,
+    val visibility: DeckVisibility? = null
+)
+
+@Serializable
 data class DeckImportRequest(
     val decks: List<DeckImportRequestDeck>,
     val defaultVisibility: DeckVisibility,

@@ -52,5 +52,32 @@ export const actions: Actions = {
 		let responseData = await createResponse.json();
 
 		redirect(303, '/decks/personal');
+	},
+	
+	toggleVisibility: async ({ request, fetch }) => {
+		let formData = await request.formData();
+
+		let id = formData.get('id');
+		let visibility = formData.get('visibility');
+
+		let updateResponse = await fetch(`${PUBLIC_API_BASE_URL}/decks/${id}`, {
+			method: 'PATCH',
+			headers: {
+				Cookie: request.headers.get('Cookie')!!,
+				'content-type': 'application/json'
+			},
+			body: JSON.stringify({ visibility })
+		});
+
+		if (!updateResponse.ok) {
+			console.log('Unable to update deck visibility');
+			return fail(updateResponse.status, {
+				formData
+			});
+		}
+
+		let responseData = await updateResponse.json();
+
+		redirect(303, '/decks/personal');
 	}
 } satisfies Actions;

@@ -83,6 +83,28 @@ fun Application.registerBuilder(deckRepo: DeckRepo) {
                 val settings = call.receive<DeckSettings>()
 
                 val deckList = deckRepo.updateSettings(session.id.toUuid(), deckId, settings)
+                if (deckList == null) {
+                    call.respond(HttpStatusCode.NotFound, mapOf("error" to "Deck not found"))
+                    return@put
+                }
+                call.respond(deckList)
+            }
+            
+            patch("/decks/{id}") {
+                val session = call.authentication.principal<UserSession>()
+                if (session == null) {
+                    call.respondRedirect("/login")
+                    return@patch
+                }
+
+                val deckId = call.parameters["id"]?.toUuid() ?: return@patch call.respond(HttpStatusCode.BadRequest)
+                val patchSettings = call.receive<DeckPatchSettings>()
+
+                val deckList = deckRepo.patchSettings(session.id.toUuid(), deckId, patchSettings)
+                if (deckList == null) {
+                    call.respond(HttpStatusCode.NotFound, mapOf("error" to "Deck not found"))
+                    return@patch
+                }
                 call.respond(deckList)
             }
 

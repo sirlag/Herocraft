@@ -60,7 +60,11 @@ export const columns: ColumnDef<DeckListing>[] = [
 		id: "actions",
 		enableSorting: false,
 		cell: ({row}) => {
-			return renderComponent(DataTableActions, {id: row.original.id, hash: row.original.hash})
+			return renderComponent(DataTableActions, {
+				id: row.original.id, 
+				hash: row.original.hash, 
+				visibility: row.original.visibility
+			})
 		},
 	},
 ];

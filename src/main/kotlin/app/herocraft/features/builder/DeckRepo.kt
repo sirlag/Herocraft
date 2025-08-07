@@ -324,7 +324,27 @@ class DeckRepo(
                 it[lastModified] = now
             }
             .map { Deck.fromResultRow(it) }
-            .first()
+            .firstOrNull() ?: return@dbQuery null
+            
+        return@dbQuery updatedDeck
+    }
+    
+    suspend fun patchSettings(userId: Uuid, deckId: Uuid, settings: DeckPatchSettings) = dbQuery {
+        val now = Clock.System.now()
+
+        val updatedDeck = Deck
+            .updateReturning(
+                where = { Deck.id eq deckId.toJavaUuid() and (Deck.owner eq userId.toJavaUuid()) }
+            ) {
+                // Only update fields that are provided in the settings object
+                settings.name?.let { newName -> it[name] = newName }
+                settings.visibility?.let { newVisibility -> it[visibility] = newVisibility }
+                settings.format?.let { newFormat -> it[format] = newFormat }
+                it[lastModified] = now
+            }
+            .map { Deck.fromResultRow(it) }
+            .firstOrNull() ?: return@dbQuery null
+            
         return@dbQuery updatedDeck
     }
 
@@ -345,9 +365,9 @@ class DeckRepo(
             result[format],
             result[created],
             result[lastModified],
-            likes = result[DeckFactsAggregate.likes] ?: 0,
-            views = result[DeckFactsAggregate.views] ?: 0,
-            favorite = !(result[DeckFavorites.deleted] ?: true),
+            likes = result.getOrNull(DeckFactsAggregate.likes) ?: 0,
+            views = result.getOrNull(DeckFactsAggregate.views) ?: 0,
+            favorite = !(result.getOrNull(DeckFavorites.deleted) ?: true),
         )
     // DECK ENTRY STUFF
 
