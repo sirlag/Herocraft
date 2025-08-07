@@ -2,15 +2,15 @@ import type { Actions } from '../../../../../../.svelte-kit/types/src/routes/(ap
 import { PUBLIC_API_BASE_URL } from '$env/static/public';
 import { fail, redirect } from '@sveltejs/kit';
 import { DeckSettingsForm } from '$lib/components/deck-settings';
-import { DeckSettingsSchema } from '$lib/components/image/hero-image';
+import { deckSettingsSchema } from '$lib/components/deck-settings/schema';
 import { zod } from 'sveltekit-superforms/adapters';
-import { superValidate } from 'sveltekit-superforms';
+import { message, superValidate } from 'sveltekit-superforms';
 
 export const actions: Actions = {
 	default: async (event) => {
 		let { request, fetch, params } = event;
 
-		const form = await superValidate(event, zod(DeckSettingsSchema));
+		const form = await superValidate(event, zod(deckSettingsSchema));
 
 		if (!form.valid) {
 			return fail(400, {
@@ -21,8 +21,6 @@ export const actions: Actions = {
 		let data = form.data;
 
 		let id = data['id'];
-
-		console.log(data);
 
 		let createResponse = await fetch(`${PUBLIC_API_BASE_URL}/decks/${id}`, {
 			method: 'PUT',
@@ -42,10 +40,6 @@ export const actions: Actions = {
 
 		let responseData = await createResponse.json();
 
-		return {
-			responseData,
-			form,
-			preFilled: form
-		};
+		return message (form, "Updated");
 	}
 } satisfies Actions;
