@@ -29,13 +29,11 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.count
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.kotlin.datetime.time
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.update
 import org.jetbrains.exposed.sql.updateReturning
 import org.jetbrains.exposed.sql.upsert
-import java.util.*
 import java.util.UUID.randomUUID
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
@@ -82,7 +80,6 @@ class DeckRepo(
         val deletedAt = timestamp("deleted_at").nullable()
 
         override val primaryKey = PrimaryKey(id)
-
         val unique = uniqueIndex(customIndexName = "unq_deck_likes_deck_user", deckId, userId)
     }
 
@@ -295,6 +292,203 @@ class DeckRepo(
             .where { Deck.owner eq (userId.toJavaUuid()) }
             .map { Deck.fromResultRow(it) }
             .toList()
+    }
+
+    suspend fun getUserDecksPaginated(
+        userId: Uuid,
+        size: Int = 20,
+        page: Int = 1
+    ): Page<IvionDeck> = dbQuery {
+        // Get total count of user's decks
+        val totalCount = Deck
+            .select(Deck.id.count())
+            .where { Deck.owner eq userId.toJavaUuid() }
+            .map { it[Deck.id.count()] }
+            .first()
+
+        // Calculate offset
+        val offset = (page - 1L) * size
+
+        // Get paginated decks
+        val decks = Deck
+            .join(UserRepo.Users, JoinType.INNER, Deck.owner, UserRepo.Users.id)
+            .join(DeckFavorites, JoinType.LEFT, Deck.id, DeckFavorites.deckId)
+            .join(DeckFactsAggregate, JoinType.LEFT, Deck.id, DeckFactsAggregate.deckId)
+            .select(
+                Deck.id,
+                Deck.hash,
+                Deck.name,
+                Deck.primarySpec,
+                Deck.owner,
+                Deck.visibility,
+                Deck.format,
+                Deck.created,
+                Deck.lastModified,
+                DeckFactsAggregate.views,
+                DeckFactsAggregate.likes,
+                DeckFavorites.deleted,
+                UserRepo.Users.username
+            )
+            .where { Deck.owner eq userId.toJavaUuid() }
+            .orderBy(Deck.lastModified, SortOrder.DESC)
+            .limit(size)
+            .offset(offset)
+            .map { row ->
+                val deck = Deck.fromResultRow(row)
+                deck.ownerName = row[UserRepo.Users.username]
+                deck
+            }
+            .toList()
+
+        return@dbQuery Page(
+            items = decks,
+            itemCount = decks.size.toLong(),
+            totalItems = totalCount,
+            page = page,
+            pageSize = size,
+            totalPages = ((totalCount + size - 1) / size).toInt()
+        )
+    }
+
+    suspend fun getUserLikedDecks(userId: Uuid): List<IvionDeck> = dbQuery {
+        Deck
+            .join(DeckLikes, JoinType.INNER, Deck.id, DeckLikes.deckId)
+            .join(UserRepo.Users, JoinType.INNER, Deck.owner, UserRepo.Users.id)
+            .select(
+                Deck.id,
+                Deck.hash,
+                Deck.name,
+                Deck.primarySpec,
+                Deck.owner,
+                Deck.visibility,
+                Deck.format,
+                Deck.created,
+                Deck.lastModified,
+                UserRepo.Users.username
+            )
+            .where { 
+                (DeckLikes.userId eq userId.toJavaUuid()) and 
+                (DeckLikes.deleted neq true) and
+                (Deck.visibility eq DeckVisibility.PUBLIC)
+            }
+            .orderBy(DeckLikes.timestamp, SortOrder.DESC)
+            .map { row ->
+                val deck = Deck.fromResultRow(row)
+                deck.ownerName = row[UserRepo.Users.username]
+                deck
+            }
+            .toList()
+    }
+
+    suspend fun getUserLikedDecksPaginated(
+        userId: Uuid,
+        size: Int = 20,
+        page: Int = 1
+    ): Page<IvionDeck> = dbQuery {
+        // Get total count of user's liked decks
+        val totalCount = Deck
+            .join(DeckLikes, JoinType.INNER, Deck.id, DeckLikes.deckId)
+            .select(Deck.id.count())
+            .where { 
+                (DeckLikes.userId eq userId.toJavaUuid()) and 
+                (DeckLikes.deleted neq true) and
+                (Deck.visibility eq DeckVisibility.PUBLIC)
+            }
+            .map { it[Deck.id.count()] }
+            .first()
+
+        // Calculate offset
+        val offset = (page - 1L) * size
+
+        // Get paginated liked decks
+        val decks = Deck
+            .join(DeckLikes, JoinType.INNER, Deck.id, DeckLikes.deckId)
+            .join(UserRepo.Users, JoinType.INNER, Deck.owner, UserRepo.Users.id)
+            .select(
+                Deck.id,
+                Deck.hash,
+                Deck.name,
+                Deck.primarySpec,
+                Deck.owner,
+                Deck.visibility,
+                Deck.format,
+                Deck.created,
+                Deck.lastModified,
+                UserRepo.Users.username
+            )
+            .where { 
+                (DeckLikes.userId eq userId.toJavaUuid()) and 
+                (DeckLikes.deleted neq true) and
+                (Deck.visibility eq DeckVisibility.PUBLIC)
+            }
+            .orderBy(DeckLikes.timestamp, SortOrder.DESC)
+            .limit(size)
+            .offset(offset)
+            .map { row ->
+                val deck = Deck.fromResultRow(row)
+                deck.ownerName = row[UserRepo.Users.username]
+                deck
+            }
+            .toList()
+
+        return@dbQuery Page(
+            items = decks,
+            itemCount = decks.size.toLong(),
+            totalItems = totalCount,
+            page = page,
+            pageSize = size,
+            totalPages = ((totalCount + size - 1) / size).toInt()
+        )
+    }
+
+    suspend fun getRecentPublicDecksPaginated(
+        size: Int = 20,
+        page: Int = 1
+    ): Page<IvionDeck> = dbQuery {
+        // Gets total count of public decks
+        val totalCount = Deck
+            .select(Deck.id.count())
+            .where { Deck.visibility eq DeckVisibility.PUBLIC }
+            .map { it[Deck.id.count()] }
+            .first()
+
+        // Calculate offset
+        val offset = (page - 1L) * size
+
+        // Get paginated decks
+        val decks = Deck
+            .join(UserRepo.Users, JoinType.INNER, Deck.owner, UserRepo.Users.id)
+            .select(
+                Deck.id,
+                Deck.hash,
+                Deck.name,
+                Deck.primarySpec,
+                Deck.owner,
+                Deck.visibility,
+                Deck.format,
+                Deck.created,
+                Deck.lastModified,
+                UserRepo.Users.username
+            )
+            .where { Deck.visibility eq DeckVisibility.PUBLIC }
+            .orderBy(Deck.lastModified, SortOrder.DESC)
+            .limit(size)
+            .offset(offset)
+            .map { row ->
+                val deck = Deck.fromResultRow(row)
+                deck.ownerName = row[UserRepo.Users.username]
+                deck
+            }
+            .toList()
+
+        return@dbQuery Page(
+            items = decks,
+            itemCount = decks.size.toLong(),
+            totalItems = totalCount,
+            page = page,
+            pageSize = size,
+            totalPages = ((totalCount + size - 1) / size).toInt()
+        )
     }
 
     suspend fun getDeckList(deckHash: String, userId: Uuid? = null): IvionDeck = dbQuery {

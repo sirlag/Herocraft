@@ -1,6 +1,6 @@
 <script lang="ts">
     import { Star } from 'lucide-svelte';
-    import { PUBLIC_API_BASE_URL } from '$env/static/public';
+    import { DeckURLs } from '$lib/routes';
     import { invalidateAll } from '$app/navigation';
 
     export let id: string;
@@ -10,7 +10,7 @@
         const method = favorite ? 'DELETE' : 'POST';
         
         try {
-            const response = await fetch(`${PUBLIC_API_BASE_URL}/decks/${id}/favorite`, {
+            const response = await fetch(DeckURLs.favorite(id), {
                 method,
                 credentials: 'include'
             });

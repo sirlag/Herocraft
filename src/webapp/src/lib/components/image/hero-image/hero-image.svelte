@@ -26,9 +26,10 @@
 
 	interface Props {
 		spec: any;
+		masked?: boolean;
 	}
 
-	let { spec }: Props = $props();
+	let { spec, masked = false }: Props = $props();
 
 	let getImage = (spec: string) => {
 		switch (spec) {
@@ -89,7 +90,7 @@
 </script>
 
 <!--{#if src}-->
-<img class="min-w-full min-h-full masked" {src} alt={spec} />
+<img class="min-w-full min-h-full {masked ? 'masked' : ''}" {src} alt={spec} />
 
 <!--{/if}-->
 

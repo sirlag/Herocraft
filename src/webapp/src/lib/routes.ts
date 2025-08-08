@@ -9,3 +9,17 @@ export const AccountURLs = {
 	signin: `${API_BASE_URL}/account/login`,
 	verifyToken: (token: string) => `${API_BASE_URL}/account/verification/verify/${token}`,
 }
+
+export const DeckURLs = {
+	// Deck listing endpoints
+	public: (page?: number, size?: number) => `${API_BASE_URL}/decks/public${page && size ? `?page=${page}&size=${size}` : ''}`,
+	private: (page?: number, size?: number) => `${API_BASE_URL}/decks/private${page && size ? `?page=${page}&size=${size}` : ''}`,
+	personal: `${API_BASE_URL}/decks/personal`,
+	liked: (page?: number, size?: number) => `${API_BASE_URL}/decks/liked${page && size ? `?page=${page}&size=${size}` : ''}`,
+	
+	// Individual deck operations
+	create: `${API_BASE_URL}/deck/new`,
+	delete: (id: string) => `${API_BASE_URL}/decks/${id}`,
+	update: (id: string) => `${API_BASE_URL}/decks/${id}`,
+	favorite: (id: string) => `${API_BASE_URL}/decks/${id}/favorite`,
+}

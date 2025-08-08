@@ -1,5 +1,5 @@
 import type { Actions } from './$types';
-import { PUBLIC_API_BASE_URL } from '$env/static/public';
+import { DeckURLs } from '$lib/routes';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { DeckSchema } from '$lib/components/NewDeck';
@@ -20,7 +20,7 @@ export const actions: Actions = {
 
 		let data = form.data;
 
-		let createResponse = await fetch(PUBLIC_API_BASE_URL + '/deck/new', {
+		let createResponse = await fetch(DeckURLs.create, {
 			method: 'POST',
 			headers: {
 				Cookie: event.request.headers.get('Cookie')!!,

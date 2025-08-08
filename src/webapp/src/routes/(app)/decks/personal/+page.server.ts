@@ -1,5 +1,5 @@
 import type { PageServerLoad, Actions } from './$types';
-import { PUBLIC_API_BASE_URL } from '$env/static/public';
+import { DeckURLs } from '$lib/routes';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { BulkImportSchema } from '$lib/components/bulk-import';
@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ request, locals }) => {
 		redirect(302, `/account/signin?redirect=/decks/personal`);
 	}
 
-	let decksResponse = await fetch(PUBLIC_API_BASE_URL + `/decks/personal`, {
+	let decksResponse = await fetch(DeckURLs.personal, {
 		method: 'GET',
 		headers: {
 			cookie: request.headers.get('cookie')!!
@@ -35,7 +35,7 @@ export const actions: Actions = {
 
 		let id = formData.get('id');
 
-		let createResponse = await fetch(`${PUBLIC_API_BASE_URL}/decks/${id}`, {
+		let createResponse = await fetch(DeckURLs.delete(id as string), {
 			method: 'DELETE',
 			headers: {
 				Cookie: request.headers.get('Cookie')!!
@@ -60,7 +60,7 @@ export const actions: Actions = {
 		let id = formData.get('id');
 		let visibility = formData.get('visibility');
 
-		let updateResponse = await fetch(`${PUBLIC_API_BASE_URL}/decks/${id}`, {
+		let updateResponse = await fetch(DeckURLs.update(id as string), {
 			method: 'PATCH',
 			headers: {
 				Cookie: request.headers.get('Cookie')!!,

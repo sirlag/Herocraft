@@ -26,7 +26,7 @@
 <Tooltip.Provider delayDuration={350}>
 	<div class="w-full bg-red-50 relative">
 		<div class="deckheader-image-wrapper">
-			<HeroImage spec={deckList.primarySpec} />
+			<HeroImage spec={deckList.primarySpec} masked={true} />
 		</div>
 		<div class="flex w-full deckheader justify-center">
 			<div class="flex flex-col w-full mx-auto max-w-7xl p-8 z-10">
