@@ -1,11 +1,7 @@
 package app.herocraft.features.builder
 
-import app.herocraft.core.extensions.isUuid
-import app.herocraft.core.extensions.isValidShort
-import app.herocraft.core.extensions.toUuidFromShort
 import app.herocraft.core.extensions.tryUuid
 import app.herocraft.plugins.UserSession
-import app.softwork.uuid.isValidUuidString
 import app.softwork.uuid.toUuid
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -14,7 +10,6 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
-import kotlin.uuid.Uuid
 
 fun Application.registerBuilder(deckRepo: DeckRepo) {
     routing {
@@ -32,8 +27,11 @@ fun Application.registerBuilder(deckRepo: DeckRepo) {
         }
 
         get("/decks/public") {
-            val recentPublicDecks = deckRepo.getRecentPublicDecks(50)
-            call.respond(recentPublicDecks)
+            val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+            val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 20
+            
+            val paginatedDecks = deckRepo.getRecentPublicDecksPaginated(size, page)
+            call.respond(paginatedDecks)
         }
 
         authenticate("auth-session") {
@@ -60,6 +58,36 @@ fun Application.registerBuilder(deckRepo: DeckRepo) {
 
                 val decks = deckRepo.getUserDecks(session.id.toUuid())
                 call.respond(decks)
+            }
+
+            get("/decks/private") {
+                val session = call.authentication.principal<UserSession>()
+
+                if (session == null) {
+                    call.respondRedirect("/login")
+                    return@get
+                }
+
+                val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+                val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 20
+
+                val paginatedDecks = deckRepo.getUserDecksPaginated(session.id.toUuid(), size, page)
+                call.respond(paginatedDecks)
+            }
+
+            get("/decks/liked") {
+                val session = call.authentication.principal<UserSession>()
+
+                if (session == null) {
+                    call.respondRedirect("/login")
+                    return@get
+                }
+
+                val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+                val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 20
+                
+                val paginatedDecks = deckRepo.getUserLikedDecksPaginated(session.id.toUuid(), size, page)
+                call.respond(paginatedDecks)
             }
 
             post("/decks/import") {

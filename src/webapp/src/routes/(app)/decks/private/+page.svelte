@@ -29,7 +29,9 @@
 		loading = true;
 		try {
 			const nextPage = pagination.page + 1;
-			const response = await fetch(DeckURLs.public(nextPage, pagination.pageSize));
+			const response = await fetch(DeckURLs.private(nextPage, pagination.pageSize), {
+				credentials: 'include'
+			});
 			const paginatedDecks = await response.json();
 			
 			// Append new decks to existing ones
@@ -50,14 +52,14 @@
 </script>
 
 <svelte:head>
-	<title>Public Decks // Herocraft</title>
+	<title>My Decks // Herocraft</title>
 </svelte:head>
 
 <div class="flex-1 flex flex-col bg-neutral-50 min-h-screen">
 	<div class="container mx-auto px-4 py-8">
-		<h1 class="text-3xl font-bold text-gray-900 mb-4">Recent Public Decks</h1>
+		<h1 class="text-3xl font-bold text-gray-900 mb-4">My Decks</h1>
 		
-		<DeckNavigation isLoggedIn={data.isLoggedIn} />
+		<DeckNavigation isLoggedIn={true} />
 		
 		{#if pagination}
 			<div class="mb-6 text-gray-600">
@@ -67,7 +69,8 @@
 		
 		{#if allDecks.length === 0}
 			<div class="text-center py-12">
-				<p class="text-gray-500 text-lg">No public decks found.</p>
+				<p class="text-gray-500 text-lg">You haven't created any decks yet.</p>
+				<p class="text-gray-400 mt-2">Start building your first deck to see it here!</p>
 			</div>
 		{:else}
 			<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-8">
@@ -89,7 +92,7 @@
 			{:else if pagination && allDecks.length > 0}
 				<div class="flex justify-center py-8">
 					<p class="text-gray-500 text-lg italic">
-						You have reached the end of your search. Perhaps start a new journey?
+						You have reached the end of your decks. Time to build more!
 					</p>
 				</div>
 			{/if}

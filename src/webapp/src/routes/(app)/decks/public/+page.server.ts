@@ -1,17 +1,32 @@
 import type { PageServerLoad } from './$types';
-import { PUBLIC_API_BASE_URL } from '$env/static/public';
+import { DeckURLs } from '$lib/routes';
 
-export const load: PageServerLoad = async ({ request }) => {
-	let decksResponse = await fetch(PUBLIC_API_BASE_URL + `/decks/public`, {
+export const load: PageServerLoad = async ({ request, url, cookies }) => {
+	const page = url.searchParams.get('page') || '1';
+	const size = url.searchParams.get('size') || '20';
+	
+	// Check if user is logged in
+	const sessionCookie = cookies.get('user_session');
+	const isLoggedIn = !!sessionCookie;
+	
+	let decksResponse = await fetch(DeckURLs.public(parseInt(page), parseInt(size)), {
 		method: 'GET',
 		headers: {
 			cookie: request.headers.get('cookie') || ''
 		}
 	});
 
-	let decks = await decksResponse.json();
+	let paginatedDecks = await decksResponse.json();
 
 	return {
-		decks
+		decks: paginatedDecks.items,
+		pagination: {
+			totalItems: paginatedDecks.totalItems,
+			page: paginatedDecks.page,
+			pageSize: paginatedDecks.pageSize,
+			totalPages: paginatedDecks.totalPages,
+			hasNext: paginatedDecks.hasNext
+		},
+		isLoggedIn
 	};
 };

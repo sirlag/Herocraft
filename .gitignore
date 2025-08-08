@@ -34,3 +34,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Node ###
+!**/src/webapp/node_modules/

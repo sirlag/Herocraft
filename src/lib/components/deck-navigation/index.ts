@@ -1,0 +1,1 @@
+export { default as DeckNavigation } from './deck-navigation.svelte';
