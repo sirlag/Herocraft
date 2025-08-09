@@ -1,11 +1,11 @@
 [versions]
-arrow = "2.0.1"
-exposed = "0.61.0"
-flyway = "11.8.0"
+arrow = "2.1.2"
+exposed = "1.0.0-beta-5"
+flyway = "11.11.0"
 
-kotlin = "2.1.20"
-koin-bom = "4.1.0-Beta7"
-ktor = "3.1.2"
+kotlin = "2.2.0"
+koin-bom = "4.1.0"
+ktor = "3.2.3"
 
 [libraries]
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
@@ -17,6 +17,7 @@ exposed-core = { group = "org.jetbrains.exposed", name = "exposed-core", version
 exposed-jdbc = { group = "org.jetbrains.exposed", name = "exposed-jdbc", version.ref = "exposed" }
 exposed-crypt = { group = "org.jetbrains.exposed", name = "exposed-crypt", version.ref = "exposed" }
 exposed-dao = { group = "org.jetbrains.exposed", name = "exposed-dao", version.ref = "exposed" }
+exposed-r2dbc = {group = "org.jetbrains.exposed", name = "exposed-r2dbc", version.ref = "exposed" }
 exposed-kotlin-datetime = { group = "org.jetbrains.exposed", name = "exposed-kotlin-datetime", version.ref = "exposed" }
 
 flyway = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
@@ -27,22 +28,22 @@ koin-bom = { group = "io.insert-koin", name = "koin-bom", version.ref = "koin-bo
 koin-core = { group = "io.insert-koin", name = "koin-core" }
 koin-core-coroutines = { group = "io.insert-koin", name = "koin-core-coroutines" }
 koin-ktor = { group = 'io.insert-koin', name = 'koin-ktor' }
-koin-ktor3 = { group = 'io.insert-koin', name = 'koin-ktor3' }
 koin-logger-slf4j = { group = 'io.insert-koin', name = 'koin-logger-slf4j' }
 
-kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime-jvm", version = "0.6.2" }
+kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version = "1.9.0"}
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime-jvm", version = "0.7.1" }
 
 ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio" }
 
 
-postgres = { module = "org.postgresql:postgresql", version = "42.7.3" }
+postgres = { module = "org.postgresql:postgresql", version = "42.7.7" }
 
 [bundles]
 arrow = ['arrow-core', 'arrow-fx-coroutines']
 exposed = ['exposed-core', 'exposed-jdbc', 'exposed-crypt', 'exposed-kotlin-datetime', 'exposed-dao']
 flyway = ['flyway', 'flyway-postgres']
 
-koin = ['koin-ktor3', 'koin-logger-slf4j']
+koin = ['koin-core', 'koin-core-coroutines', 'koin-ktor', 'koin-logger-slf4j']
 
 
 [plugins]
@@ -50,3 +51,4 @@ flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
+versions = { id = "com.github.ben-manes.versions", version = "0.52.0" }

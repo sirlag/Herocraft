@@ -10,14 +10,15 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ktor)
     alias(libs.plugins.flyway)
-    id("com.strumenta.antlr-kotlin") version "1.0.2"
-    id("com.github.ben-manes.versions") version "0.52.0"
+    alias(libs.plugins.versions)
+    id("com.strumenta.antlr-kotlin") version "1.0.5"
 }
 
 kotlin {
     compilerOptions {
         optIn.add("kotlin.uuid.ExperimentalUuidApi")
         optIn.add("kotlin.ExperimentalStdlibApi")
+        optIn.add("kotlin.time.ExperimentalTime")
         optIn.add("io.lettuce.core.ExperimentalLettuceCoroutinesApi")
     }
     sourceSets {
@@ -69,38 +70,38 @@ dependencies {
     implementation("io.ktor:ktor-server-compression-jvm")
     implementation("io.ktor:ktor-server-metrics-micrometer-jvm")
     implementation("io.ktor:ktor-server-cors")
-    implementation("io.micrometer:micrometer-registry-prometheus:1.12.5")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.15.2")
     implementation("io.ktor:ktor-server-content-negotiation-jvm")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
 
     implementation(libs.ktor.client.cio)
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.3")
+    implementation(libs.kotlinx.serialization)
     implementation(libs.kotlinx.datetime)
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive")
 
     implementation(libs.bundles.exposed)
-    implementation("com.h2database:h2:2.2.224")
+    implementation("com.h2database:h2:2.3.232")
     implementation(libs.postgres)
-    implementation("com.zaxxer:HikariCP:6.3.0")
+    implementation("com.zaxxer:HikariCP:7.0.1")
     implementation(libs.bundles.flyway)
 
     implementation("eu.vendeli:rethis:0.2.9")
-    implementation("io.lettuce:lettuce-core:6.6.0.RELEASE")
+    implementation("io.lettuce:lettuce-core:6.8.0.RELEASE")
 
     implementation("io.ktor:ktor-server-netty-jvm")
-    implementation("io.github.oshai:kotlin-logging-jvm:7.0.7")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.12")
     implementation("ch.qos.logback:logback-classic:$logback_version")
 
-    implementation("app.softwork:kotlinx-uuid-core:0.1.5")
+    implementation("app.softwork:kotlinx-uuid-core:0.1.6")
 
     implementation("org.apache.commons:commons-email:1.6.0")
 
     implementation(kotlincrypto.random.crypto.rand)
 
-    implementation("com.strumenta:antlr-kotlin-runtime:1.0.3")
+    implementation("com.strumenta:antlr-kotlin-runtime:1.0.5")
 
     implementation(awssdk.services.s3)
 

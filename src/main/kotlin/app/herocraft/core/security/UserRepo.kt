@@ -4,11 +4,12 @@ import app.herocraft.core.api.UserRequest
 import app.herocraft.core.extensions.DataService
 import app.herocraft.core.models.User
 import io.ktor.server.engine.*
-import kotlinx.datetime.Clock
-import org.jetbrains.exposed.crypt.Algorithms
-import org.jetbrains.exposed.crypt.encryptedVarchar
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
+import kotlin.time.Clock
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.crypt.Algorithms
+import org.jetbrains.exposed.v1.crypt.encryptedVarchar
+import org.jetbrains.exposed.v1.datetime.timestamp
+import org.jetbrains.exposed.v1.jdbc.*
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
 import kotlin.uuid.toKotlinUuid
