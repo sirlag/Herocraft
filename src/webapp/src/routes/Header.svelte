@@ -157,16 +157,6 @@
         transition: color 0.2s linear;
     }
 
-    .test {
-        color: var(--color-text);
-        transition: color 0.2s linear;
-
-    }
-
-    .test:hover {
-        color: var(--color-theme-1);
-    }
-
     a:hover {
         color: var(--color-theme-1);
         fill: var(--color-theme-1);

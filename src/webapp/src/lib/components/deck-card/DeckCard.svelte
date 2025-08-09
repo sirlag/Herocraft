@@ -14,11 +14,108 @@
 	function formatDeckFormat(format: string): string {
 		return format.charAt(0).toUpperCase() + format.slice(1).toLowerCase();
 	}
+
+	// Map color names to RGB values
+	function getColorValue(color: string): string {
+		switch (color) {
+			case 'Red':
+				return '212,55,46';
+			case 'Green':
+				return '115,171,98';
+			case 'Blue':
+				return '89,176,217';
+			case 'White':
+				return '231,230,225';
+			case 'Black':
+				return '0,0,0';
+			case 'Gray':
+			default:
+				return '116,134,136';
+		}
+	}
+
+	// Map specializations to their color(s) based on actual ultimate card data
+	function getSpecializationColors(spec: string): { primary: string; secondary?: string } {
+		switch (spec) {
+			// Single color specializations
+			case 'Saint':
+				return { primary: 'White' };
+			case 'Invoker':
+				return { primary: 'Red' };
+			case 'Archmage':
+				return { primary: 'Blue' };
+			case 'Incarnate':
+				return { primary: 'White' };
+			case 'Ebon Mage':
+				return { primary: 'Black' };
+			case 'Ancient':
+				return { primary: 'Red' };
+			case 'Winterborn':
+				return { primary: 'Blue' };
+			case 'Wilder':
+				return { primary: 'Green' };
+			case 'Fletcher':
+				return { primary: 'Green' };
+			case 'Ruffian':
+				return { primary: 'Black' };
+			// Dual color specializations
+			case 'Executioner':
+				return { primary: 'Black', secondary: 'Gray' };
+			case 'Illusionist':
+				return { primary: 'Blue', secondary: 'Green' };
+			case 'Curseblade':
+				return { primary: 'Black', secondary: 'Red' };
+			case 'Enchantress':
+				return { primary: 'White', secondary: 'Red' };
+			case 'Errant':
+				return { primary: 'White', secondary: 'Gray' };
+			case 'Jarl':
+				return { primary: 'Red', secondary: 'Gray' };
+			case 'Survivalist':
+				return { primary: 'Gray', secondary: 'Green' };
+			case 'Poacher':
+				return { primary: 'Red', secondary: 'Green' };
+			case 'Watcher':
+				return { primary: 'Blue', secondary: 'Gray' };
+			case 'Huntsman':
+				return { primary: 'Green', secondary: 'Black' };
+			case 'Avatar':
+				return { primary: 'White', secondary: 'Blue' };
+			case 'Baron':
+				return { primary: 'Black', secondary: 'Blue' };
+			// Gray primary specializations
+			case 'Friar':
+				return { primary: 'Gray' };
+			case 'Steward':
+				return { primary: 'Gray' };
+			// Default fallback
+			default:
+				return { primary: 'Gray' };
+		}
+	}
+
+	// Get colors for a specialization (returns both primary and secondary for dual-color shadows)
+	function getSpecializationColorString(spec: string): { c1: string; c2: string } {
+		const colors = getSpecializationColors(spec);
+		const primaryColor = getColorValue(colors.primary);
+		
+		if (colors.secondary) {
+			const secondaryColor = getColorValue(colors.secondary);
+			return { c1: primaryColor, c2: secondaryColor };
+		}
+		
+		// For single colors, use the same color for both shadow layers
+		return { c1: primaryColor, c2: primaryColor };
+	}
+
+	let { c1, c2 } = $derived(getSpecializationColorString(deck.primarySpec));
+	let colorStyle = $derived(`--color-1:${c1};--color-2:${c2}`);
 </script>
 
 <a 
 	href="/deck/{deck.hash}" 
-	class="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+	class="block bg-white rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer deck-card-shadow"
+	style={colorStyle}
 >
 	<!-- Hero Image Background with Overlaid Content -->
 	<div class="h-48 bg-gray-200 relative overflow-hidden">
@@ -88,5 +185,17 @@
 		-webkit-line-clamp: 2;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
+	}
+
+	.deck-card-shadow {
+		box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.1),
+		0px 1px 2px -1px rgba(0, 0, 0, 0.1);
+	}
+
+	.deck-card-shadow:hover {
+		box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.1),
+		0px 1px 2px -1px rgba(0, 0, 0, 0.1),
+		-4px 6px 12px 1px rgba(var(--color-1), 0.6),
+		4px 8px 15px 1px rgba(var(--color-2), 0.5);
 	}
 </style>
