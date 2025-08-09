@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { Deck } from '$app';
 	import { Badge } from '$lib/components/ui/badge';
 	import { HeroImage } from '$lib/components/image/hero-image';
 	import Time from 'svelte-time';
@@ -127,7 +126,7 @@
 			</div>
 		{/if}
 		<!-- Overlay for better text readability -->
-		<div class="absolute inset-0 bg-black bg-opacity-40"></div>
+		<div class="absolute inset-0 bg-black opacity-40"></div>
 		
 		<!-- Overlaid Content -->
 		<div class="absolute inset-0 p-4 flex flex-col justify-between text-white">
@@ -182,6 +181,7 @@
 <style>
 	.line-clamp-2 {
 		display: -webkit-box;
+		line-clamp: 2;
 		-webkit-line-clamp: 2;
 		-webkit-box-orient: vertical;
 		overflow: hidden;

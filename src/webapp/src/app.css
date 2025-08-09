@@ -109,7 +109,7 @@
 
 @utility container {
 	padding-inline: 2rem;
-	margin-inline: auto;
+	/*margin-inline: 2rem;*/
 }
 
 @layer base {
