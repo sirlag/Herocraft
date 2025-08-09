@@ -81,9 +81,6 @@
 
 	let colorStyle = $derived(`--color-1:${c1};--color-2:${c2}`);
 
-	$inspect(colorStyle).with(console.log)
-
-
 </script>
 
 <svelte:head>
