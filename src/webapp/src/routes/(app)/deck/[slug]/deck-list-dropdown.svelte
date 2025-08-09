@@ -26,14 +26,14 @@
 				>Add One
 				</DropdownMenu.Item>
 				<DropdownMenu.Item
-					class="text-red-600 data-[highlighted]:text-red-100 data-[highlighted]:bg-red-500"
+					class="text-red-600 data-highlighted:text-red-100 data-highlighted:bg-red-500"
 					onclick={() => {modify(card, count - 1)}}
 				>
 					Remove
 				</DropdownMenu.Item>
 				{#if count > 1}
 					<DropdownMenu.Item
-						class="text-red-600 data-[highlighted]:text-red-100 data-[highlighted]:bg-red-500"
+						class="text-red-600 data-highlighted:text-red-100 data-highlighted:bg-red-500"
 						onclick={() => {modify(card, 0)}}
 					>
 						Remove All

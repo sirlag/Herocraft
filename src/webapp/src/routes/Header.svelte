@@ -117,7 +117,6 @@
         justify-content: space-between;
     }
 
-
     nav {
         display: flex;
         justify-content: center;

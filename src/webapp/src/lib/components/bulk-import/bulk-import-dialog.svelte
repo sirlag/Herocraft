@@ -97,7 +97,7 @@
 						<Form.Description>Select which decks you want to import.</Form.Description>
 					</div>
 					<div class="space-y-2">
-						<ScrollArea class="flex flex-col h-[14rem] w-full rounded-lg border p-4">
+						<ScrollArea class="flex flex-col h-56 w-full rounded-lg border p-4">
 							{#each listOfDecks.data as deckList}
 								{@const checked = $formData.decks.includes(deckList[0][0])}
 								<div class="flex flex-row items-start space-x-3 align-middle m-2 h-8">
