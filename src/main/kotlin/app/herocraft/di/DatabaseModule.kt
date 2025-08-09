@@ -10,7 +10,7 @@ import app.herocraft.features.search.CardImageRepo
 import app.herocraft.features.search.CardRepo
 import io.ktor.server.application.*
 import io.lettuce.core.RedisClient
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.v1.jdbc.Database
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 

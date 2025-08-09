@@ -2,8 +2,8 @@ package app.herocraft.core.models
 
 import app.herocraft.features.images.ImageProcessor
 import kotlinx.serialization.Serializable
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 import kotlin.uuid.Uuid
 

@@ -1,6 +1,6 @@
 package app.herocraft.core.models
 
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.Serializable
 import java.util.*
 import kotlin.uuid.Uuid
