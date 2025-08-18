@@ -297,7 +297,7 @@
 			</div>
 		</div>
 
-		<div class="min-h-[100vh]"></div>
+		<div class="min-h-screen"></div>
 
 
 	</div>

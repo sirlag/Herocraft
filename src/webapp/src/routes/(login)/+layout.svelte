@@ -20,7 +20,7 @@
 			</div>
 		</div>
 		<div class="grid place-items-center h-lvh w-lvw border-gray-100">
-			<!--		<div class="flex flex-col flex-grow justify-center align-middle h-lvh bg-gray-100">-->
+			<!--		<div class="flex flex-col grow justify-center align-middle h-lvh bg-gray-100">-->
 			<div>
 				<div class="lg:hidden flex justify-center py-8">
 					<Herocraft />

@@ -10,6 +10,23 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
+	type Deck = {
+		id: string;
+		hash: string;
+		name: string;
+		list: DeckEntry[];
+		primarySpec: string;
+		owner: string;
+		ownerName: string;
+		visibility: DeckVisibility;
+		format: DeckFormat;
+		created: Date;
+		lastModified: Date;
+		favorite: boolean | null;
+		likes: number;
+		views: number;
+		liked: boolean | null;
+	};
 }
 
 type UserSession = {

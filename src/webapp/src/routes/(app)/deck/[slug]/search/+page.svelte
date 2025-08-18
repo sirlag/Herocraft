@@ -97,7 +97,7 @@
 					bind:filterValues={selectedTypes}
 				/>
 
-				<SearchInput name="q" value={query} class="flex-grow"/>
+				<SearchInput name="q" value={query} class="grow"/>
 
 			</div>
 
