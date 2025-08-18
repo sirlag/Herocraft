@@ -10,7 +10,7 @@
 	import { navigationMenuTriggerStyle } from '$lib/components/ui/navigation-menu/navigation-menu-trigger.svelte';
 
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.ts';
-	import * as Command from "$lib/components/ui/command/index.js";
+	import * as Command from '$lib/components/ui/command/index.js';
 	import CommandPalette from '$lib/components/command/CommandPalette.svelte';
 	import { Menu, Search } from 'lucide-svelte';
 	import { cn } from '$lib/utils.ts';
@@ -32,8 +32,8 @@
 		content: string;
 	};
 
- let open = $state(false);
- let newDeckOpen = $state(false);
+	let open = $state(false);
+	let newDeckOpen = $state(false);
 
 	function isTypingInEditable(target: EventTarget | null): boolean {
 		const el = target as HTMLElement | null;
@@ -91,106 +91,139 @@
 {/snippet}
 
 
-<!-- Mobile Navigation -->
-		<div class="lg:hidden container py-2 mx-auto px-4">
-			<div class="flex h-16 items-center justify-between">
-				<!-- Logo -->
-				<div class="h-8 w-28 pt-1 hover:fill-red-600 hover:color-red-600">
-					<a class="hover:fill-red-600 hover:color-red-600" href="/">
-						<HerocraftWordmark />
-					</a>
-				</div>
-
-				<!-- Mobile Actions -->
-				<div class="flex items-center gap-2">
-					<!-- Search Button -->
-					<Button
-						variant="ghost"
-						size="icon"
-						class="h-9 w-9"
-						onclick={() => (open = true)}
-					>
-						<Search class="h-4 w-4" />
-					</Button>
-
-					<!-- Mobile Menu -->
-					{#if !session || !session.isAuthenticated}
-						<DropdownMenu.Root>
-							<DropdownMenu.Trigger asChild>
+<NavigationMenu.Root
+	class="container py-2 mx-auto px-6 md:px-8 grid h-16 grid-cols-[auto_1fr_minmax(360px,640px)_1fr_auto] items-center gap-2">
+	<div>
+		<ul>
+			<li
+				class="h-8 w-28 pt-1 hover:fill-red-600 hover:color-red-600"
+				aria-current={page.url.pathname === '/' ? 'page' : undefined}
+			>
+				<a class="hover:fill-red-600 hover:color-red-600" href="/">
+					<HerocraftWordmark />
+				</a>
+			</li>
+		</ul>
+	</div>
+	<div class="justify-self-start">
+		<NavigationMenu.List class="justify-start">
+			<NavigationMenu.Item>
+				<NavigationMenu.Trigger>Decks</NavigationMenu.Trigger>
+				<NavigationMenu.Content>
+					<ul class="grid gap-2 p-2 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+						<li class="row-span-3">
+							<NavigationMenu.Link
+								class="from-muted/50 to-muted bg-linear-to-b outline-hidden flex h-full w-full select-none flex-col justify-end rounded-md p-6 no-underline focus:shadow-md"
+							>
 								{#snippet child({ props })}
-									<Button {...props} variant="ghost" size="icon" class="h-9 w-9">
-										<Menu class="h-5 w-5" />
-									</Button>
+									<a {...props} href="/decks/public">
+										<div class="mb-2 mt-4 text-lg font-medium">Decks</div>
+										<p class="text-muted-foreground text-sm leading-tight">
+											View the latest and greatest decks from the community.
+										</p>
+									</a>
 								{/snippet}
-							</DropdownMenu.Trigger>
-							<DropdownMenu.Content align="end" class="w-48">
-								<DropdownMenu.Group>
-									<a href="/decks/public">
-										<DropdownMenu.Item>Decks</DropdownMenu.Item>
-									</a>
-									<a href="/cards">
-										<DropdownMenu.Item>Cards</DropdownMenu.Item>
-									</a>
-									<a href="/docs/syntax">
-										<DropdownMenu.Item>Syntax</DropdownMenu.Item>
-									</a>
-								</DropdownMenu.Group>
+							</NavigationMenu.Link>
+						</li>
+						{@render ListItem({
+							href: "/decks/public",
+							title: "Preconstructed Decks",
+							content: "A great place to start if you're new to Ivion."
+						})}
+						{@render ListItem({
+							href: "/decks/private",
+							title: "Your Decks",
+							content: "View and Manage the decks you've created."
+						})}
+						{@render ListItem({
+							href: "/decks/liked",
+							title: "Decks You Liked",
+							content: "See what you've liked and share them with others."
+						})}
+					</ul>
+				</NavigationMenu.Content>
+			</NavigationMenu.Item>
+			<NavigationMenu.Item>
+				<NavigationMenu.Link>
+					{#snippet child()}
+						<a href="/cards" class={navigationMenuTriggerStyle()}>Cards</a>
+					{/snippet}
+				</NavigationMenu.Link>
+			</NavigationMenu.Item>
+			<NavigationMenu.Item>
+				<NavigationMenu.Link>
+					{#snippet child()}
+						<a href="/docs/syntax" class={navigationMenuTriggerStyle()}>Syntax</a>
+					{/snippet}
+				</NavigationMenu.Link>
+			</NavigationMenu.Item>
+		</NavigationMenu.List>
+	</div>
+	<!-- Center command trigger pill -->
+	<div class="justify-self-center">
+		<button
+			class="rounded-full border border-input bg-background px-5 py-2.5 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 inline-flex items-center gap-2"
+			aria-haspopup="dialog"
+			aria-expanded={open}
+			on:click={() => (open = true)}
+		>
+			<Search class="h-4 w-4" />
+			<span class="hidden sm:inline">Search Cards, Decks, and Commands</span>
+			<kbd
+				class="ml-2 hidden md:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+				/
+			</kbd>
+		</button>
+	</div>
+	<!-- Spacer column -->
+	<div></div>
+	<!-- Keep the palette mounted nearby so focus returns properly -->
+	<CommandPalette bind:open onNewDeck={() => { newDeckOpen = true; }} />
+	<NewDeckDialog form={deckForm} bind:open={newDeckOpen} />
+
+	<div class="flex-none">
+		{#if !session || !session.isAuthenticated}
+			<div class="flex items-center gap-2">
+				<Button href="/account/signin" variant="outline" size="sm" class="rounded-full">Sign In</Button>
+				<Button href="/account/register" variant="default" size="sm" class="rounded-full">Register</Button>
+			</div>
+		{:else}
+			<ul>
+				<li>
+					<DropdownMenu.Root>
+						<DropdownMenu.Trigger
+							class="uppercase font-medium h-full text-sm py-2 tracking-widest test "
+						>
+							<Menu />
+						</DropdownMenu.Trigger>
+						<DropdownMenu.Content>
+							<DropdownMenu.Group>
+								<DropdownMenu.GroupHeading>Your Stuff</DropdownMenu.GroupHeading>
+								<a href="/decks/personal">
+									<DropdownMenu.Item>Decks</DropdownMenu.Item>
+								</a>
 								<DropdownMenu.Separator />
-								<DropdownMenu.Group>
-									<a href="/account/signin">
-										<DropdownMenu.Item>Sign In</DropdownMenu.Item>
-									</a>
-									<a href="/account/register">
-										<DropdownMenu.Item>Register</DropdownMenu.Item>
-									</a>
-								</DropdownMenu.Group>
-							</DropdownMenu.Content>
-						</DropdownMenu.Root>
-					{:else}
-						<DropdownMenu.Root>
-							<DropdownMenu.Trigger asChild>
-								{#snippet child({ props })}
-									<Button {...props} variant="ghost" size="icon" class="h-9 w-9">
-										<Menu class="h-5 w-5" />
-									</Button>
-								{/snippet}
-							</DropdownMenu.Trigger>
-							<DropdownMenu.Content align="end" class="w-48">
-								<DropdownMenu.Group>
-									<DropdownMenu.GroupHeading>Navigation</DropdownMenu.GroupHeading>
-									<a href="/decks/public">
-										<DropdownMenu.Item>Browse Decks</DropdownMenu.Item>
-									</a>
-									<a href="/cards">
-										<DropdownMenu.Item>Cards</DropdownMenu.Item>
-									</a>
-									<a href="/docs/syntax">
-										<DropdownMenu.Item>Syntax</DropdownMenu.Item>
-									</a>
-								</DropdownMenu.Group>
-								<DropdownMenu.Separator />
-								<DropdownMenu.Group>
-									<DropdownMenu.GroupHeading>Your Stuff</DropdownMenu.GroupHeading>
-									<a href="/decks/personal">
-										<DropdownMenu.Item>Your Decks</DropdownMenu.Item>
-									</a>
-									<a href="/decks/private">
-										<DropdownMenu.Item>Private Decks</DropdownMenu.Item>
-									</a>
-									<a href="/decks/liked">
-										<DropdownMenu.Item>Liked Decks</DropdownMenu.Item>
-									</a>
-								</DropdownMenu.Group>
-								<DropdownMenu.Separator />
-								<DropdownMenu.Group>
-									<DropdownMenu.GroupHeading>Account</DropdownMenu.GroupHeading>
-									<a href="/account">
-										<DropdownMenu.Item>Profile</DropdownMenu.Item>
-									</a>
-									<a href="/account">
-										<DropdownMenu.Item>Settings</DropdownMenu.Item>
-									</a>
-								</DropdownMenu.Group>
+							</DropdownMenu.Group>
+							<DropdownMenu.Group>
+								<DropdownMenu.GroupHeading>Profile & Settings</DropdownMenu.GroupHeading>
+								<a href="/account">
+									<DropdownMenu.Item>Profile</DropdownMenu.Item>
+								</a>
+								<a href="/account/settings">
+									<DropdownMenu.Item>Settings</DropdownMenu.Item>
+								</a>
+							</DropdownMenu.Group>
+							<!--									<DropdownMenu.Group>-->
+							<!--										<DropdownMenu.GroupHeading>Utilities</DropdownMenu.GroupHeading>-->
+							<!--										&lt;!&ndash; Placeholder theme toggle item; wire to theme system later &ndash;&gt;-->
+							<!--										<DropdownMenu.Item on:click={() => { /* TODO: theme toggle */ }}>-->
+							<!--											Toggle Theme-->
+							<!--										</DropdownMenu.Item>-->
+							<!--										<a href="/notifications">-->
+							<!--											<DropdownMenu.Item>Notifications</DropdownMenu.Item>-->
+							<!--										</a>-->
+							<!--									</DropdownMenu.Group>-->
+							<DropdownMenu.Group>
 								<DropdownMenu.Separator />
 								<a href="/account/logout"
 									 data-sveltekit-preload-data={false}
@@ -198,207 +231,13 @@
 								>
 									<DropdownMenu.Item>Logout</DropdownMenu.Item>
 								</a>
-							</DropdownMenu.Content>
-						</DropdownMenu.Root>
-					{/if}
-				</div>
-			</div>
-		</div>
+							</DropdownMenu.Group>
+						</DropdownMenu.Content>
+					</DropdownMenu.Root>
+				</li>
+			</ul>
+		{/if}
+	</div>
 
-		<!-- Desktop Navigation -->
-		<NavigationMenu.Root class="hidden lg:block container py-2 mx-auto px-6 xl:px-8">
-			<div class="grid h-16 grid-cols-[auto_1fr_auto_auto] items-center gap-4">
-				<!-- Logo -->
-				<div>
-					<ul>
-						<li
-							class="h-8 w-28 pt-1 hover:fill-red-600 hover:color-red-600"
-							aria-current={page.url.pathname === '/' ? 'page' : undefined}
-						>
-							<a class="hover:fill-red-600 hover:color-red-600" href="/">
-								<HerocraftWordmark />
-							</a>
-						</li>
-					</ul>
-				</div>
+</NavigationMenu.Root>
 
-				<!-- Navigation Links -->
-				<div class="justify-self-start">
-					<NavigationMenu.List class="justify-start">
-						<NavigationMenu.Item>
-							<NavigationMenu.Trigger>Decks</NavigationMenu.Trigger>
-							<NavigationMenu.Content>
-								<ul class="grid gap-2 p-2 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-									<li class="row-span-3">
-										<NavigationMenu.Link
-											class="from-muted/50 to-muted bg-linear-to-b outline-hidden flex h-full w-full select-none flex-col justify-end rounded-md p-6 no-underline focus:shadow-md"
-										>
-											{#snippet child({ props })}
-												<a {...props} href="/decks/public">
-													<div class="mb-2 mt-4 text-lg font-medium">Decks</div>
-													<p class="text-muted-foreground text-sm leading-tight">
-														View the latest and greatest decks from the community.
-													</p>
-												</a>
-											{/snippet}
-										</NavigationMenu.Link>
-									</li>
-									{@render ListItem({
-										href: "/decks/public",
-										title: "Preconstructed Decks",
-										content: "A great place to start if you're new to Ivion."
-									})}
-									{@render ListItem({
-										href: "/decks/private",
-										title: "Your Decks",
-										content: "View and Manage the decks you've created."
-									})}
-									{@render ListItem({
-										href: "/decks/liked",
-										title: "Decks You Liked",
-										content: "See what you've liked and share them with others."
-									})}
-								</ul>
-							</NavigationMenu.Content>
-						</NavigationMenu.Item>
-						<NavigationMenu.Item>
-							<NavigationMenu.Link>
-								{#snippet child()}
-									<a href="/cards" class={navigationMenuTriggerStyle()}>Cards</a>
-								{/snippet}
-							</NavigationMenu.Link>
-						</NavigationMenu.Item>
-						<NavigationMenu.Item>
-							<NavigationMenu.Link>
-								{#snippet child()}
-									<a href="/docs/syntax" class={navigationMenuTriggerStyle()}>Syntax</a>
-								{/snippet}
-							</NavigationMenu.Link>
-						</NavigationMenu.Item>
-					</NavigationMenu.List>
-				</div>
-
-				<!-- Search -->
-				<div class="justify-self-end">
-					<button
-						class="rounded-full border border-input bg-background px-5 py-2.5 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 inline-flex items-center gap-2 min-w-[200px] xl:min-w-[300px]"
-						aria-haspopup="dialog"
-						aria-expanded={open}
-						on:click={() => (open = true)}
-					>
-						<Search class="h-4 w-4" />
-						<span class="hidden xl:inline">Search Cards, Decks, and Commands</span>
-						<span class="xl:hidden">Search</span>
-						<kbd class="ml-auto hidden lg:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
-							/
-						</kbd>
-					</button>
-				</div>
-
-				<!-- User Menu -->
-				<div class="flex-none">
-					{#if !session || !session.isAuthenticated}
-						<div class="flex items-center gap-2">
-							<Button href="/account/signin" variant="outline" size="sm" class="rounded-full">Sign In</Button>
-							<Button href="/account/register" variant="default" size="sm" class="rounded-full">Register</Button>
-						</div>
-					{:else}
-						<ul>
-							<li>
-								<DropdownMenu.Root>
-									<DropdownMenu.Trigger
-										class="uppercase font-medium h-full text-sm py-2 tracking-widest"
-									>
-										<Menu />
-									</DropdownMenu.Trigger>
-									<DropdownMenu.Content align="end">
-										<DropdownMenu.Group>
-											<DropdownMenu.GroupHeading>Your Stuff</DropdownMenu.GroupHeading>
-											<a href="/decks/personal">
-												<DropdownMenu.Item>Decks</DropdownMenu.Item>
-											</a>
-											<DropdownMenu.Separator />
-										</DropdownMenu.Group>
-										<DropdownMenu.Group>
-											<DropdownMenu.GroupHeading>Profile & Settings</DropdownMenu.GroupHeading>
-											<a href="/account">
-												<DropdownMenu.Item>Profile</DropdownMenu.Item>
-											</a>
-											<a href="/account">
-												<DropdownMenu.Item>Settings</DropdownMenu.Item>
-											</a>
-										</DropdownMenu.Group>
-										<DropdownMenu.Group>
-											<DropdownMenu.Separator />
-											<a href="/account/logout"
-												 data-sveltekit-preload-data={false}
-												 data-sveltekit-reload
-											>
-												<DropdownMenu.Item>Logout</DropdownMenu.Item>
-											</a>
-										</DropdownMenu.Group>
-									</DropdownMenu.Content>
-								</DropdownMenu.Root>
-							</li>
-						</ul>
-					{/if}
-				</div>
-			</div>
-		</NavigationMenu.Root>
-
-		<!-- Keep the palette mounted nearby so focus returns properly -->
-		<CommandPalette bind:open onNewDeck={() => { newDeckOpen = true; }} />
-		<NewDeckDialog form={deckForm} bind:open={newDeckOpen} />
-		
-		<style>
-    /*.container {*/
-    /*    display: flex;*/
-    /*    flex-wrap: inherit;*/
-    /*    align-items: center;*/
-    /*    justify-content: space-between;*/
-    /*}*/
-
-    /*nav {*/
-    /*    display: flex;*/
-    /*    justify-content: center;*/
-    /*    width: 100%;*/
-    /*    background: rgba(255, 255, 255, 0.7);*/
-    /*}*/
-
-    /*ul {*/
-    /*    position: relative;*/
-    /*    padding: 0;*/
-    /*    margin: 0;*/
-    /*    height: 3em;*/
-    /*    display: flex;*/
-    /*    justify-content: space-around;*/
-    /*    align-items: center;*/
-    /*    list-style: none;*/
-    /*    background: var(--background);*/
-    /*    background-size: contain;*/
-    /*}*/
-
-    /*li {*/
-    /*    !*position: relative;*!*/
-    /*    height: 100%;*/
-    /*}*/
-
-    /*nav a {*/
-    /*    display: flex;*/
-    /*    height: 100%;*/
-    /*    align-items: center;*/
-    /*    padding: 0 0.5rem;*/
-    /*    color: var(--color-text);*/
-    /*    font-weight: 700;*/
-    /*    font-size: 0.8rem;*/
-    /*    text-transform: uppercase;*/
-    /*    letter-spacing: 0.1em;*/
-    /*    text-decoration: none;*/
-    /*    transition: color 0.2s linear;*/
-    /*}*/
-
-    /*a:hover {*/
-    /*    color: var(--color-theme-1);*/
-    /*    fill: var(--color-theme-1);*/
-    /*}*/
-</style>

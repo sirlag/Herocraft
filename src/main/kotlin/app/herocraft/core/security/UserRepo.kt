@@ -21,6 +21,7 @@ class UserRepo(database: Database) : DataService(database) {
 
         val id = uuid("id").autoGenerate()
         val username = text("username")
+        val displayName = text("display_name")
         val email = text("email")
         val password = encryptedVarchar("password", 80, Algorithms.BLOW_FISH(this.salt))
         val createdAt = timestamp("created_at")
@@ -28,6 +29,8 @@ class UserRepo(database: Database) : DataService(database) {
         val verified = bool("verified").default(false)
         val verifiedAt = timestamp("verified_at").nullable()
         val active = bool("active").default(false)
+        // Tracks when a user last changed their username (nullable until feature is implemented)
+        val lastUsernameChangedAt = timestamp("last_username_changed_at").nullable()
 
         override val primaryKey = PrimaryKey(id)
     }
@@ -37,6 +40,7 @@ class UserRepo(database: Database) : DataService(database) {
 
         Users.insert {
             it[username] = user.username
+            it[displayName] = user.username // default displayName equals username
             it[email] = user.email
             it[password] = user.password
             it[createdAt] = now
@@ -56,7 +60,7 @@ class UserRepo(database: Database) : DataService(database) {
     }
 
     suspend fun getUser(id: Uuid): User? = dbQuery {
-        Users.select(Users.id, Users.email, Users.username, Users.verified)
+        Users.selectAll()
             .where { Users.id eq id.toJavaUuid() }
             .map { Users.fromResultRow(it) }
             .firstOrNull()
@@ -88,6 +92,23 @@ class UserRepo(database: Database) : DataService(database) {
             }
     }
 
+    suspend fun updateDisplayName(userId: Uuid, newDisplayName: String): Int = dbQuery {
+        val now = Clock.System.now()
+        return@dbQuery Users.update(
+            where = { Users.id eq userId.toJavaUuid() and (Users.active eq true) }
+        ) {
+            it[displayName] = newDisplayName
+            it[lastModified] = now
+        }
+    }
+
+    suspend fun verifyPassword(userId: Uuid, candidate: String): Boolean = dbQuery {
+        Users
+            .selectAll()
+            .where { (Users.id eq userId.toJavaUuid()) and (Users.password eq candidate) and (Users.active eq true) }
+            .any()
+    }
+
 //    suspend fun read(id: Int): User? {
 //        return dbQuery {
 //            Users.select { Users.id eq id }
@@ -116,6 +137,7 @@ class UserRepo(database: Database) : DataService(database) {
         User(
             result[id].toKotlinUuid(),
             result[username],
+            result[displayName],
             result[email],
             result[verified],
         )
