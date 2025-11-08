@@ -5,7 +5,7 @@ flyway = "11.11.0"
 
 kotlin = "2.2.0"
 koin-bom = "4.1.0"
-ktor = "3.2.3"
+ktor = "3.3.2"
 
 [libraries]
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
