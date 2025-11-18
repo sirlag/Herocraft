@@ -2,8 +2,8 @@
 # https://mise.jdx.dev/
 
 [tools]
-# Node.js for frontend development (requires >= 20.18.1)
-node = "20.18"
+# Node.js for frontend development
+node = "22.16.0"
 
 # Note: Java 21 is required for Kotlin backend
 # Install via: brew install openjdk@21
