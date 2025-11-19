@@ -20,8 +20,8 @@ import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.neq
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.alias
 import org.jetbrains.exposed.v1.core.and
@@ -150,7 +150,7 @@ class DeckRepo(
         size: Int = 60,
         page: Int = 1,
         total: () -> Count = { Deck.id.count() },
-        query: (SqlExpressionBuilder.() -> Op<Boolean>)
+        query: (() -> Op<Boolean>)
     ) = dbQuery {
         val totalCount = total().alias("total_count")
         val count = Deck

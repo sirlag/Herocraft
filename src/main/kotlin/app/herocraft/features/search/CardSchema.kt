@@ -237,7 +237,7 @@ class CardRepo(database: Database) : DataService(database) {
         size: Int = 60,
         page: Int = 1,
         total: () -> Count = { Card.id.count() },
-        query: (SqlExpressionBuilder.() -> Op<Boolean>)
+        query: (() -> Op<Boolean>)
     ) = dbQuery {
 
         val totalCount = total().alias("total_count")
