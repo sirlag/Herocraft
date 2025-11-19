@@ -7,10 +7,10 @@ dependencyResolutionManagement {
 
     versionCatalogs {
         create("kotlincrypto") {
-            from("org.kotlincrypto:version-catalog:0.7.1")
+            from("org.kotlincrypto:version-catalog:0.7.2")
         }
         create("awssdk") {
-            from("aws.sdk.kotlin:version-catalog:1.5.14")
+            from("aws.sdk.kotlin:version-catalog:1.5.85")
         }
     }
 }

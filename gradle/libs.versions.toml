@@ -1,11 +1,11 @@
 [versions]
-arrow = "2.1.2"
-exposed = "1.0.0-beta-5"
-flyway = "11.11.0"
+arrow = "2.2.0"
+exposed = "1.0.0-rc-3"
+flyway = "11.17.0"
 
 kotlin = "2.2.0"
 koin-bom = "4.1.0"
-ktor = "3.2.3"
+ktor = "3.3.2"
 
 [libraries]
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
@@ -36,7 +36,7 @@ kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime-jvm", vers
 ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio" }
 
 
-postgres = { module = "org.postgresql:postgresql", version = "42.7.7" }
+postgres = { module = "org.postgresql:postgresql", version = "42.7.8" }
 
 [bundles]
 arrow = ['arrow-core', 'arrow-fx-coroutines']
@@ -51,4 +51,4 @@ flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
-versions = { id = "com.github.ben-manes.versions", version = "0.52.0" }
+versions = { id = "com.github.ben-manes.versions", version = "0.53.0" }

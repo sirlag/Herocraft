@@ -11,7 +11,7 @@ plugins {
     alias(libs.plugins.ktor)
     alias(libs.plugins.flyway)
     alias(libs.plugins.versions)
-    id("com.strumenta.antlr-kotlin") version "1.0.5"
+    id("com.strumenta.antlr-kotlin") version "1.0.8"
 }
 
 kotlin {
@@ -35,7 +35,7 @@ version = System.getenv("RELEASE_TAG") ?: "0.0.1"
 
 buildscript {
     dependencies {
-        classpath("org.flywaydb:flyway-database-postgresql:11.7.0")
+        classpath("org.flywaydb:flyway-database-postgresql:11.17.0")
     }
 }
 
@@ -70,7 +70,7 @@ dependencies {
     implementation("io.ktor:ktor-server-compression-jvm")
     implementation("io.ktor:ktor-server-metrics-micrometer-jvm")
     implementation("io.ktor:ktor-server-cors")
-    implementation("io.micrometer:micrometer-registry-prometheus:1.15.2")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.16.0")
     implementation("io.ktor:ktor-server-content-negotiation-jvm")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
 
@@ -83,16 +83,16 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive")
 
     implementation(libs.bundles.exposed)
-    implementation("com.h2database:h2:2.3.232")
+    implementation("com.h2database:h2:2.4.240")
     implementation(libs.postgres)
-    implementation("com.zaxxer:HikariCP:7.0.1")
+    implementation("com.zaxxer:HikariCP:7.0.2")
     implementation(libs.bundles.flyway)
 
-    implementation("eu.vendeli:rethis:0.2.9")
-    implementation("io.lettuce:lettuce-core:6.8.0.RELEASE")
+    implementation("eu.vendeli:rethis:0.3.6")
+    implementation("io.lettuce:lettuce-core:7.0.0.RELEASE")
 
     implementation("io.ktor:ktor-server-netty-jvm")
-    implementation("io.github.oshai:kotlin-logging-jvm:7.0.12")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.13")
     implementation("ch.qos.logback:logback-classic:$logback_version")
 
     implementation("app.softwork:kotlinx-uuid-core:0.1.6")
@@ -101,7 +101,7 @@ dependencies {
 
     implementation(kotlincrypto.random.crypto.rand)
 
-    implementation("com.strumenta:antlr-kotlin-runtime:1.0.5")
+    implementation("com.strumenta:antlr-kotlin-runtime:1.0.8")
 
     implementation(awssdk.services.s3)
 
