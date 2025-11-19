@@ -48,6 +48,9 @@ application {
 
 tasks.withType<ShadowJar> {
     mergeServiceFiles("META-INF/services/org.flywaydb.core.extensibility.Plugin")
+    filesMatching("META-INF/services/**") {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
 }
 
 ktor {
