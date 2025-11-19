@@ -1,0 +1,74 @@
+# Mise configuration for Herocraft development environment
+# https://mise.jdx.dev/
+
+[tools]
+# Node.js for frontend development (requires >= 20.18.1)
+node = "20.18"
+
+# Note: Java 21 is required for Kotlin backend
+# Install via: brew install openjdk@21
+# Or manage with mise once the plugin issue is resolved
+
+[env]
+# Frontend environment
+_.path = ["./src/webapp/node_modules/.bin"]
+
+[tasks.install-frontend]
+description = "Install frontend dependencies"
+run = "cd src/webapp && npm install"
+
+[tasks.install]
+description = "Install all dependencies"
+depends = ["install-frontend"]
+
+[tasks.dev-backend]
+description = "Run backend development server"
+run = "./gradlew run"
+
+[tasks.dev-frontend]
+description = "Run frontend development server"
+run = "cd src/webapp && npm run dev"
+
+[tasks.test-backend]
+description = "Run backend tests"
+run = "./gradlew test"
+
+[tasks.test-frontend]
+description = "Run frontend tests"
+run = "cd src/webapp && npm run test"
+
+[tasks.test]
+description = "Run all tests"
+depends = ["test-backend", "test-frontend"]
+
+[tasks.build-backend]
+description = "Build backend"
+run = "./gradlew build"
+
+[tasks.build-frontend]
+description = "Build frontend"
+run = "cd src/webapp && npm run build"
+
+[tasks.build]
+description = "Build entire project"
+depends = ["build-backend", "build-frontend"]
+
+[tasks.lint-frontend]
+description = "Lint frontend code"
+run = "cd src/webapp && npm run lint"
+
+[tasks.format-frontend]
+description = "Format frontend code"
+run = "cd src/webapp && npm run format"
+
+[tasks.docker-up]
+description = "Start Docker services (PostgreSQL, Redis, MinIO)"
+run = "docker-compose up -d"
+
+[tasks.docker-down]
+description = "Stop Docker services"
+run = "docker-compose down"
+
+[tasks.migrate]
+description = "Run database migrations"
+run = "./gradlew flywayMigrate"
