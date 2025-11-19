@@ -8,7 +8,10 @@ import javax.sql.DataSource
 object DatabaseFactory {
 
     fun init(dataSource: DataSource): DataSource {
-        val flyway = Flyway.configure().dataSource(dataSource).load()
+        val flyway = Flyway.configure()
+            .dataSource(dataSource)
+            .locations("classpath:db/migration")
+            .load()
         flyway.migrate()
         return dataSource
     }
