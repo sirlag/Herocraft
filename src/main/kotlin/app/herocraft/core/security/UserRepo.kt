@@ -35,6 +35,8 @@ class UserRepo(database: Database) : DataService(database) {
         override val primaryKey = PrimaryKey(id)
     }
 
+    // Role system tables will be introduced in repository in a later step; schema is created via Flyway
+
     suspend fun create(user: UserRequest): Uuid = dbQuery {
         val now = Clock.System.now()
 
@@ -56,7 +58,6 @@ class UserRepo(database: Database) : DataService(database) {
             .where { Users.email eq username and (Users.password eq password) }
             .map { Users.fromResultRow(it) }
             .firstOrNull()
-
     }
 
     suspend fun getUser(id: Uuid): User? = dbQuery {
@@ -141,6 +142,8 @@ class UserRepo(database: Database) : DataService(database) {
             result[email],
             result[verified],
         )
+
+    // Role membership queries will be added alongside enforcement in a future step
 
 }
 

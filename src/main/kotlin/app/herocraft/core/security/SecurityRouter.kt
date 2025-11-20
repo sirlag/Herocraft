@@ -143,7 +143,8 @@ fun Application.registerSecurityRouter(
                         username = user.username,
                         displayName = user.displayName,
                         email = user.email,
-                        verified = user.verified
+                        verified = user.verified,
+                        isAdmin = false // will be updated once role checks are wired through repo
                     )
                 )
             }
@@ -258,7 +259,7 @@ fun Application.registerSecurityRouter(
                 }
 
                 val user = userRepo.getUser(principal.id.toUuid())!!
-                call.respond(HttpStatusCode.OK, user)
+                call.respond(HttpStatusCode.OK, user.copy(isAdmin = false))
             }
 
             get("account/verification/resend") {

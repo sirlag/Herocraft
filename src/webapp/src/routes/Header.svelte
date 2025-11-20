@@ -157,9 +157,11 @@
 					{/snippet}
 				</NavigationMenu.Link>
       </NavigationMenu.Item>
-      <NavigationMenu.Item>
-        <a class={navigationMenuTriggerStyle()} href="/admin/cards">Admin</a>
-      </NavigationMenu.Item>
+      {#if session?.isAuthenticated}
+        <NavigationMenu.Item>
+          <a class={navigationMenuTriggerStyle()} href="/admin/cards">Admin</a>
+        </NavigationMenu.Item>
+      {/if}
     </NavigationMenu.List>
   </div>
 	<!-- Center command trigger pill -->
