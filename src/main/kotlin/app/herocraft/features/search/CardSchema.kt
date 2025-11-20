@@ -4,7 +4,9 @@ import app.herocraft.antlr.generated.HQLLexer
 import app.herocraft.antlr.generated.HQLParser
 import app.herocraft.core.extensions.DataService
 import app.herocraft.core.extensions.ilike
+import app.herocraft.core.models.CardFace
 import app.herocraft.core.models.IvionCard
+import app.herocraft.core.models.IvionCardFaceData
 import app.herocraft.core.models.IvionCardImageURIs
 import app.herocraft.core.models.Page
 import app.softwork.uuid.toUuidOrNull
@@ -85,7 +87,6 @@ class CardRepo(database: Database) : DataService(database) {
 
 
         fun SizedIterable<CardImageRepo.CardImageEntity>.getImageUris(): IvionCardImageURIs? {
-            // TODO: Add support for getting backs
             if (this.empty()) return null
 
             var full: String = ""
@@ -94,20 +95,73 @@ class CardRepo(database: Database) : DataService(database) {
             var small: String = ""
 
             this.filter { it.face == "front" }.forEach {
-                if (it.variant == "full")
-                    full = it.uri
-                if (it.variant == "large")
-                    large = it.uri
-                if (it.variant == "normal")
-                    normal = it.uri
-                if (it.variant == "small")
-                    small = it.uri
+                if (it.variant == "full") full = it.uri
+                if (it.variant == "large") large = it.uri
+                if (it.variant == "normal") normal = it.uri
+                if (it.variant == "small") small = it.uri
             }
 
-            return IvionCardImageURIs(full, large, normal, small)
+            return if (full.isNotEmpty() || large.isNotEmpty() || normal.isNotEmpty() || small.isNotEmpty())
+                IvionCardImageURIs(full, large, normal, small) else null
+        }
+
+        fun SizedIterable<CardImageRepo.CardImageEntity>.getFaceImageUris(face: CardFace): IvionCardImageURIs? {
+            if (this.empty()) return null
+            val faceKey = face.toString()
+
+            var full: String = ""
+            var large: String = ""
+            var normal: String = ""
+            var small: String = ""
+
+            this.filter { it.face == faceKey }.forEach {
+                if (it.variant == "full") full = it.uri
+                if (it.variant == "large") large = it.uri
+                if (it.variant == "normal") normal = it.uri
+                if (it.variant == "small") small = it.uri
+            }
+
+            return if (full.isNotEmpty() || large.isNotEmpty() || normal.isNotEmpty() || small.isNotEmpty())
+                IvionCardImageURIs(full, large, normal, small) else null
         }
 
         fun toIvionCard(): IvionCard {
+
+            val frontUris = images.getFaceImageUris(CardFace.FRONT)
+            val backUris = images.getFaceImageUris(CardFace.BACK)
+
+            val faceList = buildList<IvionCardFaceData> {
+                if (frontUris != null) {
+                    add(
+                        IvionCardFaceData(
+                            face = CardFace.FRONT,
+                            name = name,
+                            rulesText = rulesText,
+                            flavorText = flavorText,
+                            artist = artist,
+                            imageUris = frontUris
+                        )
+                    )
+                }
+                if (backUris != null) {
+                    add(
+                        IvionCardFaceData(
+                            face = CardFace.BACK,
+                            // backs may differ; reuse main fields until DB supports per-face text
+                            name = name,
+                            rulesText = rulesText,
+                            flavorText = flavorText,
+                            artist = artist,
+                            imageUris = backUris
+                        )
+                    )
+                }
+            }.ifEmpty { null }
+
+            val inferredLayout = when {
+                backUris != null || secondUUID != null -> app.herocraft.core.models.CardLayout.TRANSFORM
+                else -> app.herocraft.core.models.CardLayout.NORMAL
+            }
 
             return IvionCard(
                 id = id.value.toKotlinUuid(),
@@ -133,7 +187,14 @@ class CardRepo(database: Database) : DataService(database) {
                 colorPip2 = colorPip2,
                 season = season,
                 type = type,
-                imageUris = images.getImageUris()
+                layout = inferredLayout,
+                imageUris = images.getImageUris(),
+                faces = faceList,
+                // New fields defaulted until DB layer supports them
+                linkedParts = emptyList(),
+                herocraftId = null,
+                printVariantGroupId = null,
+                variants = emptyList()
             )
         }
 

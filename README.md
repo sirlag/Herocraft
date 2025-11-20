@@ -15,6 +15,11 @@ Herocraft is designed in two pieces, the backend server and the web application.
 any long term processing (image processing, deck aggregation, etc), while the front end is the user facing side, and
 handles much of the actual builder logic.
 
+### API Notes
+
+- Comparison to Scryfall’s Card API: see docs/api-comparison-scryfall.md for how Herocrafter’s IvionCard maps to Scryfall concepts (card_faces, image_uris, oracle_id, all_parts, etc.), plus suggested optional enhancements.
+- IvionCard domain model review: see docs/domain-model-review.md for a detailed assessment of the current model, pitfalls, and recommended adjustments.
+
 ### Back End
 
 The backend is a kotlin application written with the ktor server library from jetbrains.

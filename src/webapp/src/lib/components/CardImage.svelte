@@ -12,6 +12,12 @@
 
 	let front = $state(true);
 
+	let getFaceUris = (card: IvionCard, face: 'front' | 'back'): ImageUris | null => {
+		if (!card || !card.faces) return null;
+		const match = card.faces.find(f => f.face === face);
+		return match?.imageUris ?? null;
+	}
+
 	let getUrl = (uris: ImageUris, size: string) => {
 		switch (size) {
 			case "full":
@@ -31,14 +37,19 @@
 
 	let getImageData = (card: IvionCard, front: boolean, cardSize: string ) => {
 		if (card === undefined) return undefined;
-		let hasBack =
-			card.secondUUID !== null && card.secondUUID !== undefined && card.secondUUID !== '';
+		let hasBack = (card.faces && card.faces.some(f => f.face === 'back'))
+			|| (card.secondUUID !== null && card.secondUUID !== undefined && card.secondUUID !== '');
 
 		let uuid = front ? card.ivionUUID : card.secondUUID;
 
-		// console.log(card)
-
-		let src =  (card.imageUris !== null && card.imageUris !== undefined) ? getUrl(card.imageUris, cardSize) : fallbackUrl(uuid)
+		// Prefer new per-face image URIs when available
+		let faceKey: 'front' | 'back' = front ? 'front' : 'back';
+		let faceUris = getFaceUris(card, faceKey);
+		let src = faceUris
+			? getUrl(faceUris, cardSize)
+			: ((card.imageUris !== null && card.imageUris !== undefined)
+				? getUrl(card.imageUris, cardSize)
+				: fallbackUrl(uuid));
 
 		return {
 			hasBack,
