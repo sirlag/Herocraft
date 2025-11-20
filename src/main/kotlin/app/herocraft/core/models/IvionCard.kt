@@ -32,7 +32,15 @@ data class IvionCard(
     val colorPip2: String?,
     val season: String,
     val type: String?,
+    // Physical layout akin to Scryfall's layout. Optional for backward compatibility
+    val layout: CardLayout? = null,
     val imageUris: IvionCardImageURIs? = null,
+    // New optional fields for advanced card modeling (multi-face, links, variants)
+    val faces: List<IvionCardFaceData>? = null,
+    val linkedParts: List<LinkedPart> = emptyList(),
+    val herocraftId: Uuid? = null,
+    val printVariantGroupId: Uuid? = null,
+    val variants: List<Uuid> = emptyList(),
 ) {
     fun isUltimate() = type == "Ultimate"
 }
@@ -55,6 +63,46 @@ data class IvionCardImageURIs(
     val normal: String,
     val small: String,
 )
+
+
+@Serializable
+data class IvionCardFaceData(
+    val face: CardFace,
+    val name: String? = null,
+    val rulesText: String? = null,
+    val flavorText: String? = null,
+    val artist: String? = null,
+    val imageUris: IvionCardImageURIs? = null,
+    // Optional per-face overrides for costs and flags
+    val actionCost: Int? = null,
+    val powerCost: Int? = null,
+    val heroic: Boolean? = null,
+    val slow: Boolean? = null,
+    val silence: Boolean? = null,
+    val disarm: Boolean? = null,
+)
+
+
+@Serializable
+data class LinkedPart(
+    val id: Uuid,
+    val relation: LinkedRelation,
+)
+
+@Serializable
+enum class LinkedRelation {
+    TOKEN,
+    GENERATED_BY,
+    TRANSFORMS_FROM,
+    TRANSFORMS_INTO,
+}
+
+@Serializable
+enum class CardLayout {
+    NORMAL,
+    TRANSFORM,
+    TOKEN,
+}
 
 
 data class IvionCardImage(

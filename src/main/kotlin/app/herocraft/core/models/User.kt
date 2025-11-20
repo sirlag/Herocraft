@@ -10,4 +10,6 @@ data class User(
     val displayName: String,
     val email: String,
     val verified: Boolean,
+    // Derived flag: true if the user has any role granting admin permission
+    val isAdmin: Boolean = false,
 )

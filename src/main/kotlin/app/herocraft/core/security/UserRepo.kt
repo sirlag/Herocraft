@@ -35,6 +35,26 @@ class UserRepo(database: Database) : DataService(database) {
         override val primaryKey = PrimaryKey(id)
     }
 
+    // Basic role system (matches Flyway V18 schema)
+    object Roles : Table("role") {
+        val id = uuid("id").autoGenerate()
+        val name = text("name")
+        val admin = bool("admin").default(false)
+        val moderation = bool("moderation").default(false)
+        val createdAt = timestamp("created_at")
+        val updatedAt = timestamp("updated_at")
+
+        override val primaryKey = PrimaryKey(id)
+    }
+
+    object UserRoles : Table("user_role") {
+        val userId = reference("user_id", Users.id)
+        val roleId = reference("role_id", Roles.id)
+        val assignedAt = timestamp("assigned_at")
+
+        override val primaryKey = PrimaryKey(userId, roleId)
+    }
+
     suspend fun create(user: UserRequest): Uuid = dbQuery {
         val now = Clock.System.now()
 
@@ -56,7 +76,6 @@ class UserRepo(database: Database) : DataService(database) {
             .where { Users.email eq username and (Users.password eq password) }
             .map { Users.fromResultRow(it) }
             .firstOrNull()
-
     }
 
     suspend fun getUser(id: Uuid): User? = dbQuery {
@@ -109,6 +128,55 @@ class UserRepo(database: Database) : DataService(database) {
             .any()
     }
 
+    // ---- Roles & Permissions ----
+    suspend fun isAdmin(userId: Uuid): Boolean = dbQuery {
+        (UserRoles innerJoin Roles)
+            .selectAll()
+            .where { (UserRoles.userId eq userId.toJavaUuid()) and (Roles.admin eq true) }
+            .any()
+    }
+
+    suspend fun hasRole(userId: Uuid, roleName: String): Boolean = dbQuery {
+        (UserRoles innerJoin Roles)
+            .selectAll()
+            .where { (UserRoles.userId eq userId.toJavaUuid()) and (Roles.name eq roleName) }
+            .any()
+    }
+
+    suspend fun grantRole(userId: Uuid, roleName: String): Int = dbQuery {
+        // Find role id by name
+        val roleId = Roles
+            .selectAll()
+            .where { Roles.name eq roleName }
+            .map { it[Roles.id] }
+            .firstOrNull() ?: return@dbQuery 0
+
+        // Check if already has it
+        val exists = UserRoles
+            .selectAll()
+            .where { (UserRoles.userId eq userId.toJavaUuid()) and (UserRoles.roleId eq roleId) }
+            .any()
+        if (exists) return@dbQuery 0
+
+        UserRoles.insert {
+            it[this.userId] = userId.toJavaUuid()
+            it[this.roleId] = roleId
+            it[this.assignedAt] = Clock.System.now()
+        }
+        1
+    }
+
+    suspend fun revokeRole(userId: Uuid, roleName: String): Int = dbQuery {
+        // Find role id by name
+        val roleId = Roles
+            .selectAll()
+            .where { Roles.name eq roleName }
+            .map { it[Roles.id] }
+            .firstOrNull() ?: return@dbQuery 0
+
+        UserRoles.deleteWhere { (UserRoles.userId eq userId.toJavaUuid()) and (UserRoles.roleId eq roleId) }
+    }
+
 //    suspend fun read(id: Int): User? {
 //        return dbQuery {
 //            Users.select { Users.id eq id }
@@ -141,6 +209,8 @@ class UserRepo(database: Database) : DataService(database) {
             result[email],
             result[verified],
         )
+
+    // Role membership queries were added above
 
 }
 

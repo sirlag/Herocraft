@@ -137,13 +137,15 @@ fun Application.registerSecurityRouter(
                     call.respond(HttpStatusCode.NotFound)
                     return@get
                 }
+                val isAdmin = userRepo.isAdmin(user.id)
                 call.respond(
                     app.herocraft.core.api.UserInfo(
                         id = user.id,
                         username = user.username,
                         displayName = user.displayName,
                         email = user.email,
-                        verified = user.verified
+                        verified = user.verified,
+                        isAdmin = isAdmin
                     )
                 )
             }
@@ -258,7 +260,8 @@ fun Application.registerSecurityRouter(
                 }
 
                 val user = userRepo.getUser(principal.id.toUuid())!!
-                call.respond(HttpStatusCode.OK, user)
+                val isAdmin = userRepo.isAdmin(user.id)
+                call.respond(HttpStatusCode.OK, user.copy(isAdmin = isAdmin))
             }
 
             get("account/verification/resend") {

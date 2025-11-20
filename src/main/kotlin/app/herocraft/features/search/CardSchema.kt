@@ -4,7 +4,9 @@ import app.herocraft.antlr.generated.HQLLexer
 import app.herocraft.antlr.generated.HQLParser
 import app.herocraft.core.extensions.DataService
 import app.herocraft.core.extensions.ilike
+import app.herocraft.core.models.CardFace
 import app.herocraft.core.models.IvionCard
+import app.herocraft.core.models.IvionCardFaceData
 import app.herocraft.core.models.IvionCardImageURIs
 import app.herocraft.core.models.Page
 import app.softwork.uuid.toUuidOrNull
@@ -14,6 +16,8 @@ import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.dao.*
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.update
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.core.dao.id.UUIDTable
 import org.jetbrains.exposed.v1.core.statements.InsertStatement
@@ -55,6 +59,91 @@ class CardRepo(database: Database) : DataService(database) {
 
     }
 
+    /**
+     * New table to store per-face textual information for cards.
+     * This relation replaces any former per-face overrides on the card table.
+     */
+    object CardFaces : UUIDTable(name = "card_faces", columnName = "id") {
+        val card = reference("card_id", Card)
+        // store face as varchar, accepts either 'front'/'back' or 'FRONT'/'BACK'
+        val face = varchar("face", 8)
+        val name = text("name").nullable()
+        val rulesText = text("rules_text").nullable()
+        val flavorText = text("flavor_text").nullable()
+        val artist = text("artist").nullable()
+        // Additional per-face fields for when a face represents a distinct card
+        val actionCost = integer("action_cost").nullable()
+        val powerCost = integer("power_cost").nullable()
+        val heroic = bool("heroic").nullable()
+        val slow = bool("slow").nullable()
+        val silence = bool("silence").nullable()
+        val disarm = bool("disarm").nullable()
+
+        init {
+            // unique per card per face
+            uniqueIndex("unq_card_faces_card_face", card, face)
+        }
+    }
+
+    class CardFaceEntity(id: EntityID<UUID>) : UUIDEntity(id) {
+        companion object : UUIDEntityClass<CardFaceEntity>(CardFaces)
+
+        val card by CardEntity referencedOn CardFaces.card
+        val face by CardFaces.face
+        val name by CardFaces.name
+        val rulesText by CardFaces.rulesText
+        val flavorText by CardFaces.flavorText
+        val artist by CardFaces.artist
+        val actionCost by CardFaces.actionCost
+        val powerCost by CardFaces.powerCost
+        val heroic by CardFaces.heroic
+        val slow by CardFaces.slow
+        val silence by CardFaces.silence
+        val disarm by CardFaces.disarm
+
+        fun toFaceData(images: SizedIterable<CardImageRepo.CardImageEntity>): IvionCardFaceData {
+            val faceEnum = when (face.lowercase()) {
+                "front" -> CardFace.FRONT
+                "back" -> CardFace.BACK
+                "FRONT" -> CardFace.FRONT
+                "BACK" -> CardFace.BACK
+                else -> try {
+                    CardFace.valueOf(face.uppercase())
+                } catch (e: Exception) {
+                    CardFace.FRONT
+                }
+            }
+            // Build image URIs for this face from images iterable
+            val faceKey = faceEnum.toString()
+            var full = ""
+            var large = ""
+            var normal = ""
+            var small = ""
+            images.filter { it.face == faceKey }.forEach {
+                if (it.variant == "full") full = it.uri
+                if (it.variant == "large") large = it.uri
+                if (it.variant == "normal") normal = it.uri
+                if (it.variant == "small") small = it.uri
+            }
+            val uris = if (full.isNotEmpty() || large.isNotEmpty() || normal.isNotEmpty() || small.isNotEmpty())
+                IvionCardImageURIs(full, large, normal, small) else null
+            return IvionCardFaceData(
+                face = faceEnum,
+                name = name,
+                rulesText = rulesText,
+                flavorText = flavorText,
+                artist = artist,
+                imageUris = uris,
+                actionCost = actionCost,
+                powerCost = powerCost,
+                heroic = heroic,
+                slow = slow,
+                silence = silence,
+                disarm = disarm
+            )
+        }
+    }
+
     class CardEntity(id: EntityID<UUID>) : UUIDEntity(id) {
         companion object : UUIDEntityClass<CardEntity>(Card)
 
@@ -82,10 +171,10 @@ class CardRepo(database: Database) : DataService(database) {
         val type by Card.type
 
         val images by CardImageRepo.CardImageEntity referrersOn CardImageRepo.CardImage.card_id
+        val facesInfo by CardFaceEntity referrersOn CardFaces.card
 
 
         fun SizedIterable<CardImageRepo.CardImageEntity>.getImageUris(): IvionCardImageURIs? {
-            // TODO: Add support for getting backs
             if (this.empty()) return null
 
             var full: String = ""
@@ -94,20 +183,80 @@ class CardRepo(database: Database) : DataService(database) {
             var small: String = ""
 
             this.filter { it.face == "front" }.forEach {
-                if (it.variant == "full")
-                    full = it.uri
-                if (it.variant == "large")
-                    large = it.uri
-                if (it.variant == "normal")
-                    normal = it.uri
-                if (it.variant == "small")
-                    small = it.uri
+                if (it.variant == "full") full = it.uri
+                if (it.variant == "large") large = it.uri
+                if (it.variant == "normal") normal = it.uri
+                if (it.variant == "small") small = it.uri
             }
 
-            return IvionCardImageURIs(full, large, normal, small)
+            return if (full.isNotEmpty() || large.isNotEmpty() || normal.isNotEmpty() || small.isNotEmpty())
+                IvionCardImageURIs(full, large, normal, small) else null
+        }
+
+        fun SizedIterable<CardImageRepo.CardImageEntity>.getFaceImageUris(face: CardFace): IvionCardImageURIs? {
+            if (this.empty()) return null
+            val faceKey = face.toString()
+
+            var full: String = ""
+            var large: String = ""
+            var normal: String = ""
+            var small: String = ""
+
+            this.filter { it.face == faceKey }.forEach {
+                if (it.variant == "full") full = it.uri
+                if (it.variant == "large") large = it.uri
+                if (it.variant == "normal") normal = it.uri
+                if (it.variant == "small") small = it.uri
+            }
+
+            return if (full.isNotEmpty() || large.isNotEmpty() || normal.isNotEmpty() || small.isNotEmpty())
+                IvionCardImageURIs(full, large, normal, small) else null
         }
 
         fun toIvionCard(): IvionCard {
+
+            val frontUris = images.getFaceImageUris(CardFace.FRONT)
+            val backUris = images.getFaceImageUris(CardFace.BACK)
+
+            // Build faces from new relation if present; fall back to legacy images only
+            val facesFromTable = facesInfo.map { it.toFaceData(images) }.toList()
+
+            val faceList = buildList<IvionCardFaceData> {
+                if (facesFromTable.isNotEmpty()) {
+                    addAll(facesFromTable)
+                } else {
+                    // Legacy behavior: FRONT from base fields when we have images; BACK only when images exist
+                    if (frontUris != null) {
+                        add(
+                            IvionCardFaceData(
+                                face = CardFace.FRONT,
+                                name = name,
+                                rulesText = rulesText,
+                                flavorText = flavorText,
+                                artist = artist,
+                                imageUris = frontUris
+                            )
+                        )
+                    }
+                    if (backUris != null) {
+                        add(
+                            IvionCardFaceData(
+                                face = CardFace.BACK,
+                                name = name,
+                                rulesText = rulesText,
+                                flavorText = flavorText,
+                                artist = artist,
+                                imageUris = backUris
+                            )
+                        )
+                    }
+                }
+            }.ifEmpty { null }
+
+            val inferredLayout = when {
+                backUris != null || secondUUID != null -> app.herocraft.core.models.CardLayout.TRANSFORM
+                else -> app.herocraft.core.models.CardLayout.NORMAL
+            }
 
             return IvionCard(
                 id = id.value.toKotlinUuid(),
@@ -133,7 +282,14 @@ class CardRepo(database: Database) : DataService(database) {
                 colorPip2 = colorPip2,
                 season = season,
                 type = type,
-                imageUris = images.getImageUris()
+                layout = inferredLayout,
+                imageUris = images.getImageUris(),
+                faces = faceList,
+                // New fields defaulted until DB layer supports them
+                linkedParts = emptyList(),
+                herocraftId = null,
+                printVariantGroupId = null,
+                variants = emptyList()
             )
         }
 
@@ -141,6 +297,55 @@ class CardRepo(database: Database) : DataService(database) {
 
 
     private val logger = LoggerFactory.getLogger(CardRepo::class.java)
+
+    // Basic CRUD operations for admin
+    suspend fun create(card: IvionCard): IvionCard = dbQuery {
+        val statement = Card.insert {
+            fromIvionCard(it, card)
+        }
+        val newId = statement[Card.id].value
+        // Persist faces to relation table
+        saveFaces(newId, card.faces)
+        CardEntity[newId].toIvionCard()
+    }
+
+    suspend fun update(id: Uuid, card: IvionCard): IvionCard = dbQuery {
+        // Update fields using Exposed DSL similar to UserRepo
+        Card.update(
+            where = { Card.id eq id.toJavaUuid() }
+        ) {
+            it[Card.collectorsNumber] = card.collectorsNumber
+            it[Card.format] = card.format
+            it[Card.name] = card.name
+            it[Card.archetype] = card.archetype
+            it[Card.actionCost] = card.actionCost
+            it[Card.powerCost] = card.powerCost
+            it[Card.range] = card.range
+            it[Card.health] = card.health
+            it[Card.heroic] = card.heroic
+            it[Card.slow] = card.slow
+            it[Card.silence] = card.silence
+            it[Card.disarm] = card.disarm
+            it[Card.extraType] = card.extraType
+            it[Card.rulesText] = card.rulesText
+            it[Card.flavorText] = card.flavorText
+            it[Card.artist] = card.artist
+            it[Card.ivionUUID] = card.ivionUUID.toJavaUuid()
+            it[Card.secondUUID] = card.secondUUID?.toJavaUuid()
+            it[Card.colorPip1] = card.colorPip1
+            it[Card.colorPip2] = card.colorPip2
+            it[Card.season] = card.season
+            it[Card.type] = card.type
+        }
+        // Replace faces with those from payload
+        saveFaces(id.toJavaUuid(), card.faces)
+        CardEntity[id.toJavaUuid()].toIvionCard()
+    }
+
+    suspend fun delete(id: Uuid): Boolean = dbQuery {
+        val deleted = Card.deleteWhere { Card.id eq id.toJavaUuid() }
+        deleted > 0
+    }
 
     suspend fun getOne(id: Uuid) = dbQuery {
 
@@ -366,6 +571,30 @@ class CardRepo(database: Database) : DataService(database) {
         it[colorPip2] = card.colorPip2
         it[season] = card.season
         it[type] = card.type
+    }
+
+    private fun normalizeFaceString(face: CardFace): String = face.name // store as 'FRONT'/'BACK'
+
+    private fun saveFaces(cardId: UUID, faces: List<IvionCardFaceData>?) {
+        if (faces == null) return
+        // Delete existing faces for this card and insert fresh
+        CardFaces.deleteWhere { CardFaces.card eq EntityID(cardId, Card) }
+        faces.forEach { f ->
+            CardFaces.insert { st ->
+                st[CardFaces.card] = EntityID(cardId, Card)
+                st[face] = normalizeFaceString(f.face)
+                st[name] = f.name
+                st[rulesText] = f.rulesText
+                st[flavorText] = f.flavorText
+                st[artist] = f.artist
+                st[actionCost] = f.actionCost
+                st[powerCost] = f.powerCost
+                st[heroic] = f.heroic
+                st[slow] = f.slow
+                st[silence] = f.silence
+                st[disarm] = f.disarm
+            }
+        }
     }
 
     private fun ResultRow.toIvionCard(): IvionCard =

@@ -23,7 +23,7 @@
 
 	let { showSearch, deckForm = $bindable() }: Props = $props();
 
-	let { session } = $derived(page.data);
+ let { session, user } = $derived(page.data);
 	let search: string = $state('');
 
 	type ListItemProps = HTMLAttributes<HTMLAnchorElement> & {
@@ -107,8 +107,8 @@
 	</div>
 	<div class="justify-self-start">
 		<NavigationMenu.List class="justify-start">
-			<NavigationMenu.Item>
-				<NavigationMenu.Trigger>Decks</NavigationMenu.Trigger>
+   <NavigationMenu.Item>
+        <NavigationMenu.Trigger>Decks</NavigationMenu.Trigger>
 				<NavigationMenu.Content>
 					<ul class="grid gap-2 p-2 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
 						<li class="row-span-3">
@@ -156,9 +156,10 @@
 						<a href="/docs/syntax" class={navigationMenuTriggerStyle()}>Syntax</a>
 					{/snippet}
 				</NavigationMenu.Link>
-			</NavigationMenu.Item>
-		</NavigationMenu.List>
-	</div>
+      </NavigationMenu.Item>
+      
+    </NavigationMenu.List>
+  </div>
 	<!-- Center command trigger pill -->
 	<div class="justify-self-center">
 		<button
@@ -213,6 +214,14 @@
 									<DropdownMenu.Item>Settings</DropdownMenu.Item>
 								</a>
 							</DropdownMenu.Group>
+              {#if user?.isAdmin}
+              <DropdownMenu.Group>
+                <DropdownMenu.GroupHeading>Administration</DropdownMenu.GroupHeading>
+                <a href="/admin/cards">
+                  <DropdownMenu.Item>Cards</DropdownMenu.Item>
+                </a>
+              </DropdownMenu.Group>
+              {/if}
 							<!--									<DropdownMenu.Group>-->
 							<!--										<DropdownMenu.GroupHeading>Utilities</DropdownMenu.GroupHeading>-->
 							<!--										&lt;!&ndash; Placeholder theme toggle item; wire to theme system later &ndash;&gt;-->

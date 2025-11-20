@@ -10,4 +10,5 @@ data class UserInfo(
     val displayName: String,
     val email: String,
     val verified: Boolean,
+    val isAdmin: Boolean = false,
 )
