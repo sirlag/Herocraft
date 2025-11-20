@@ -11,6 +11,7 @@
 	let { data }: Props = $props();
 
 	let card: IvionCard = $derived(data.card);
+    let rulings: any[] = $derived(data.rulings ?? []);
 
 	// TODO: Handle Relics, Traps, and Arrows
 
@@ -141,6 +142,55 @@
 			</div>
 		{/if}
 	</div>
+</div>
+
+<div class="flex w-full px-4 pb-12 justify-center bg-neutral-50">
+    <div class="flex flex-col max-w-5xl w-full">
+        <div class="mt-2 p-4 border border-gray-200 rounded-lg bg-white">
+            <h2 class="text-lg font-semibold mb-2">Rulings</h2>
+            {#if rulings && rulings.length > 0}
+                <ul class="space-y-4">
+                    {#each rulings as r}
+                        <li class="border-b last:border-b-0 pb-3">
+                            <div class="text-sm text-gray-500 flex items-center gap-2">
+                                <span class="inline-block px-2 py-0.5 rounded-full bg-gray-100 border text-gray-700 capitalize">{r.source}</span>
+                                {#if r.sourceUrl}
+                                    <a class="text-blue-600 hover:underline" href={r.sourceUrl} target="_blank" rel="noopener noreferrer">source</a>
+                                {/if}
+                                {#if r.publishedAt}
+                                    <span>{new Date(r.publishedAt).toLocaleDateString()}</span>
+                                {/if}
+                                <span class="ml-auto text-xs uppercase tracking-wide text-gray-400">{r.style}</span>
+                            </div>
+
+                            {#if r.style === 'RULING'}
+                                {#if r.comment}
+                                    <p class="mt-2 whitespace-pre-wrap">{r.comment}</p>
+                                {/if}
+                            {:else}
+                                <div class="mt-2 space-y-1">
+                                    {#if r.question}
+                                        <div>
+                                            <span class="font-medium">Q:</span>
+                                            <span class="whitespace-pre-wrap"> {r.question}</span>
+                                        </div>
+                                    {/if}
+                                    {#if r.answer}
+                                        <div>
+                                            <span class="font-medium">A:</span>
+                                            <span class="whitespace-pre-wrap"> {r.answer}</span>
+                                        </div>
+                                    {/if}
+                                </div>
+                            {/if}
+                        </li>
+                    {/each}
+                </ul>
+            {:else}
+                <p class="text-sm text-gray-500">No rulings yet.</p>
+            {/if}
+        </div>
+    </div>
 </div>
 
 <style>
