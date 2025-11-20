@@ -23,7 +23,7 @@
 
 	let { showSearch, deckForm = $bindable() }: Props = $props();
 
-	let { session } = $derived(page.data);
+ let { session, user } = $derived(page.data);
 	let search: string = $state('');
 
 	type ListItemProps = HTMLAttributes<HTMLAnchorElement> & {
@@ -157,11 +157,7 @@
 					{/snippet}
 				</NavigationMenu.Link>
       </NavigationMenu.Item>
-      {#if session?.isAuthenticated}
-        <NavigationMenu.Item>
-          <a class={navigationMenuTriggerStyle()} href="/admin/cards">Admin</a>
-        </NavigationMenu.Item>
-      {/if}
+      
     </NavigationMenu.List>
   </div>
 	<!-- Center command trigger pill -->
@@ -218,6 +214,14 @@
 									<DropdownMenu.Item>Settings</DropdownMenu.Item>
 								</a>
 							</DropdownMenu.Group>
+              {#if user?.isAdmin}
+              <DropdownMenu.Group>
+                <DropdownMenu.GroupHeading>Administration</DropdownMenu.GroupHeading>
+                <a href="/admin/cards">
+                  <DropdownMenu.Item>Cards</DropdownMenu.Item>
+                </a>
+              </DropdownMenu.Group>
+              {/if}
 							<!--									<DropdownMenu.Group>-->
 							<!--										<DropdownMenu.GroupHeading>Utilities</DropdownMenu.GroupHeading>-->
 							<!--										&lt;!&ndash; Placeholder theme toggle item; wire to theme system later &ndash;&gt;-->

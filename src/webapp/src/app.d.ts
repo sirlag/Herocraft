@@ -6,7 +6,11 @@ declare global {
 		interface Locals {
 			user: UserSession | undefined;
 		}
-		// interface PageData {}
+		interface PageData {
+			// Exposed by +layout.server.ts at root (when logged in) and by (app)/admin/+layout.server.ts
+			user?: any;
+			session?: UserSession;
+		}
 		// interface PageState {}
 		// interface Platform {}
 	}

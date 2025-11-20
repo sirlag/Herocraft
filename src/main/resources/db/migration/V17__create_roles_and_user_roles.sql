@@ -1,4 +1,4 @@
--- V18: Initial role system
+-- V17: Initial role system
 -- Adds role and user_role tables to support permissions via roles.
 -- Current permissions represented as boolean flags on role: admin, moderation
 

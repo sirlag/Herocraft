@@ -57,7 +57,8 @@ export const actions: Actions = {
 			});
 		}
 
-		redirect(303, '/account/forgot/sent');
-	}
+        // In SvelteKit, redirects must be thrown from actions
+        throw redirect(303, '/account/forgot/sent');
+    }
 
 };

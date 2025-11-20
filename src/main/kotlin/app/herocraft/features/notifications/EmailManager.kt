@@ -34,7 +34,7 @@ class EmailManager(private val properties: NotificationManager.EmailNotification
         """.trimIndent())
         email.addTo(to)
         email.send()
-        logger.info("Password reset successfully successfully for $to")
+        logger.info("Password reset sent successfully for $to")
     }
 
     private fun newEmail(): SimpleEmail {
