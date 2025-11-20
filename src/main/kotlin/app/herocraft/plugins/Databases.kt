@@ -63,6 +63,55 @@ fun Application.configureDatabases() {
             card?.let { call.respond(HttpStatusCode.OK, it) } ?: call.respond(HttpStatusCode.NotFound)
         }
 
+        route("/admin/cards") {
+            // List all cards (simple paging could be added later)
+            get {
+                val cards = cardRepo.getAll()
+                call.respond(HttpStatusCode.OK, cards)
+            }
+
+            // Create a new card
+            post {
+                val card = call.receive<app.herocraft.core.models.IvionCard>()
+                val created = cardRepo.create(card)
+                call.respond(HttpStatusCode.Created, created)
+            }
+
+            // Read one
+            get("/{id}") {
+                val id = call.parameters["id"]?.toUuidOrNull()
+                if (id == null) {
+                    call.respond(HttpStatusCode.BadRequest, "Invalid id")
+                } else {
+                    val one = cardRepo.getOne(id)
+                    call.respond(HttpStatusCode.OK, one)
+                }
+            }
+
+            // Update
+            put("/{id}") {
+                val id = call.parameters["id"]?.toUuidOrNull()
+                if (id == null) {
+                    call.respond(HttpStatusCode.BadRequest, "Invalid id")
+                } else {
+                    val card = call.receive<app.herocraft.core.models.IvionCard>()
+                    val updated = cardRepo.update(id, card)
+                    call.respond(HttpStatusCode.OK, updated)
+                }
+            }
+
+            // Delete
+            delete("/{id}") {
+                val id = call.parameters["id"]?.toUuidOrNull()
+                if (id == null) {
+                    call.respond(HttpStatusCode.BadRequest, "Invalid id")
+                } else {
+                    val deleted = cardRepo.delete(id)
+                    if (deleted) call.respond(HttpStatusCode.NoContent) else call.respond(HttpStatusCode.NotFound)
+                }
+            }
+        }
+
         get("/testing/process-images") {
 
             val cards = cardRepo.getAll()

@@ -73,6 +73,13 @@ data class IvionCardFaceData(
     val flavorText: String? = null,
     val artist: String? = null,
     val imageUris: IvionCardImageURIs? = null,
+    // Optional per-face overrides for costs and flags
+    val actionCost: Int? = null,
+    val powerCost: Int? = null,
+    val heroic: Boolean? = null,
+    val slow: Boolean? = null,
+    val silence: Boolean? = null,
+    val disarm: Boolean? = null,
 )
 
 

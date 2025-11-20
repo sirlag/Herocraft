@@ -107,8 +107,8 @@
 	</div>
 	<div class="justify-self-start">
 		<NavigationMenu.List class="justify-start">
-			<NavigationMenu.Item>
-				<NavigationMenu.Trigger>Decks</NavigationMenu.Trigger>
+   <NavigationMenu.Item>
+        <NavigationMenu.Trigger>Decks</NavigationMenu.Trigger>
 				<NavigationMenu.Content>
 					<ul class="grid gap-2 p-2 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
 						<li class="row-span-3">
@@ -156,9 +156,12 @@
 						<a href="/docs/syntax" class={navigationMenuTriggerStyle()}>Syntax</a>
 					{/snippet}
 				</NavigationMenu.Link>
-			</NavigationMenu.Item>
-		</NavigationMenu.List>
-	</div>
+      </NavigationMenu.Item>
+      <NavigationMenu.Item>
+        <a class={navigationMenuTriggerStyle()} href="/admin/cards">Admin</a>
+      </NavigationMenu.Item>
+    </NavigationMenu.List>
+  </div>
 	<!-- Center command trigger pill -->
 	<div class="justify-self-center">
 		<button
