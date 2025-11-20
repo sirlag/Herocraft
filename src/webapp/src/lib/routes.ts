@@ -10,6 +10,12 @@ export const AccountURLs = {
 	verifyToken: (token: string) => `${API_BASE_URL}/account/verification/verify/${token}`,
 }
 
+export const MeURLs = {
+	me: `${API_BASE_URL}/api/me`,
+	updateProfile: `${API_BASE_URL}/api/me/profile`,
+	changePassword: `${API_BASE_URL}/api/me/security/password`
+}
+
 export const DeckURLs = {
 	// Deck listing endpoints
 	public: (page?: number, size?: number) => `${API_BASE_URL}/decks/public${page && size ? `?page=${page}&size=${size}` : ''}`,

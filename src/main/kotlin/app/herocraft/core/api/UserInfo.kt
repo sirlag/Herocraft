@@ -7,6 +7,7 @@ import kotlin.uuid.Uuid
 data class UserInfo(
     val id: Uuid,
     val username: String,
+    val displayName: String,
     val email: String,
     val verified: Boolean,
 )

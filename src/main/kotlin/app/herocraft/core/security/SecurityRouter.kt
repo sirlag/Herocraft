@@ -27,11 +27,20 @@ fun Application.registerSecurityRouter(
             val foundUser = userRepo.getUser(user.email, user.password)
 
             if (foundUser != null) {
-                call.sessions.set(UserSession(foundUser.id.toString(), foundUser.email, foundUser.verified))
+                call.sessions.set(
+                    UserSession(
+                        id = foundUser.id.toString(),
+                        email = foundUser.email,
+                        verified = foundUser.verified,
+                        username = foundUser.username,
+                        displayName = foundUser.displayName
+                    )
+                )
                 call.respond(HttpStatusCode.OK)
             } else {
-                call.respond(HttpStatusCode.Unauthorized,
-                    ErrorMessage("INVALID_LOGIN","Invalid login credentials")
+                call.respond(
+                    HttpStatusCode.Unauthorized,
+                    ErrorMessage("INVALID_LOGIN", "Invalid login credentials")
                 )
             }
         }
@@ -109,13 +118,123 @@ fun Application.registerSecurityRouter(
                     true -> call.respond(HttpStatusCode.OK)
                     false -> call.respond(HttpStatusCode.Unauthorized, "Invalid Verification Token")
                 }
-                return@get call.respond(HttpStatusCode.OK)
             }
 
             call.respond(HttpStatusCode.BadRequest, "No token found")
         }
 
         authenticate("auth-session") {
+
+            // Current user info endpoint for client apps
+            get("/api/me") {
+                val principal = call.authentication.principal<UserSession>()
+                if (principal == null) {
+                    call.respond(HttpStatusCode.Unauthorized)
+                    return@get
+                }
+                val user = userRepo.getUser(principal.id.toUuid())
+                if (user == null) {
+                    call.respond(HttpStatusCode.NotFound)
+                    return@get
+                }
+                call.respond(
+                    app.herocraft.core.api.UserInfo(
+                        id = user.id,
+                        username = user.username,
+                        displayName = user.displayName,
+                        email = user.email,
+                        verified = user.verified
+                    )
+                )
+            }
+
+            // Update profile (display name)
+            patch("/api/me/profile") {
+                val principal = call.authentication.principal<UserSession>()
+                if (principal == null) {
+                    call.respond(HttpStatusCode.Unauthorized)
+                    return@patch
+                }
+
+                val body = try {
+                    call.receive<ProfileUpdateRequest>()
+                } catch (ex: ContentTransformationException) {
+                    call.respond(HttpStatusCode.BadRequest, ErrorMessage("INVALID_BODY", "Invalid request body"))
+                    return@patch
+                }
+
+                val newName = body.displayName.trim()
+                if (newName.isEmpty() || newName.length > 32 || !newName.any { !it.isWhitespace() }) {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        ErrorMessage("INVALID_DISPLAY_NAME", "Display name must be 1-32 characters and contain a non-blank character")
+                    )
+                    return@patch
+                }
+
+                val updated = userRepo.updateDisplayName(principal.id.toUuid(), newName)
+                if (updated > 0) {
+                    // refresh session with new displayName
+                    call.sessions.set(
+                        UserSession(
+                            id = principal.id,
+                            email = principal.email,
+                            verified = principal.verified,
+                            username = principal.username,
+                            displayName = newName
+                        )
+                    )
+                    call.respond(HttpStatusCode.OK, mapOf("displayName" to newName))
+                } else {
+                    call.respond(HttpStatusCode.InternalServerError, ErrorMessage("UPDATE_FAILED", "Failed to update display name"))
+                }
+            }
+
+            // Change password
+            post("/api/me/security/password") {
+                val principal = call.authentication.principal<UserSession>()
+                if (principal == null) {
+                    call.respond(HttpStatusCode.Unauthorized)
+                    return@post
+                }
+
+                val body = try {
+                    call.receive<ChangePasswordRequest>()
+                } catch (ex: ContentTransformationException) {
+                    call.respond(HttpStatusCode.BadRequest, ErrorMessage("INVALID_BODY", "Invalid request body"))
+                    return@post
+                }
+
+                val current = body.currentPassword.trim()
+                val newPass = body.newPassword.trim()
+                if (current.isEmpty() || newPass.isEmpty()) {
+                    call.respond(HttpStatusCode.BadRequest, ErrorMessage("INVALID_PASSWORD", "Both current and new password are required"))
+                    return@post
+                }
+
+                val ok = userRepo.verifyPassword(principal.id.toUuid(), current)
+                if (!ok) {
+                    call.respond(HttpStatusCode.Unauthorized, ErrorMessage("INVALID_CREDENTIALS", "Current password is incorrect"))
+                    return@post
+                }
+
+                val updated = userRepo.changePassword(principal.id.toUuid(), newPass)
+                if (updated > 0) {
+                    // Refresh session (no secret fields in session)
+                    call.sessions.set(
+                        UserSession(
+                            id = principal.id,
+                            email = principal.email,
+                            verified = principal.verified,
+                            username = principal.username,
+                            displayName = principal.displayName
+                        )
+                    )
+                    call.respond(HttpStatusCode.NoContent)
+                } else {
+                    call.respond(HttpStatusCode.InternalServerError, ErrorMessage("UPDATE_FAILED", "Failed to update password"))
+                }
+            }
 
             post("/logout") {
                 val principal = call.authentication.principal<UserSession>()
