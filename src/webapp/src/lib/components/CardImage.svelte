@@ -12,11 +12,18 @@
 
 	let front = $state(true);
 
-	let getFaceUris = (card: IvionCard, face: 'front' | 'back'): ImageUris | null => {
-		if (!card || !card.faces) return null;
-		const match = card.faces.find(f => f.face === face);
-		return match?.imageUris ?? null;
-	}
+ // Normalize face strings from API ('FRONT'|'BACK' or 'front'|'back') to lowercase keys
+    const normalizeFace = (face: CardFace | string | undefined | null): 'front' | 'back' | null => {
+        if (!face) return null;
+        const v = (typeof face === 'string' ? face : String(face)).toLowerCase();
+        return v === 'front' ? 'front' : v === 'back' ? 'back' : null;
+    }
+
+    let getFaceUris = (card: IvionCard, face: 'front' | 'back'): ImageUris | null => {
+        if (!card || !card.faces) return null;
+        const match = card.faces.find(f => normalizeFace(f.face) === face);
+        return match?.imageUris ?? null;
+    }
 
 	let getUrl = (uris: ImageUris, size: string) => {
 		switch (size) {
@@ -37,13 +44,13 @@
 
 	let getImageData = (card: IvionCard, front: boolean, cardSize: string ) => {
 		if (card === undefined) return undefined;
-		let hasBack = (card.faces && card.faces.some(f => f.face === 'back'))
-			|| (card.secondUUID !== null && card.secondUUID !== undefined && card.secondUUID !== '');
+  let hasBack = (card.faces && card.faces.some(f => normalizeFace(f.face) === 'back'))
+            || (card.secondUUID !== null && card.secondUUID !== undefined && card.secondUUID !== '');
 
 		let uuid = front ? card.ivionUUID : card.secondUUID;
 
 		// Prefer new per-face image URIs when available
-		let faceKey: 'front' | 'back' = front ? 'front' : 'back';
+  let faceKey: 'front' | 'back' = front ? 'front' : 'back';
 		let faceUris = getFaceUris(card, faceKey);
 		let src = faceUris
 			? getUrl(faceUris, cardSize)

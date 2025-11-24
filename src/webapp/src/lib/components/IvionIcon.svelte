@@ -91,7 +91,18 @@
 </script>
 
 {#if ImageMap.hasOwnProperty(icon)}
-	<img class="w-4 inline-block leading-none" src={ImageMap[icon].image} alt={ImageMap[icon].alt} />
+    <!--
+        Use font-relative sizing and vertical alignment so icons don't stretch line height
+        or create awkward spacing within running text. Height is 1em to match the
+        current font size; width auto preserves aspect ratio. Align to text-bottom so
+        it sits nicely on the baseline alongside punctuation.
+    -->
+    <img
+        class="not-prose inline h-[1em] w-auto m-0 p-0 align-[-.12em] leading-none select-none pointer-events-none"
+        src={ImageMap[icon].image}
+        alt={ImageMap[icon].alt}
+        draggable="false"
+    />
 {:else}
-	"UNKNOWN IMAGE TAG - "{icon}"
+    "UNKNOWN IMAGE TAG - "{icon}"
 {/if}

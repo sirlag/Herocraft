@@ -1,6 +1,7 @@
 package app.herocraft.core.models
 
 import app.herocraft.features.images.ImageProcessor
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.time.Clock
 import kotlin.time.Instant
@@ -41,6 +42,8 @@ data class IvionCard(
     val herocraftId: Uuid? = null,
     val printVariantGroupId: Uuid? = null,
     val variants: List<Uuid> = emptyList(),
+    // Hypermedia-ish link to rulings for this card's herocraft identity (relative URI)
+    @SerialName("rulings_uri") val rulingsUri: String? = null,
 ) {
     fun isUltimate() = type == "Ultimate"
 }

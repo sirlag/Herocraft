@@ -8,6 +8,8 @@ import app.herocraft.features.builder.registerBuilder
 import app.herocraft.features.images.ImageService
 import app.herocraft.features.images.S3Processor
 import app.herocraft.features.search.CardRepo
+import app.herocraft.features.rulings.RulingRepo
+import app.herocraft.features.rulings.registerRulingsRoutes
 import app.herocraft.plugins.*
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -24,6 +26,8 @@ fun Application.module() {
     val userRepo: UserRepo by inject()
     val deckRepo: DeckRepo by inject()
     val userService: UserService by inject()
+    val rulingRepo: RulingRepo by inject()
+    val cardRepo: CardRepo by inject()
 
     configureSessions()
     configureSecurity()
@@ -33,6 +37,7 @@ fun Application.module() {
     configureSerialization()
     configureDatabases()
     registerBuilder(deckRepo)
+    registerRulingsRoutes(rulingRepo, cardRepo, userRepo)
     configureRouting()
     install(CORS) {
         allowHost("localhost:5173")

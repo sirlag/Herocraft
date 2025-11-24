@@ -8,6 +8,7 @@ import app.herocraft.core.security.VerificationRepo
 import app.herocraft.features.builder.DeckRepo
 import app.herocraft.features.search.CardImageRepo
 import app.herocraft.features.search.CardRepo
+import app.herocraft.features.rulings.RulingRepo
 import io.ktor.server.application.*
 import io.lettuce.core.RedisClient
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -29,6 +30,7 @@ val databaseModule = module {
 
     singleOf(::CardRepo)
     singleOf(::CardImageRepo)
+    singleOf(::RulingRepo)
     singleOf(::DeckRepo)
     singleOf(::ResetTokenRepo)
     singleOf(::VerificationRepo)
