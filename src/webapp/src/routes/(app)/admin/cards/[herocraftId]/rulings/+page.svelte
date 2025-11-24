@@ -5,13 +5,28 @@
   let { data }: Props = $props();
 
   let herocraftId: string = data.herocraftId;
+  // Prefer showing the human-readable card name if available from the server load
+  let cardName: string | undefined = (data as any).cardName;
   let rulings: any[] = $state(data.rulings ?? []);
 
   // Simple local form state
+  function toLocalDateTimeInputString(d: Date): string {
+    // Format as yyyy-MM-ddTHH:mm for input[type=datetime-local] (no timezone, no seconds)
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const year = d.getFullYear();
+    const month = pad(d.getMonth() + 1);
+    const day = pad(d.getDate());
+    const hours = pad(d.getHours());
+    const minutes = pad(d.getMinutes());
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
   let form = $state({
     source: 'herocraft',
     sourceUrl: '',
-    publishedAt: new Date().toISOString(),
+    // Important: input[type=datetime-local] requires a local date-time string without timezone.
+    // We still convert to an ISO instant (UTC) when sending to the backend.
+    publishedAt: toLocalDateTimeInputString(new Date()),
     style: 'RULING',
     comment: '',
     question: '',
@@ -23,19 +38,31 @@
     fd.set('cardHerocraftId', herocraftId);
     fd.set('source', form.source);
     if (form.sourceUrl) fd.set('sourceUrl', form.sourceUrl);
-    fd.set('publishedAt', form.publishedAt);
+    // The datetime-local input returns a value without timezone. Normalize to ISO instant (UTC)
+    try {
+      const iso = form.publishedAt && !/Z$/.test(form.publishedAt)
+        ? new Date(form.publishedAt).toISOString()
+        : new Date(form.publishedAt).toISOString();
+      fd.set('publishedAt', iso);
+    } catch (_) {
+      // Fallback to now if parsing fails
+      fd.set('publishedAt', new Date().toISOString());
+    }
     fd.set('style', form.style);
     if (form.comment) fd.set('comment', form.comment);
     if (form.question) fd.set('question', form.question);
     if (form.answer) fd.set('answer', form.answer);
 
     const res = await fetch('?/create', { method: 'POST', body: fd });
+    // Treat any 2xx as success; SvelteKit actions may wrap JSON like { type: 'success', ... }
+    // We still attempt to parse for potential error messages, but don't require a specific shape.
     const result = await res.json().catch(() => ({}));
-    if (result?.success) {
+    if (res.ok || result?.success === true || result?.type === 'success') {
       // reload data
       location.reload();
     } else {
-      alert(result?.error ?? 'Failed to create ruling');
+      const msg = result?.error || (typeof result === 'string' ? result : undefined) || 'Failed to create ruling';
+      alert(msg);
     }
   };
 
@@ -45,21 +72,22 @@
     fd.set('id', id);
     const res = await fetch('?/delete', { method: 'POST', body: fd });
     const result = await res.json().catch(() => ({}));
-    if (result?.success) {
+    if (res.ok || result?.success === true || result?.type === 'success') {
       rulings = rulings.filter((r) => r.id !== id);
     } else {
-      alert(result?.error ?? 'Failed to delete ruling');
+      const msg = result?.error || (typeof result === 'string' ? result : undefined) || 'Failed to delete ruling';
+      alert(msg);
     }
   };
 </script>
 
 <svelte:head>
-  <title>Admin · Rulings · {herocraftId}</title>
+  <title>Admin · Rulings · {cardName ?? herocraftId}</title>
   <meta name="robots" content="noindex" />
 </svelte:head>
 
 <div class="mx-auto max-w-5xl p-4">
-  <h1 class="text-2xl font-semibold mb-4">Rulings for {herocraftId}</h1>
+  <h1 class="text-2xl font-semibold mb-4">Rulings for {cardName ?? herocraftId}</h1>
 
   <section class="mb-8 p-4 border rounded-lg bg-white">
     <h2 class="text-lg font-medium mb-3">Create New Ruling</h2>

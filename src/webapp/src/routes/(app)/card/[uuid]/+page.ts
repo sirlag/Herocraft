@@ -7,11 +7,17 @@ export const load: PageLoad = async ({ fetch, params }) => {
     const res = await fetch(`${PUBLIC_API_BASE_URL}/card/${uuid}`);
     const card = await res.json();
 
-    // Fetch rulings from the new endpoint (uses internal [uuid])
+    // Fetch rulings using hypermedia link or herocraftId if available
     let rulings: any[] = [];
     try {
-        const r = await fetch(`${PUBLIC_API_BASE_URL}/cards/${uuid}/rulings`);
-        if (r.ok) rulings = await r.json();
+        // Prefer hypermedia link from card payload
+        let rulingsPath: string | null = card?.rulings_uri ?? null;
+        // Fallback to herocraftId if provided
+        if (!rulingsPath && card?.herocraftId) rulingsPath = `/cards/${card.herocraftId}/rulings`;
+        if (rulingsPath) {
+            const r = await fetch(`${PUBLIC_API_BASE_URL}${rulingsPath}`);
+            if (r.ok) rulings = await r.json();
+        }
     } catch (e) {
         // ignore; rulings optional
     }

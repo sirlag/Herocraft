@@ -144,11 +144,11 @@
 	</div>
 </div>
 
-<div class="flex w-full px-4 pb-12 justify-center bg-neutral-50">
-    <div class="flex flex-col max-w-5xl w-full">
-        <div class="mt-2 p-4 border border-gray-200 rounded-lg bg-white">
-            <h2 class="text-lg font-semibold mb-2">Rulings</h2>
-            {#if rulings && rulings.length > 0}
+{#if rulings && rulings.length > 0}
+    <div class="flex w-full px-4 pb-12 justify-center bg-neutral-50">
+        <div class="flex flex-col max-w-5xl w-full">
+            <div class="mt-2 p-4 border border-gray-200 rounded-lg bg-white">
+                <h2 class="text-lg font-semibold mb-2">Rulings</h2>
                 <ul class="space-y-4">
                     {#each rulings as r}
                         <li class="border-b last:border-b-0 pb-3">
@@ -186,12 +186,10 @@
                         </li>
                     {/each}
                 </ul>
-            {:else}
-                <p class="text-sm text-gray-500">No rulings yet.</p>
-            {/if}
+            </div>
         </div>
     </div>
-</div>
+{/if}
 
 <style>
 

@@ -101,6 +101,8 @@
       disarm = c.disarm ?? false;
       extraType = c.extraType ?? '';
 
+      // Note: herocraftId will be implemented later; for now we will use ivionUUID
+
       layout = (c.layout ?? 'NORMAL');
       variantsText = Array.isArray(c.variants) ? c.variants.join(', ') : '';
 
@@ -258,7 +260,14 @@
 <div class="container mx-auto p-4 space-y-4">
   <div class="flex items-center justify-between">
     <h1 class="text-2xl font-semibold">Edit Card</h1>
-    <a class="underline" href="/admin/cards">Back</a>
+    <div class="flex items-center gap-4">
+      {#if ivionUUID}
+        <a class="underline" href={`/admin/cards/${ivionUUID}/rulings`} title="Manage rulings for this card">
+          Rulings
+        </a>
+      {/if}
+      <a class="underline" href="/admin/cards">Back</a>
+    </div>
   </div>
   {#if loading}
     <p>Loading…</p>

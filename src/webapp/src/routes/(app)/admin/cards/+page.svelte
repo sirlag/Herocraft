@@ -92,6 +92,9 @@
               <td class="p-2">{c.season}</td>
               <td class="p-2 space-x-2">
                 <a href={`/admin/cards/${c.id}`} class="underline">Edit</a>
+                {#if c.ivionUUID}
+                  <a href={`/admin/cards/${c.ivionUUID}/rulings`} class="underline">Rulings</a>
+                {/if}
                 <button class="text-red-600 underline" on:click={() => deleteCard(c.id)}>Delete</button>
               </td>
             </tr>

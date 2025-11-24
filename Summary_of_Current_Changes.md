@@ -73,3 +73,16 @@
 - Run backend and frontend builds/tests to catch regressions.
 
 If you want, I can make the quick, safe fixes for the verification route and the salt retrieval in one small PR, and then we can tackle the auth/CORS strategy right after.
+
+## Admin Rulings — Fix false error on create/delete and timestamp normalization
+
+- Fixed a UX bug where submitting a new ruling or deleting one sometimes showed an error toast even though the operation succeeded on the server.
+  - The client now treats any successful HTTP response (200/201/204) from the SvelteKit action as success, even when the action returns an empty body. Previously it expected a JSON payload unconditionally and would display an error if the body was empty.
+- Normalized the `publishedAt` value sent from the admin rulings page:
+  - The `datetime-local` UI returns a value without timezone. We now convert it to a proper ISO instant (UTC) before sending to the backend to avoid parsing inconsistencies.
+
+Files touched:
+- `src/webapp/src/routes/(app)/admin/cards/[herocraftId]/rulings/+page.svelte`
+
+Context:
+- Rulings currently key off the Ivion `ivionUUID` passed through the `[herocraftId]` route segment as a temporary measure until a true `herocraftId` is introduced. This will be revisited in a future migration.

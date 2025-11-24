@@ -56,6 +56,8 @@ class CardRepo(database: Database) : DataService(database) {
         val colorPip2 = text("color_pip_2").nullable()
         val season = text("season")
         val type = text("type").nullable()
+        // Optional linkage id used for rulings/legality aggregation
+        val herocraftId = uuid("herocraft_id").nullable()
 
     }
 
@@ -165,6 +167,7 @@ class CardRepo(database: Database) : DataService(database) {
         val artist by Card.artist
         val ivionUUID by Card.ivionUUID
         val secondUUID by Card.secondUUID
+        val herocraftIdOpt by Card.herocraftId
         val colorPip1 by Card.colorPip1
         val colorPip2 by Card.colorPip2
         val season by Card.season
@@ -258,6 +261,8 @@ class CardRepo(database: Database) : DataService(database) {
                 else -> app.herocraft.core.models.CardLayout.NORMAL
             }
 
+            val hcId = herocraftIdOpt?.toKotlinUuid()
+
             return IvionCard(
                 id = id.value.toKotlinUuid(),
                 collectorsNumber = collectorsNumber,
@@ -287,9 +292,10 @@ class CardRepo(database: Database) : DataService(database) {
                 faces = faceList,
                 // New fields defaulted until DB layer supports them
                 linkedParts = emptyList(),
-                herocraftId = null,
+                herocraftId = hcId,
                 printVariantGroupId = null,
-                variants = emptyList()
+                variants = emptyList(),
+                rulingsUri = hcId?.let { "/cards/${it}/rulings" }
             )
         }
 
@@ -332,6 +338,8 @@ class CardRepo(database: Database) : DataService(database) {
             it[Card.artist] = card.artist
             it[Card.ivionUUID] = card.ivionUUID.toJavaUuid()
             it[Card.secondUUID] = card.secondUUID?.toJavaUuid()
+            // herocraft_id defaults to ivion_uuid if not explicitly provided
+            it[Card.herocraftId] = (card.herocraftId ?: card.ivionUUID).toJavaUuid()
             it[Card.colorPip1] = card.colorPip1
             it[Card.colorPip2] = card.colorPip2
             it[Card.season] = card.season
@@ -567,6 +575,8 @@ class CardRepo(database: Database) : DataService(database) {
         it[artist] = card.artist
         it[ivionUUID] = card.ivionUUID.toJavaUuid()
         it[secondUUID] = card.secondUUID?.toJavaUuid()
+        // default linkage is ivion_uuid unless specified
+        it[herocraftId] = (card.herocraftId ?: card.ivionUUID).toJavaUuid()
         it[colorPip1] = card.colorPip1
         it[colorPip2] = card.colorPip2
         it[season] = card.season
@@ -597,8 +607,9 @@ class CardRepo(database: Database) : DataService(database) {
         }
     }
 
-    private fun ResultRow.toIvionCard(): IvionCard =
-        IvionCard(
+    private fun ResultRow.toIvionCard(): IvionCard {
+        val hcId = this[Card.herocraftId]?.toKotlinUuid()
+        return IvionCard(
             id = this[Card.id].value.toKotlinUuid(),
             collectorsNumber = this[Card.collectorsNumber],
             format = this[Card.format],
@@ -621,6 +632,9 @@ class CardRepo(database: Database) : DataService(database) {
             colorPip1 = this[Card.colorPip1],
             colorPip2 = this[Card.colorPip2],
             season = this[Card.season],
-            type = this[Card.type]
+            type = this[Card.type],
+            herocraftId = hcId,
+            rulingsUri = hcId?.let { "/cards/${it}/rulings" }
         )
+    }
 }
