@@ -15,6 +15,21 @@
 
 	// TODO: Handle Relics, Traps, and Arrows
 
+	const normalizeFace = (face: CardFace | string | undefined | null): 'front' | 'back' | null => {
+		if (!face) return null;
+		const v = face.toLowerCase();
+		return v === 'front' ? 'front' : v === 'back' ? 'back' : null;
+	}
+
+	const getFace = (faceKey: 'front' | 'back'): IvionCardFaceData | null => {
+		if (!card || !card.faces) return null;
+		return card.faces.find(f => normalizeFace(f.face) === faceKey) ?? null;
+	}
+
+	const hasFaces = $derived(card.layout === "TRANSFORM");
+	const frontFace = $derived(getFace('front'));
+	const backFace = $derived(getFace('back'));
+
 	let getSpecialColor = (card: IvionCard) => {
 		if (card.format == "Relic" || card.format == "Relic Skill") {
 			return "Relic Left"
@@ -88,6 +103,48 @@
 	<title>{card.name} // Search // Herocraft</title>
 </svelte:head>
 
+{#snippet cardInfo(infoSource: IvionCard | IvionCardFaceData | null)}
+	{#if infoSource}
+		<h1 class="pl-16 pr-4">{infoSource.name}</h1>
+		{#if (infoSource.archetype && infoSource.archetype !== "")}
+			<Separator />
+			<p class="pl-16 pr-4">
+				{infoSource.archetype} – {infoSource.type}
+			</p>
+		{/if}
+		{#if (infoSource.extraType && infoSource.extraType !== "")}
+			<Separator />
+			<p class="pl-16 pr-4">
+				{infoSource.extraType}
+			</p>
+		{/if}
+  <Separator />
+        <div class="pl-16 pr-4 prose">
+            <!-- Always render ParsedCardText; it has its own safe fallback when source is empty.
+                 Key by card identity + face to ensure remount when navigating between cards within same route. -->
+            {#key `${card?.uuid ?? card?.id ?? ''}:${infoSource?.name ?? ''}`}
+                <ParsedCardText source={infoSource?.rulesText ?? ''} />
+            {/key}
+        </div>
+		<Separator />
+		<div class="pl-16 pr-4">
+			{#if infoSource.range}
+				<div>Range = {infoSource.range}</div>
+			{/if}
+			{#if infoSource.actionCost}
+				<div>Action = {infoSource.actionCost}</div>
+			{/if}
+			{#if infoSource.powerCost}
+				<div>Power = {infoSource.powerCost}</div>
+			{/if}
+		</div>
+		{#if infoSource.flavorText}
+			<Separator />
+			<p class="pl-16 pr-4"><i>{card.flavorText}</i></p>
+		{/if}
+	{/if}
+{/snippet}
+
 <div class="flex w-full p-4 pb-8 justify-center bg-neutral-50">
 	<div class="flex flex-row  max-w-5xl flex-wrap lg:flex-nowrap" style={colorStyle}>
 		{#if card}
@@ -98,41 +155,14 @@
 			</div>
 
 			<div  class="border border-gray-200  py-4 -ml-8 mt-4 h-[600px] rounded-lg  card-info-shadow">
-				<h1 class="pl-16 pr-4">{card.name}</h1>
-				{#if (card.archetype && card.archetype !== "")}
+				{#if hasFaces}
+					{@render cardInfo(frontFace)}
 					<Separator />
-					<p class="pl-16 pr-4">
-						{card.archetype} – {card.type}
-					</p>
+					{@render cardInfo(backFace)}
+				{:else}
+					{@render cardInfo(card)}
 				{/if}
-				{#if (card.extraType && card.extraType !== "")}
-					<Separator />
-					<p class="pl-16 pr-4">
-						{card.extraType}
-					</p>
-				{/if}
-				{#if card?.rulesText}
-					<Separator />
-					<div class="pl-16 pr-4 prose">
-						<ParsedCardText source={card?.rulesText} />
-					</div>
-				{/if}
-				<Separator />
-				<div class="pl-16 pr-4">
-					{#if card.range}
-						<div>Range = {card.range}</div>
-					{/if}
-					{#if card.actionCost}
-						<div>Action = {card.actionCost}</div>
-					{/if}
-					{#if card.powerCost}
-						<div>Power = {card.powerCost}</div>
-					{/if}
-				</div>
-				{#if card.flavorText}
-					<Separator />
-					<p class="pl-16 pr-4"><i>{card.flavorText}</i></p>
-				{/if}
+
 				{#if card.artist}
 					<Separator />
 					<p class="pl-16 pr-4 prose">
@@ -192,30 +222,10 @@
 {/if}
 
 <style>
-
 		.card-info-shadow {
-        box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.1),
-        0px 1px 2px -1px rgba(0, 0, 0, 0.1),
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1),
+        0 1px 2px -1px rgba(0, 0, 0, 0.1),
         -8px 12px 20px 1px rgba(var(--color-1),.9),
         8px 16px 15px 1px rgba(var(--color-2),.8);
 		}
-
-    /*.shadow-black-red {*/
-
-    /*}*/
-
-    /*.shadow-black {*/
-    /*    box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.1),*/
-    /*    0px 1px 2px -1px rgba(0, 0, 0, 0.1),*/
-    /*    -8px 6px 20px 1px rgba(0, 0, 0, .9),*/
-    /*    8px 8px 15px 1px rgba(0, 0, 0, .8);*/
-    /*}*/
-
-    /*.shadow-blue {*/
-    /*    box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.1),*/
-    /*    0px 1px 2px -1px rgba(0, 0, 0, 0.1),*/
-    /*    -8px 6px 20px 1px rgba(89, 176, 217, .9),*/
-    /*    8px 8px 15px 1px rgba(89, 176, 217, .8);*/
-    /*}*/
-
 </style>
