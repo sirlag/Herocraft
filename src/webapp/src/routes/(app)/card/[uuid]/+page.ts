@@ -1,7 +1,7 @@
 import type { PageLoad } from './$types';
 import { PUBLIC_API_BASE_URL } from '$env/static/public';
 
-export const load: PageLoad = async ({ fetch, params }) => {
+export const load: PageLoad = async ({ fetch, params, url }) => {
     let uuid = params['uuid'];
 
     const res = await fetch(`${PUBLIC_API_BASE_URL}/card/${uuid}`);
@@ -22,5 +22,8 @@ export const load: PageLoad = async ({ fetch, params }) => {
         // ignore; rulings optional
     }
 
-    return { card, rulings };
+    // Provide absolute page URL for OG/Twitter meta tags
+    const pageUrl = url?.href ?? `https://herocraft.app/card/${uuid}`;
+
+    return { card, rulings, pageUrl };
 };
