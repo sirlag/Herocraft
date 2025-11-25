@@ -244,7 +244,23 @@
 </script>
 
 <svelte:head>
-	<title>{card.name} // Search // Herocraft</title>
+    <title>{data?.seo?.title ?? `${card.name} // Herocraft`}</title>
+    {#if data?.seo}
+        <meta property="og:site_name" content={data.seo.siteName} />
+        <meta property="og:type" content={data.seo.type} />
+        <meta property="og:url" content={data.seo.url} />
+        <meta property="og:title" content={data.seo.title} />
+        <meta property="og:description" content={data.seo.description} />
+        {#if data.seo.image}
+            <meta property="og:image" content={data.seo.image} />
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:image" content={data.seo.image} />
+        {/if}
+        <meta name="twitter:title" content={data.seo.title} />
+        {#if data.seo.description}
+            <meta name="twitter:description" content={data.seo.description} />
+        {/if}
+    {/if}
 </svelte:head>
 
 {#snippet cardInfo(infoSource: IvionCard | IvionCardFaceData | null)}

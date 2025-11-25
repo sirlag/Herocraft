@@ -1,8 +1,9 @@
 import type { PageLoad } from './$types';
 import { PUBLIC_API_BASE_URL } from '$env/static/public';
 
-export const load: PageLoad = async ({ fetch, params }) => {
-    let uuid = params['uuid'];
+// Important: merge with data coming from +page.server.ts so `seo` survives
+export const load: PageLoad = async ({ fetch, params, data }) => {
+    const uuid = params['uuid'];
 
     const res = await fetch(`${PUBLIC_API_BASE_URL}/card/${uuid}`);
     const card = await res.json();
@@ -22,5 +23,6 @@ export const load: PageLoad = async ({ fetch, params }) => {
         // ignore; rulings optional
     }
 
-    return { card, rulings };
+    // Return existing server data (e.g., `seo`) along with client-fetched fields
+    return { ...data, card, rulings };
 };
