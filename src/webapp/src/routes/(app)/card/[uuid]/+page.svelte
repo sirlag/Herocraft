@@ -3,6 +3,9 @@
 	import CardImage from '$lib/components/CardImage.svelte';
 	import ParsedCardText from '$lib/components/CardText/ParsedCardText.svelte';
 	import { Separator } from '$lib/components/ui/separator';
+	import { PUBLIC_API_BASE_URL } from '$env/static/public';
+	// Icons
+	import { Download, FileJson2, Bug } from 'lucide-svelte';
 
 	interface Props {
 		data: PageData;
@@ -11,7 +14,7 @@
 	let { data }: Props = $props();
 
 	let card: IvionCard = $derived(data.card);
-    let rulings: any[] = $derived(data.rulings ?? []);
+	let rulings: any[] = $derived(data.rulings ?? []);
 
 	// TODO: Handle Relics, Traps, and Arrows
 
@@ -19,27 +22,24 @@
 		if (!face) return null;
 		const v = face.toLowerCase();
 		return v === 'front' ? 'front' : v === 'back' ? 'back' : null;
-	}
+	};
 
 	const getFace = (faceKey: 'front' | 'back'): IvionCardFaceData | null => {
 		if (!card || !card.faces) return null;
 		return card.faces.find(f => normalizeFace(f.face) === faceKey) ?? null;
-	}
+	};
 
-	const hasFaces = $derived(card.layout === "TRANSFORM");
+	const hasFaces = $derived(card.layout === 'TRANSFORM');
 	const frontFace = $derived(getFace('front'));
 	const backFace = $derived(getFace('back'));
 
 	let getSpecialColor = (card: IvionCard) => {
-		if (card.format == "Relic" || card.format == "Relic Skill") {
-			return "Relic Left"
-		}
-		else if (card.extraType == "Trap") {
-			return "Trap"
-		}
-
-		else return "None"
-	}
+		if (card.format == 'Relic' || card.format == 'Relic Skill') {
+			return 'Relic Left';
+		} else if (card.extraType == 'Trap') {
+			return 'Trap';
+		} else return 'None';
+	};
 
 	let getColorValue = (color: String) => {
 		switch (color) {
@@ -62,7 +62,7 @@
 			case 'Relic Right':
 				return '248,152,41';
 			case 'Trap':
-				return '244,152,165'
+				return '244,152,165';
 			case 'Arrow':
 				return '76,58,84';
 			case 'None':
@@ -84,19 +84,162 @@
 			let cs = getColorValue(color1);
 			return { c1: cs, c2: cs };
 		}
-		return {c1:"", c2: ""}
+		return { c1: '', c2: '' };
 	};
 
 
 	let color1 = $derived(card.colorPip1 ? card.colorPip1 : getSpecialColor(card));
-	let color2 = $derived(card.colorPip2 ? card.colorPip2 : color1 == "Relic Left" ? "Relic Right" : null)
+	let color2 = $derived(card.colorPip2 ? card.colorPip2 : color1 == 'Relic Left' ? 'Relic Right' : null);
 
 
 	let { c1, c2 } = $derived(getColorString(color1, color2));
 
-
 	let colorStyle = $derived(`--color-1:${c1};--color-2:${c2}`);
 
+	// Footer helpers (moved from inline script)
+	const sanitize = (s: string): string => s.replace(/[^a-z0-9\-_.()\[\]\s]/gi, '').replace(/\s+/g, ' ').trim();
+	const filename = (c: IvionCard, face?: 'front' | 'back') => {
+		const base = sanitize(c.name || 'card');
+		const facePart = face ? `-${face}` : '';
+		const idPart = c.id ? `-${c.id}` : '';
+		return `${base}${facePart}${idPart}.png`;
+	};
+
+	const getFaceUris = (c: IvionCard, face: 'front' | 'back') => {
+		if (!c) return null;
+		if (c.layout === 'TRANSFORM' && Array.isArray(c.faces)) {
+			const f = c.faces.find((f) => (typeof f.face === 'string' ? f.face.toString().toLowerCase() : '') === face);
+			return f?.imageUris ?? null;
+		}
+		return null;
+	};
+
+	const frontPng = $derived((getFaceUris(card, 'front')?.full) || card.imageUris?.full || null);
+	const backPng = $derived(getFaceUris(card, 'back')?.full || null);
+
+	// Build the API JSON URL using the current route param
+	const jsonUrl = $derived(`${PUBLIC_API_BASE_URL}/card/${card.id}`);
+
+	// --- File size helpers for downloads ---
+	const formatBytes = (bytes: number): string => {
+		if (!Number.isFinite(bytes) || bytes < 0) return '';
+		const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+		let i = 0;
+		let v = bytes;
+		while (v >= 1024 && i < units.length - 1) {
+			v = v / 1024;
+			i++;
+		}
+		// Keep one decimal for KB and above, no decimals for bytes
+		const fixed = i === 0 ? Math.round(v).toString() : v.toFixed(v >= 100 ? 0 : 1);
+		return `${fixed} ${units[i]}`;
+	};
+
+	const fetchContentLength = async (url: string, signal?: AbortSignal): Promise<number | null> => {
+		try {
+			// Try a HEAD request first
+			const head = await fetch(url, { method: 'HEAD', mode: 'cors', redirect: 'follow', signal });
+			const cl = head.headers.get('content-length');
+			if (cl) {
+				const n = Number(cl);
+				if (Number.isFinite(n)) return n;
+			}
+		} catch (_) {
+			// ignore and try range request fallback
+		}
+		try {
+			// Fallback: request a single byte using Range and parse Content-Range total size
+			const r = await fetch(url, {
+				method: 'GET',
+				headers: { Range: 'bytes=0-0' },
+				mode: 'cors',
+				redirect: 'follow',
+				signal
+			});
+			const cr = r.headers.get('content-range');
+			// Format: bytes 0-0/12345
+			if (cr && /\/(\d+)\s*$/.test(cr)) {
+				const m = cr.match(/\/(\d+)\s*$/);
+				const total = m && m[1] ? Number(m[1]) : NaN;
+				if (Number.isFinite(total)) return total;
+			}
+			const cl2 = r.headers.get('content-length');
+			if (cl2) {
+				const n = Number(cl2);
+				if (Number.isFinite(n)) return n;
+			}
+		} catch (_) {
+			// give up
+		}
+		return null;
+	};
+
+	let frontSize: number | null = $state(null);
+	let backSize: number | null = $state(null);
+	let frontLoading: boolean = $state(false);
+	let backLoading: boolean = $state(false);
+
+	const withTimeout = (ms: number) => {
+		const ctrl = new AbortController();
+		const id = setTimeout(() => ctrl.abort('timeout'), ms);
+		return { signal: ctrl.signal, clear: () => clearTimeout(id) };
+	};
+
+	$effect(async () => {
+		frontSize = null;
+		if (!frontPng) return;
+		frontLoading = true;
+		const t = withTimeout(6000);
+		try {
+			frontSize = await fetchContentLength(frontPng, t.signal);
+		} finally {
+			t.clear();
+			frontLoading = false;
+		}
+	});
+
+	$effect(async () => {
+		backSize = null;
+		if (!backPng) return;
+		backLoading = true;
+		const t = withTimeout(6000);
+		try {
+			backSize = await fetchContentLength(backPng, t.signal);
+		} finally {
+			t.clear();
+			backLoading = false;
+		}
+	});
+
+	// Force a download even for cross-origin URLs by fetching as Blob
+	const forceDownload = async (url: string, fileName: string) => {
+		try {
+			const res = await fetch(url, { mode: 'cors' });
+			if (!res.ok) throw new Error(`Download failed: ${res.status}`);
+			const blob = await res.blob();
+			const objectUrl = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = objectUrl;
+			a.download = fileName;
+			document.body.appendChild(a);
+			a.click();
+			a.remove();
+			URL.revokeObjectURL(objectUrl);
+		} catch (e) {
+			// Fallback: open in a new tab if blob download fails
+			try {
+				window.open(url, '_blank', 'noopener');
+			} catch {
+			}
+		}
+	};
+
+	// --- Unified button styles (same width and color scheme) ---
+	const btnBase =
+		'w-full px-3 py-2 rounded-md inline-flex items-center gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300';
+	// Subtler, neutral/outline style
+	const btnPrimary = 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50';
+	const btnDisabled = 'bg-gray-50 text-gray-400 border border-gray-200 cursor-not-allowed';
 </script>
 
 <svelte:head>
@@ -118,14 +261,14 @@
 				{infoSource.extraType}
 			</p>
 		{/if}
-  <Separator />
-        <div class="pl-16 pr-4 prose">
-            <!-- Always render ParsedCardText; it has its own safe fallback when source is empty.
-                 Key by card identity + face to ensure remount when navigating between cards within same route. -->
-            {#key `${card?.uuid ?? card?.id ?? ''}:${infoSource?.name ?? ''}`}
-                <ParsedCardText source={infoSource?.rulesText ?? ''} />
-            {/key}
-        </div>
+		<Separator />
+		<div class="pl-16 pr-4 prose">
+			<!-- Always render ParsedCardText; it has its own safe fallback when source is empty.
+					 Key by card identity + face to ensure remount when navigating between cards within same route. -->
+			{#key `${card?.uuid ?? card?.id ?? ''}:${infoSource?.name ?? ''}`}
+				<ParsedCardText source={infoSource?.rulesText ?? ''} />
+			{/key}
+		</div>
 		<Separator />
 		<div class="pl-16 pr-4">
 			{#if infoSource.range}
@@ -154,7 +297,7 @@
 				</div>
 			</div>
 
-			<div  class="border border-gray-200  py-4 -ml-8 mt-4 h-[600px] rounded-lg  card-info-shadow">
+			<div class="border border-gray-200  py-4 -ml-8 mt-4 h-[600px] rounded-lg  card-info-shadow">
 				{#if hasFaces}
 					{@render cardInfo(frontFace)}
 					<Separator />
@@ -174,58 +317,121 @@
 	</div>
 </div>
 
-{#if rulings && rulings.length > 0}
-    <div class="flex w-full px-4 pb-12 justify-center bg-neutral-50">
-        <div class="flex flex-col max-w-5xl w-full">
-            <div class="mt-2 p-4 border border-gray-200 rounded-lg bg-white">
-                <h2 class="text-lg font-semibold mb-2">Rulings</h2>
-                <ul class="space-y-4">
-                    {#each rulings as r}
-                        <li class="border-b last:border-b-0 pb-3">
-                            <div class="text-sm text-gray-500 flex items-center gap-2">
-                                <span class="inline-block px-2 py-0.5 rounded-full bg-gray-100 border text-gray-700 capitalize">{r.source}</span>
-                                {#if r.sourceUrl}
-                                    <a class="text-blue-600 hover:underline" href={r.sourceUrl} target="_blank" rel="noopener noreferrer">source</a>
-                                {/if}
-                                {#if r.publishedAt}
-                                    <span>{new Date(r.publishedAt).toLocaleDateString()}</span>
-                                {/if}
-                                <span class="ml-auto text-xs uppercase tracking-wide text-gray-400">{r.style}</span>
-                            </div>
 
-                            {#if r.style === 'RULING'}
-                                {#if r.comment}
-                                    <p class="mt-2 whitespace-pre-wrap">{r.comment}</p>
-                                {/if}
-                            {:else}
-                                <div class="mt-2 space-y-1">
-                                    {#if r.question}
-                                        <div>
-                                            <span class="font-medium">Q:</span>
-                                            <span class="whitespace-pre-wrap"> {r.question}</span>
-                                        </div>
-                                    {/if}
-                                    {#if r.answer}
-                                        <div>
-                                            <span class="font-medium">A:</span>
-                                            <span class="whitespace-pre-wrap"> {r.answer}</span>
-                                        </div>
-                                    {/if}
-                                </div>
-                            {/if}
-                        </li>
-                    {/each}
-                </ul>
-            </div>
-        </div>
-    </div>
+<div>
+
+	<div class="flex flex-col gap-2 p-4 max-w-5xl mx-auto">
+		<!-- Data actions header -->
+		<h2 class="text-lg font-semibold text-gray-800">Data</h2>
+		<div class="flex flex-col gap-2 items-start w-full md:max-w-[33%]">
+			{#if frontPng}
+				<button
+					on:click={() => forceDownload(frontPng, filename(card, hasFaces ? 'front' : undefined))}
+					class={`${btnBase} ${btnPrimary}`}
+					title="Download full-resolution PNG"
+				>
+					<Download class="w-4 h-4" aria-hidden="true" />
+					<span>Download PNG {hasFaces ? '(front)' : ''}{frontLoading ? ' · …' : frontSize != null ? ` · ${formatBytes(frontSize)}` : ''}</span>
+				</button>
+			{:else}
+				<button
+					class={`${btnBase} ${btnDisabled}`}
+					disabled>
+					<Download class="w-4 h-4" aria-hidden="true" />
+					<span>PNG unavailable</span>
+				</button>
+			{/if}
+
+			{#if hasFaces && backPng}
+				<button
+					on:click={() => forceDownload(backPng, filename(card, 'back'))}
+					class={`${btnBase} ${btnPrimary}`}
+					title="Download full-resolution PNG (back)"
+				>
+					<Download class="w-4 h-4" aria-hidden="true" />
+					<span>Download PNG (back){backLoading ? ' · …' : backSize != null ? ` · ${formatBytes(backSize)}` : ''}</span>
+				</button>
+			{/if}
+
+			<a
+				href={jsonUrl}
+				target="_blank"
+				rel="noopener noreferrer"
+				class={`${btnBase} ${btnPrimary}`}
+				title="Open the API URL to view/copy the card JSON"
+			>
+				<FileJson2 class="w-4 h-4" aria-hidden="true" />
+				<span>View card JSON</span>
+			</a>
+
+			<a
+				href="https://discord.gg/uRXTSBckyu"
+				target="_blank"
+				rel="noopener noreferrer"
+				class={`${btnBase} ${btnPrimary}`}
+				title="Open Discord to report an issue"
+			>
+				<Bug class="w-4 h-4" aria-hidden="true" />
+				<span>Report card issue</span>
+			</a>
+		</div>
+	</div>
+</div>
+
+{#if rulings && rulings.length > 0}
+	<Separator />
+	<div class="flex w-full px-4 pt-4 pb-12 justify-center bg-neutral-50">
+		<div class="flex flex-col max-w-5xl w-full">
+			<div class="mt-2 p-4 border border-gray-200 rounded-lg bg-white">
+				<h2 class="text-lg font-semibold mb-2">Rulings</h2>
+				<ul class="space-y-4">
+					{#each rulings as r}
+						<li class="border-b last:border-b-0 pb-3">
+							<div class="text-sm text-gray-500 flex items-center gap-2">
+								<span
+									class="inline-block px-2 py-0.5 rounded-full bg-gray-100 border text-gray-700 capitalize">{r.source}</span>
+								{#if r.sourceUrl}
+									<a class="text-blue-600 hover:underline" href={r.sourceUrl} target="_blank" rel="noopener noreferrer">source</a>
+								{/if}
+								{#if r.publishedAt}
+									<span>{new Date(r.publishedAt).toLocaleDateString()}</span>
+								{/if}
+								<span class="ml-auto text-xs uppercase tracking-wide text-gray-400">{r.style}</span>
+							</div>
+
+							{#if r.style === 'RULING'}
+								{#if r.comment}
+									<p class="mt-2 whitespace-pre-wrap">{r.comment}</p>
+								{/if}
+							{:else}
+								<div class="mt-2 space-y-1">
+									{#if r.question}
+										<div>
+											<span class="font-medium">Q:</span>
+											<span class="whitespace-pre-wrap"> {r.question}</span>
+										</div>
+									{/if}
+									{#if r.answer}
+										<div>
+											<span class="font-medium">A:</span>
+											<span class="whitespace-pre-wrap"> {r.answer}</span>
+										</div>
+									{/if}
+								</div>
+							{/if}
+						</li>
+					{/each}
+				</ul>
+			</div>
+		</div>
+	</div>
 {/if}
 
 <style>
-		.card-info-shadow {
+    .card-info-shadow {
         box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1),
         0 1px 2px -1px rgba(0, 0, 0, 0.1),
-        -8px 12px 20px 1px rgba(var(--color-1),.9),
-        8px 16px 15px 1px rgba(var(--color-2),.8);
-		}
+        -8px 12px 20px 1px rgba(var(--color-1), .9),
+        8px 16px 15px 1px rgba(var(--color-2), .8);
+    }
 </style>
