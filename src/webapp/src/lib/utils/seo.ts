@@ -91,7 +91,6 @@ export function buildCardSeoMeta(card: IvionCard, pageUrl: string, imageUrl: str
 		title: buildCardTitle(card),
 		description: buildCardDescription(card),
 		image: imageUrl,
-		// Omit dimensions - let Discord/social platforms detect them automatically
 		imageType: getImageType(imageUrl),
 		url: pageUrl,
 		siteName: 'Herocraft',
