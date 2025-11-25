@@ -16,7 +16,6 @@
 
 	let card: IvionCard = $derived(data.card);
 	let rulings: any[] = $derived(data.rulings ?? []);
-	let pageUrl: string = $derived(data.pageUrl ?? 'https://herocraft.app');
 
 	// TODO: Handle Relics, Traps, and Arrows
 
@@ -120,17 +119,6 @@
 	const backUris = $derived(getFaceUris(card, 'back'));
 	const frontPng = $derived(frontUris?.full || card.imageUris?.full || null);
 	const backPng = $derived(backUris?.full || null);
-
-	// Prefer a small image for social previews, with sensible fallbacks
-	const ogImage = $derived(
-		frontUris?.large || card.imageUris?.large || frontUris?.normal || card.imageUris?.normal || frontPng
-	);
-
-	// Generate a concise description from rulesText (front face preferred)
-	const baseDescription = $derived(
-		(frontFace?.rulesText && String(frontFace.rulesText)) || (card.rulesText && String(card.rulesText)) || ''
-	);
-	const ogDescription = $derived(baseDescription.replace(/\s+/g, ' ').trim().slice(0, 300));
 
 	// Build the API JSON URL using the current route param
 	const jsonUrl = $derived(`${PUBLIC_API_BASE_URL}/card/${card.id}`);
@@ -259,27 +247,6 @@
 
 <svelte:head>
 	<title>{card.name} // Herocraft</title>
-	<!-- Open Graph for Discord/link previews -->
-	<meta property="og:site_name" content="Herocraft" />
-	<meta property="og:type" content="article" />
-	<meta property="og:url" content={pageUrl} />
-	<meta property="og:title" content={card.name} />
-	{#if ogDescription && ogDescription.length > 0}
-		<meta property="og:description" content={ogDescription} />
-	{/if}
-	{#if ogImage}
-		<meta property="og:image" content={ogImage} />
-	{/if}
-
-	<!-- Twitter cards (many consumers respect these too) -->
-	<meta name="twitter:card" content="summary_large_image" />
-	<meta name="twitter:title" content={card.name} />
-	{#if ogDescription && ogDescription.length > 0}
-		<meta name="twitter:description" content={ogDescription} />
-	{/if}
-	{#if ogImage}
-		<meta name="twitter:image" content={ogImage} />
-	{/if}
 </svelte:head>
 
 {#snippet cardInfo(infoSource: IvionCard | IvionCardFaceData | null)}
@@ -474,10 +441,4 @@
         -8px 12px 20px 1px rgba(var(--color-1), .9),
         8px 16px 15px 1px rgba(var(--color-2), .8);
     }
-
-    /*!* Add 2px vertical padding to every entry within the card info block *!*/
-    /*.card-info-block > * {*/
-    /*    padding-top: 2px;*/
-    /*    padding-bottom: 2px;*/
-    /*}*/
 </style>
