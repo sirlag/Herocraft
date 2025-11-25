@@ -4,6 +4,7 @@
 	import ParsedCardText from '$lib/components/CardText/ParsedCardText.svelte';
 	import { Separator } from '$lib/components/ui/separator';
 	import { PUBLIC_API_BASE_URL } from '$env/static/public';
+	import CardStat from '$lib/components/CardStat.svelte';
 	// Icons
 	import { Download, FileJson2, Bug } from 'lucide-svelte';
 
@@ -248,42 +249,46 @@
 
 {#snippet cardInfo(infoSource: IvionCard | IvionCardFaceData | null)}
 	{#if infoSource}
-		<h1 class="pl-16 pr-4">{infoSource.name}</h1>
+		<h1 class="pl-16 pr-4 my-2">{infoSource.name}</h1>
 		{#if (infoSource.archetype && infoSource.archetype !== "")}
 			<Separator />
-			<p class="pl-16 pr-4">
+			<p class="pl-16 pr-4 my-2">
 				{infoSource.archetype} – {infoSource.type}
 			</p>
 		{/if}
 		{#if (infoSource.extraType && infoSource.extraType !== "")}
 			<Separator />
-			<p class="pl-16 pr-4">
+			<p class="pl-16 pr-4 my-2">
 				{infoSource.extraType}
 			</p>
 		{/if}
 		<Separator />
-		<div class="pl-16 pr-4 prose">
+		<div class="pl-16 pr-4 my2 prose">
 			<!-- Always render ParsedCardText; it has its own safe fallback when source is empty.
 					 Key by card identity + face to ensure remount when navigating between cards within same route. -->
 			{#key `${card?.uuid ?? card?.id ?? ''}:${infoSource?.name ?? ''}`}
 				<ParsedCardText source={infoSource?.rulesText ?? ''} />
 			{/key}
 		</div>
-		<Separator />
-		<div class="pl-16 pr-4">
-			{#if infoSource.range}
-				<div>Range = {infoSource.range}</div>
-			{/if}
-			{#if infoSource.actionCost}
-				<div>Action = {infoSource.actionCost}</div>
-			{/if}
-			{#if infoSource.powerCost}
-				<div>Power = {infoSource.powerCost}</div>
-			{/if}
-		</div>
+		{#if (infoSource.actionCost || infoSource.powerCost || infoSource.range)}
+			<Separator />
+			<div class="pl-16 r-4 my-2">
+				<div class="flex items-center gap-3">
+					{#if infoSource.actionCost !== undefined && infoSource.actionCost !== null}
+						<CardStat type="action" value={infoSource.actionCost} size={44} />
+					{/if}
+					{#if infoSource.powerCost !== undefined && infoSource.powerCost !== null}
+						<CardStat type="power" value={infoSource.powerCost} size={44} />
+					{/if}
+					{#if infoSource.range !== undefined && infoSource.range !== null}
+						<CardStat type="range" value={infoSource.range} size={44} />
+					{/if}
+				</div>
+			</div>
+		{/if}
 		{#if infoSource.flavorText}
 			<Separator />
-			<p class="pl-16 pr-4"><i>{card.flavorText}</i></p>
+			<p class="pl-16 pr-4 my-2"><i>{infoSource.flavorText}</i></p>
 		{/if}
 	{/if}
 {/snippet}
@@ -297,7 +302,7 @@
 				</div>
 			</div>
 
-			<div class="border border-gray-200  py-4 -ml-8 mt-4 h-[600px] rounded-lg  card-info-shadow">
+			<div class="border border-gray-200  py-4 -ml-8 mt-4 h-[600px] rounded-lg  card-info-shadow card-info-block">
 				{#if hasFaces}
 					{@render cardInfo(frontFace)}
 					<Separator />
@@ -308,7 +313,7 @@
 
 				{#if card.artist}
 					<Separator />
-					<p class="pl-16 pr-4 prose">
+					<p class="pl-16 pr-4 my-2 prose">
 						<i>Illustrated by <a href={`/cards?q=artist%3A\"${card.artist}\"`}>{card.artist}</a></i>
 					</p>
 				{/if}
@@ -434,4 +439,10 @@
         -8px 12px 20px 1px rgba(var(--color-1), .9),
         8px 16px 15px 1px rgba(var(--color-2), .8);
     }
+
+    /*!* Add 2px vertical padding to every entry within the card info block *!*/
+    /*.card-info-block > * {*/
+    /*    padding-top: 2px;*/
+    /*    padding-bottom: 2px;*/
+    /*}*/
 </style>
