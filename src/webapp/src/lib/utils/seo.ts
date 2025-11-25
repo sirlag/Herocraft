@@ -91,8 +91,6 @@ export function buildCardSeoMeta(card: IvionCard, pageUrl: string, imageUrl: str
 		title: buildCardTitle(card),
 		description: buildCardDescription(card),
 		image: imageUrl,
-		imageWidth: 672, // Large image dimensions (actual size from image server)
-		imageHeight: 942,
 		imageType: getImageType(imageUrl),
 		url: pageUrl,
 		siteName: 'Herocraft',
