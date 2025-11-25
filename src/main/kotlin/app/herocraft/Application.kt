@@ -50,5 +50,6 @@ fun Application.module() {
         allowMethod(HttpMethod.Options)
         allowMethod(HttpMethod.Patch)
         allowMethod(HttpMethod.Put)
+        allowMethod(HttpMethod.Head)
     }
 }

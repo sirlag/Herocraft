@@ -67,7 +67,7 @@
 				return '244,152,165';
 			case 'Arrow':
 				return '76,58,84';
-			case 'None':
+      case 'None':
 				return '79,78,73';
 		}
 	};
