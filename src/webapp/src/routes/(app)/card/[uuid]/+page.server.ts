@@ -34,6 +34,8 @@ type IvionCard = {
   powerCost?: number | null;
   range?: number | null;
   artist?: string | null;
+  herocraftId?: string | null;
+  rulings_uri?: string | null;
 };
 
 function normalizeFace(face?: string | null): 'front' | 'back' | null {
@@ -88,6 +90,21 @@ export const load: PageServerLoad = async ({ fetch, params, url }) => {
   const res = await fetch(`${PUBLIC_API_BASE_URL}/card/${uuid}`);
   const card: IvionCard = await res.json();
 
+  // Fetch rulings using hypermedia link or herocraftId if available
+  let rulings: any[] = [];
+  try {
+    // Prefer hypermedia link from card payload
+    let rulingsPath: string | null = card?.rulings_uri ?? null;
+    // Fallback to herocraftId if provided
+    if (!rulingsPath && card?.herocraftId) rulingsPath = `/cards/${card.herocraftId}/rulings`;
+    if (rulingsPath) {
+      const r = await fetch(`${PUBLIC_API_BASE_URL}${rulingsPath}`);
+      if (r.ok) rulings = await r.json();
+    }
+  } catch (e) {
+    // ignore; rulings optional
+  }
+
   // Build an enriched description including rules text, costs/range, and artist
   const headerParts: string[] = [];
   if (card?.archetype) headerParts.push(card.archetype);
@@ -130,5 +147,5 @@ export const load: PageServerLoad = async ({ fetch, params, url }) => {
     type: 'website'
   };
 
-  return { seo };
+  return { card, rulings, pageUrl: url.href, seo };
 };
