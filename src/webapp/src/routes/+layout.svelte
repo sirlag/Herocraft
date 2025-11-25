@@ -18,6 +18,9 @@
 
     {#if $page.data?.seo}
         <!-- Page-specific SEO from page.server.ts -->
+        {#if $page.data.seo.description}
+            <meta name="description" content={$page.data.seo.description} />
+        {/if}
         <meta property="og:site_name" content={$page.data.seo.siteName || 'Herocraft'} />
         <meta property="og:type" content={$page.data.seo.type || 'website'} />
         <meta property="og:url" content={$page.data.seo.url} />
@@ -27,6 +30,16 @@
         {/if}
         {#if $page.data.seo.image}
             <meta property="og:image" content={$page.data.seo.image} />
+            {#if $page.data.seo.imageWidth}
+                <meta property="og:image:width" content={String($page.data.seo.imageWidth)} />
+            {/if}
+            {#if $page.data.seo.imageHeight}
+                <meta property="og:image:height" content={String($page.data.seo.imageHeight)} />
+            {/if}
+            {#if $page.data.seo.imageType}
+                <meta property="og:image:type" content={$page.data.seo.imageType} />
+            {/if}
+            <meta property="og:image:alt" content={$page.data.seo.title} />
         {/if}
 
         <!-- Twitter cards -->
@@ -37,6 +50,7 @@
         {/if}
         {#if $page.data.seo.image}
             <meta name="twitter:image" content={$page.data.seo.image} />
+            <meta name="twitter:image:alt" content={$page.data.seo.title} />
         {/if}
     {:else}
         <!-- Global defaults (only when page does not provide SEO data) -->

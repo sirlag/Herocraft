@@ -5,8 +5,17 @@
 	import { Separator } from '$lib/components/ui/separator';
 	import { PUBLIC_API_BASE_URL } from '$env/static/public';
 	import CardStat from '$lib/components/CardStat.svelte';
+	import { normalizeFace, getFace, hasFaces, pickFaceUris } from '$lib/utils/card';
+	import { buildColorStyle } from '$lib/utils/colors';
+	import {
+		buildCardFilename,
+		formatBytes,
+		fetchContentLength,
+		forceDownload,
+		withTimeout
+	} from '$lib/utils/download';
 	// Icons
-	import { Download, FileJson2, Bug } from 'lucide-svelte';
+	import { Download, FileBracesCorner, Bug } from 'lucide-svelte';
 
 	interface Props {
 		data: PageData;
@@ -19,175 +28,28 @@
 
 	// TODO: Handle Relics, Traps, and Arrows
 
-	const normalizeFace = (face: CardFace | string | undefined | null): 'front' | 'back' | null => {
-		if (!face) return null;
-		const v = face.toLowerCase();
-		return v === 'front' ? 'front' : v === 'back' ? 'back' : null;
-	};
+	const cardHasFaces = $derived(hasFaces(card));
+	const frontFace = $derived(getFace(card, 'front'));
+	const backFace = $derived(getFace(card, 'back'));
 
-	const getFace = (faceKey: 'front' | 'back'): IvionCardFaceData | null => {
-		if (!card || !card.faces) return null;
-		return card.faces.find(f => normalizeFace(f.face) === faceKey) ?? null;
-	};
-
-	const hasFaces = $derived(card.layout === 'TRANSFORM');
-	const frontFace = $derived(getFace('front'));
-	const backFace = $derived(getFace('back'));
-
-	let getSpecialColor = (card: IvionCard) => {
-		if (card.format == 'Relic' || card.format == 'Relic Skill') {
-			return 'Relic Left';
-		} else if (card.extraType == 'Trap') {
-			return 'Trap';
-		} else return 'None';
-	};
-
-	let getColorValue = (color: String) => {
-		switch (color) {
-			// Default Cases
-			case 'Red':
-				return '212,55,46';
-			case 'Green':
-				return '115,171,98';
-			case 'Blue':
-				return '89,176,217';
-			case 'Gray':
-				return '116,134,136';
-			case 'White':
-				return '231,230,225';
-			case 'Black':
-				return '0,0,0';
-			// Special Cases
-			case 'Relic Left':
-				return '254,182,22';
-			case 'Relic Right':
-				return '248,152,41';
-			case 'Trap':
-				return '244,152,165';
-			case 'Arrow':
-				return '76,58,84';
-      case 'None':
-				return '79,78,73';
-		}
-	};
-
-	// RELIC LEFT rgb(254, 182, 22)
-	// RELIC RIGHT rgb(248, 150, 41)
-	// TRAP rgb(244, 152, 165)
-	// arrow rgb(76, 58, 84)
-	// NONE rgb(79, 78, 73)
-
-	let getColorString = (color1: String | null, color2: String | null) => {
-		if (color1 && color2) {
-			return { c1: getColorValue(color1), c2: getColorValue(color2) };
-		}
-		if (color1) {
-			let cs = getColorValue(color1);
-			return { c1: cs, c2: cs };
-		}
-		return { c1: '', c2: '' };
-	};
-
-
-	let color1 = $derived(card.colorPip1 ? card.colorPip1 : getSpecialColor(card));
-	let color2 = $derived(card.colorPip2 ? card.colorPip2 : color1 == 'Relic Left' ? 'Relic Right' : null);
-
-
-	let { c1, c2 } = $derived(getColorString(color1, color2));
-
-	let colorStyle = $derived(`--color-1:${c1};--color-2:${c2}`);
-
-	// Footer helpers (moved from inline script)
-	const sanitize = (s: string): string => s.replace(/[^a-z0-9\-_.()\[\]\s]/gi, '').replace(/\s+/g, ' ').trim();
-	const filename = (c: IvionCard, face?: 'front' | 'back') => {
-		const base = sanitize(c.name || 'card');
-		const facePart = face ? `-${face}` : '';
-		const idPart = c.id ? `-${c.id}` : '';
-		return `${base}${facePart}${idPart}.png`;
-	};
-
-	const getFaceUris = (c: IvionCard, face: 'front' | 'back') => {
-		if (!c) return null;
-		if (c.layout === 'TRANSFORM' && Array.isArray(c.faces)) {
-			const f = c.faces.find((f) => (typeof f.face === 'string' ? f.face.toString().toLowerCase() : '') === face);
-			return f?.imageUris ?? null;
-		}
-		return null;
-	};
-
-	const frontUris = $derived(getFaceUris(card, 'front'));
-	const backUris = $derived(getFaceUris(card, 'back'));
-	const frontPng = $derived(frontUris?.full || card.imageUris?.full || null);
-	const backPng = $derived(backUris?.full || null);
+	let colorStyle = $derived(buildColorStyle(card));
 
 	// Build the API JSON URL using the current route param
 	const jsonUrl = $derived(`${PUBLIC_API_BASE_URL}/card/${card.id}`);
 
-	// --- File size helpers for downloads ---
-	const formatBytes = (bytes: number): string => {
-		if (!Number.isFinite(bytes) || bytes < 0) return '';
-		const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-		let i = 0;
-		let v = bytes;
-		while (v >= 1024 && i < units.length - 1) {
-			v = v / 1024;
-			i++;
-		}
-		// Keep one decimal for KB and above, no decimals for bytes
-		const fixed = i === 0 ? Math.round(v).toString() : v.toFixed(v >= 100 ? 0 : 1);
-		return `${fixed} ${units[i]}`;
-	};
+	// Image URIs for downloads
+	const frontUris = $derived(pickFaceUris(card, 'front'));
+	const backUris = $derived(pickFaceUris(card, 'back'));
+	const frontPng = $derived(frontUris?.full || card.imageUris?.full || null);
+	const backPng = $derived(backUris?.full || null);
 
-	const fetchContentLength = async (url: string, signal?: AbortSignal): Promise<number | null> => {
-		try {
-			// Try a HEAD request first
-			const head = await fetch(url, { method: 'HEAD', mode: 'cors', redirect: 'follow', signal });
-			const cl = head.headers.get('content-length');
-			if (cl) {
-				const n = Number(cl);
-				if (Number.isFinite(n)) return n;
-			}
-		} catch (_) {
-			// ignore and try range request fallback
-		}
-		try {
-			// Fallback: request a single byte using Range and parse Content-Range total size
-			const r = await fetch(url, {
-				method: 'GET',
-				headers: { Range: 'bytes=0-0' },
-				mode: 'cors',
-				redirect: 'follow',
-				signal
-			});
-			const cr = r.headers.get('content-range');
-			// Format: bytes 0-0/12345
-			if (cr && /\/(\d+)\s*$/.test(cr)) {
-				const m = cr.match(/\/(\d+)\s*$/);
-				const total = m && m[1] ? Number(m[1]) : NaN;
-				if (Number.isFinite(total)) return total;
-			}
-			const cl2 = r.headers.get('content-length');
-			if (cl2) {
-				const n = Number(cl2);
-				if (Number.isFinite(n)) return n;
-			}
-		} catch (_) {
-			// give up
-		}
-		return null;
-	};
-
+	// File size state
 	let frontSize: number | null = $state(null);
 	let backSize: number | null = $state(null);
 	let frontLoading: boolean = $state(false);
 	let backLoading: boolean = $state(false);
 
-	const withTimeout = (ms: number) => {
-		const ctrl = new AbortController();
-		const id = setTimeout(() => ctrl.abort('timeout'), ms);
-		return { signal: ctrl.signal, clear: () => clearTimeout(id) };
-	};
-
+	// Fetch front image size
 	$effect(async () => {
 		frontSize = null;
 		if (!frontPng) return;
@@ -201,6 +63,7 @@
 		}
 	});
 
+	// Fetch back image size
 	$effect(async () => {
 		backSize = null;
 		if (!backPng) return;
@@ -214,39 +77,15 @@
 		}
 	});
 
-	// Force a download even for cross-origin URLs by fetching as Blob
-	const forceDownload = async (url: string, fileName: string) => {
-		try {
-			const res = await fetch(url, { mode: 'cors' });
-			if (!res.ok) throw new Error(`Download failed: ${res.status}`);
-			const blob = await res.blob();
-			const objectUrl = URL.createObjectURL(blob);
-			const a = document.createElement('a');
-			a.href = objectUrl;
-			a.download = fileName;
-			document.body.appendChild(a);
-			a.click();
-			a.remove();
-			URL.revokeObjectURL(objectUrl);
-		} catch (e) {
-			// Fallback: open in a new tab if blob download fails
-			try {
-				window.open(url, '_blank', 'noopener');
-			} catch {
-			}
-		}
-	};
-
-	// --- Unified button styles (same width and color scheme) ---
+	// Unified button styles
 	const btnBase =
 		'w-full px-3 py-2 rounded-md inline-flex items-center gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300';
-	// Subtler, neutral/outline style
 	const btnPrimary = 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50';
 	const btnDisabled = 'bg-gray-50 text-gray-400 border border-gray-200 cursor-not-allowed';
 </script>
 
 <svelte:head>
-	<title>{card.name} // Herocraft</title>
+	<title>{data.seo?.title || `${card.name} // Herocraft`}</title>
 </svelte:head>
 
 {#snippet cardInfo(infoSource: IvionCard | IvionCardFaceData | null)}
@@ -268,7 +107,7 @@
 		<div class="pl-16 pr-4 my2 prose">
 			<!-- Always render ParsedCardText; it has its own safe fallback when source is empty.
 					 Key by card identity + face to ensure remount when navigating between cards within same route. -->
-			{#key `${card?.uuid ?? card?.id ?? ''}:${infoSource?.name ?? ''}`}
+			{#key `${card?.ivionUUID ?? card?.id ?? ''}:${infoSource?.name ?? ''}`}
 				<ParsedCardText source={infoSource?.rulesText ?? ''} />
 			{/key}
 		</div>
@@ -305,7 +144,7 @@
 			</div>
 
 			<div class="border border-gray-200  py-4 -ml-8 mt-4 h-[600px] rounded-lg  card-info-shadow card-info-block">
-				{#if hasFaces}
+				{#if cardHasFaces}
 					{@render cardInfo(frontFace)}
 					<Separator />
 					{@render cardInfo(backFace)}
@@ -333,12 +172,12 @@
 		<div class="flex flex-col gap-2 items-start w-full md:max-w-[33%]">
 			{#if frontPng}
 				<button
-					on:click={() => forceDownload(frontPng, filename(card, hasFaces ? 'front' : undefined))}
+					on:click={() => forceDownload(frontPng, buildCardFilename(card, cardHasFaces ? 'front' : undefined))}
 					class={`${btnBase} ${btnPrimary}`}
 					title="Download full-resolution PNG"
 				>
 					<Download class="w-4 h-4" aria-hidden="true" />
-					<span>Download PNG {hasFaces ? '(front)' : ''}{frontLoading ? ' · …' : frontSize != null ? ` · ${formatBytes(frontSize)}` : ''}</span>
+					<span>Download PNG {cardHasFaces ? '(front)' : ''}{frontLoading ? ' · …' : frontSize != null ? ` · ${formatBytes(frontSize)}` : ''}</span>
 				</button>
 			{:else}
 				<button
@@ -349,9 +188,9 @@
 				</button>
 			{/if}
 
-			{#if hasFaces && backPng}
+			{#if cardHasFaces && backPng}
 				<button
-					on:click={() => forceDownload(backPng, filename(card, 'back'))}
+					on:click={() => forceDownload(backPng, buildCardFilename(card, 'back'))}
 					class={`${btnBase} ${btnPrimary}`}
 					title="Download full-resolution PNG (back)"
 				>
@@ -367,7 +206,7 @@
 				class={`${btnBase} ${btnPrimary}`}
 				title="Open the API URL to view/copy the card JSON"
 			>
-				<FileJson2 class="w-4 h-4" aria-hidden="true" />
+				<FileBracesCorner class="w-4 h-4" aria-hidden="true" />
 				<span>View card JSON</span>
 			</a>
 

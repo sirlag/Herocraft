@@ -66,4 +66,5 @@ type IvionCard = {
 	herocraftId?: string | null;
 	printVariantGroupId?: string | null;
 	variants?: string[];
+	rulings_uri?: string | null;
 };
