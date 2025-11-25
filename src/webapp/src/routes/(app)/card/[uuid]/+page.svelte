@@ -16,6 +16,7 @@
 
 	let card: IvionCard = $derived(data.card);
 	let rulings: any[] = $derived(data.rulings ?? []);
+	let pageUrl: string = $derived(data.pageUrl ?? 'https://herocraft.app');
 
 	// TODO: Handle Relics, Traps, and Arrows
 
@@ -66,7 +67,7 @@
 				return '244,152,165';
 			case 'Arrow':
 				return '76,58,84';
-			case 'None':
+      case 'None':
 				return '79,78,73';
 		}
 	};
@@ -115,8 +116,21 @@
 		return null;
 	};
 
-	const frontPng = $derived((getFaceUris(card, 'front')?.full) || card.imageUris?.full || null);
-	const backPng = $derived(getFaceUris(card, 'back')?.full || null);
+	const frontUris = $derived(getFaceUris(card, 'front'));
+	const backUris = $derived(getFaceUris(card, 'back'));
+	const frontPng = $derived(frontUris?.full || card.imageUris?.full || null);
+	const backPng = $derived(backUris?.full || null);
+
+	// Prefer a small image for social previews, with sensible fallbacks
+	const ogImage = $derived(
+		frontUris?.large || card.imageUris?.large || frontUris?.normal || card.imageUris?.normal || frontPng
+	);
+
+	// Generate a concise description from rulesText (front face preferred)
+	const baseDescription = $derived(
+		(frontFace?.rulesText && String(frontFace.rulesText)) || (card.rulesText && String(card.rulesText)) || ''
+	);
+	const ogDescription = $derived(baseDescription.replace(/\s+/g, ' ').trim().slice(0, 300));
 
 	// Build the API JSON URL using the current route param
 	const jsonUrl = $derived(`${PUBLIC_API_BASE_URL}/card/${card.id}`);
@@ -244,23 +258,28 @@
 </script>
 
 <svelte:head>
-    <title>{data?.seo?.title ?? `${card.name} // Herocraft`}</title>
-    {#if data?.seo}
-        <meta property="og:site_name" content={data.seo.siteName} />
-        <meta property="og:type" content={data.seo.type} />
-        <meta property="og:url" content={data.seo.url} />
-        <meta property="og:title" content={data.seo.title} />
-        <meta property="og:description" content={data.seo.description} />
-        {#if data.seo.image}
-            <meta property="og:image" content={data.seo.image} />
-            <meta name="twitter:card" content="summary_large_image" />
-            <meta name="twitter:image" content={data.seo.image} />
-        {/if}
-        <meta name="twitter:title" content={data.seo.title} />
-        {#if data.seo.description}
-            <meta name="twitter:description" content={data.seo.description} />
-        {/if}
-    {/if}
+	<title>{card.name} // Herocraft</title>
+	<!-- Open Graph for Discord/link previews -->
+	<meta property="og:site_name" content="Herocraft" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content={pageUrl} />
+	<meta property="og:title" content={card.name} />
+	{#if ogDescription && ogDescription.length > 0}
+		<meta property="og:description" content={ogDescription} />
+	{/if}
+	{#if ogImage}
+		<meta property="og:image" content={ogImage} />
+	{/if}
+
+	<!-- Twitter cards (many consumers respect these too) -->
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content={card.name} />
+	{#if ogDescription && ogDescription.length > 0}
+		<meta name="twitter:description" content={ogDescription} />
+	{/if}
+	{#if ogImage}
+		<meta name="twitter:image" content={ogImage} />
+	{/if}
 </svelte:head>
 
 {#snippet cardInfo(infoSource: IvionCard | IvionCardFaceData | null)}

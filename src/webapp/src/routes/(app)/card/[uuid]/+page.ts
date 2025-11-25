@@ -1,9 +1,8 @@
 import type { PageLoad } from './$types';
 import { PUBLIC_API_BASE_URL } from '$env/static/public';
 
-// Important: merge with data coming from +page.server.ts so `seo` survives
-export const load: PageLoad = async ({ fetch, params, data }) => {
-    const uuid = params['uuid'];
+export const load: PageLoad = async ({ fetch, params, url }) => {
+    let uuid = params['uuid'];
 
     const res = await fetch(`${PUBLIC_API_BASE_URL}/card/${uuid}`);
     const card = await res.json();
@@ -23,6 +22,8 @@ export const load: PageLoad = async ({ fetch, params, data }) => {
         // ignore; rulings optional
     }
 
-    // Return existing server data (e.g., `seo`) along with client-fetched fields
-    return { ...data, card, rulings };
+    // Provide absolute page URL for OG/Twitter meta tags
+    const pageUrl = url?.href ?? `https://herocraft.app/card/${uuid}`;
+
+    return { card, rulings, pageUrl };
 };
