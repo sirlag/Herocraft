@@ -25,8 +25,10 @@ export const load: PageServerLoad = async ({ fetch, params, url }) => {
 	}
 
 	// Build SEO metadata
+	// For transform cards, use front face image; for normal cards, use card.imageUris
 	const frontUris = pickFaceUris(card, 'front');
-	const image = pickLargeImage(frontUris);
+	const imageUris = frontUris ?? card.imageUris ?? null;
+	const image = pickLargeImage(imageUris);
 	const seo = buildCardSeoMeta(card, url.href, image);
 
 	return { card, rulings, pageUrl: url.href, seo };
