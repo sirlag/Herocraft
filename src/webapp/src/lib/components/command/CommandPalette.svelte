@@ -170,7 +170,7 @@
 					keywords={["new deck", "deck", "create"]}
 					on:select={closeThenOpenNewDeck}
 				>
-					<button type="button" class="w-full text-left" on:click={closeThenOpenNewDeck} on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); closeThenOpenNewDeck(); } }}>
+					<button type="button" class="w-full text-left" onclick={closeThenOpenNewDeck} on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); closeThenOpenNewDeck(); } }}>
 						New Deck
 					</button>
 				</Command.Item>

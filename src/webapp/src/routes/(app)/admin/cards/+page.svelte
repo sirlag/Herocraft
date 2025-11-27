@@ -95,7 +95,7 @@
                 {#if c.ivionUUID}
                   <a href={`/admin/cards/${c.ivionUUID}/rulings`} class="underline">Rulings</a>
                 {/if}
-                <button class="text-red-600 underline" on:click={() => deleteCard(c.id)}>Delete</button>
+                <button class="text-red-600 underline" onclick={() => deleteCard(c.id)}>Delete</button>
               </td>
             </tr>
           {/each}

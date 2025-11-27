@@ -12,7 +12,7 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.ts';
 	import * as Sheet from '$lib/components/ui/sheet/index.ts';
 	import * as Command from '$lib/components/ui/command/index.js';
-	import CommandPalette from '$lib/components/command/CommandPalette.svelte';
+	import CommandPalette from '$lib/components/command/CommandPalette.refactored.svelte';
 	import { Menu, Search } from 'lucide-svelte';
 	import { cn } from '$lib/utils.ts';
 	import { Button } from '$lib/components/ui/button';

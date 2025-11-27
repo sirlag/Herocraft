@@ -1,7 +1,6 @@
 <script lang="ts">
 	import * as Command from '$lib/components/ui/command/index.ts';
 	import { PUBLIC_API_BASE_URL } from '$env/static/public';
-	import { goto } from '$app/navigation';
 
 	type Props = { open?: boolean; onNewDeck?: () => void };
 	let { open = $bindable(false), onNewDeck }: Props = $props();
@@ -14,15 +13,13 @@
 	const cardSearchCache = new Map<string, CardSummary[]>();
 
 	// Derived computed values instead of manual $effect tracking
+	let searchQuery = $derived(cmdQuery.trim().toLowerCase());
 	let filteredCommands = $derived({
-		const q = cmdQuery.trim().toLowerCase();
-		return {
-			newDeck: !q || 'new deck'.includes(q) || 'create'.includes(q),
-			yourDecks: !q || 'your decks'.toLowerCase().includes(q),
-			allDecks: !q || 'all decks'.toLowerCase().includes(q),
-			likedDecks: !q || 'liked'.includes(q),
-			preconstructed: !q || 'preconstructed'.toLowerCase().includes(q)
-		};
+		newDeck: !searchQuery || 'new deck'.includes(searchQuery) || 'create'.includes(searchQuery),
+		yourDecks: !searchQuery || 'your decks'.includes(searchQuery),
+		allDecks: !searchQuery || 'all decks'.includes(searchQuery),
+		likedDecks: !searchQuery || 'liked'.includes(searchQuery),
+		preconstructed: !searchQuery || 'preconstructed'.includes(searchQuery)
 	});
 
 	let showCardResults = $derived(cmdQuery.trim().length >= 2);
@@ -107,15 +104,14 @@
 	});
 
 	// Event handlers - clean and simple
-	function handleCommandSelect(action: () => void) {
+	function handleNewDeck() {
 		open = false;
-		// Use tick() or requestAnimationFrame for proper sequencing
-		requestAnimationFrame(() => action());
+		// Use requestAnimationFrame for proper sequencing after dialog closes
+		requestAnimationFrame(() => onNewDeck?.());
 	}
 
-	function handleNavigation(href: string) {
+	function closeDialog() {
 		open = false;
-		goto(href);
 	}
 </script>
 
@@ -131,7 +127,7 @@
 				{#if filteredCommands.newDeck}
 					<Command.Item
 						value="action:new-deck"
-						onselect={() => handleCommandSelect(() => onNewDeck?.())}
+						on:select={handleNewDeck}
 					>
 						New Deck
 					</Command.Item>
@@ -143,7 +139,7 @@
 					<Command.LinkItem
 						href="/decks/personal"
 						value="link:your-decks"
-						onselect={() => handleNavigation('/decks/personal')}
+						on:select={closeDialog}
 					>
 						Your Decks
 					</Command.LinkItem>
@@ -152,7 +148,7 @@
 					<Command.LinkItem
 						href="/decks/public"
 						value="link:all-decks"
-						onselect={() => handleNavigation('/decks/public')}
+						on:select={closeDialog}
 					>
 						All Decks
 					</Command.LinkItem>
@@ -161,7 +157,7 @@
 					<Command.LinkItem
 						href="/decks/liked"
 						value="link:liked-decks"
-						onselect={() => handleNavigation('/decks/liked')}
+						on:select={closeDialog}
 					>
 						Decks You Liked
 					</Command.LinkItem>
@@ -170,7 +166,7 @@
 					<Command.LinkItem
 						href="/decks/public"
 						value="link:preconstructed"
-						onselect={() => handleNavigation('/decks/public')}
+						on:select={closeDialog}
 					>
 						Preconstructed Decks
 					</Command.LinkItem>
@@ -188,7 +184,7 @@
 							href="/card/{card.id}"
 							value="card:{card.id}"
 							keywords={[card.name]}
-							onselect={() => handleNavigation(`/card/${card.id}`)}
+							on:select={closeDialog}
 						>
 							{card.name}
 						</Command.LinkItem>

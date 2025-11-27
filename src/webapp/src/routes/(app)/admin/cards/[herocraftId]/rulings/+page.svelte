@@ -132,7 +132,7 @@
       {/if}
     </div>
     <div class="mt-3">
-      <button class="px-3 py-1.5 bg-blue-600 text-white rounded" on:click={createRuling}>Create</button>
+      <button class="px-3 py-1.5 bg-blue-600 text-white rounded" onclick={createRuling}>Create</button>
     </div>
   </section>
 
@@ -163,7 +163,7 @@
               {/if}
             </div>
             <div class="shrink-0">
-              <button class="px-2 py-1 text-red-600 border-red-600 border rounded" on:click={() => deleteRuling(r.id)}>Delete</button>
+              <button class="px-2 py-1 text-red-600 border-red-600 border rounded" onclick={() => deleteRuling(r.id)}>Delete</button>
             </div>
           </li>
         {/each}

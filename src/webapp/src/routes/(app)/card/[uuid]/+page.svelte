@@ -172,7 +172,7 @@
 		<div class="flex flex-col gap-2 items-start w-full md:max-w-[33%]">
 			{#if frontPng}
 				<button
-					on:click={() => forceDownload(frontPng, buildCardFilename(card, cardHasFaces ? 'front' : undefined))}
+					onclick={() => forceDownload(frontPng, buildCardFilename(card, cardHasFaces ? 'front' : undefined))}
 					class={`${btnBase} ${btnPrimary}`}
 					title="Download full-resolution PNG"
 				>
@@ -190,7 +190,7 @@
 
 			{#if cardHasFaces && backPng}
 				<button
-					on:click={() => forceDownload(backPng, buildCardFilename(card, 'back'))}
+					onclick={() => forceDownload(backPng, buildCardFilename(card, 'back'))}
 					class={`${btnBase} ${btnPrimary}`}
 					title="Download full-resolution PNG (back)"
 				>
