@@ -1,12 +1,9 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import CardImage from '$lib/components/CardImage.svelte';
-	import ParsedCardText from '$lib/components/CardText/ParsedCardText.svelte';
+	import CardDisplay from '$lib/components/CardDisplay.svelte';
 	import { Separator } from '$lib/components/ui/separator';
 	import { PUBLIC_API_BASE_URL } from '$env/static/public';
-	import CardStat from '$lib/components/CardStat.svelte';
-	import { normalizeFace, getFace, hasFaces, pickFaceUris } from '$lib/utils/card';
-	import { buildColorStyle } from '$lib/utils/colors';
+	import { hasFaces, pickFaceUris } from '$lib/utils/card';
 	import {
 		buildCardFilename,
 		formatBytes,
@@ -26,13 +23,7 @@
 	let card: IvionCard = $derived(data.card);
 	let rulings: any[] = $derived(data.rulings ?? []);
 
-	// TODO: Handle Relics, Traps, and Arrows
-
 	const cardHasFaces = $derived(hasFaces(card));
-	const frontFace = $derived(getFace(card, 'front'));
-	const backFace = $derived(getFace(card, 'back'));
-
-	let colorStyle = $derived(buildColorStyle(card));
 
 	// Build the API JSON URL using the current route param
 	const jsonUrl = $derived(`${PUBLIC_API_BASE_URL}/card/${card.id}`);
@@ -88,79 +79,8 @@
 	<title>{data.seo?.title || `${card.name} // Herocraft`}</title>
 </svelte:head>
 
-{#snippet cardInfo(infoSource: IvionCard | IvionCardFaceData | null)}
-	{#if infoSource}
-		<h1 class="pl-16 pr-4 my-2">{infoSource.name}</h1>
-		{#if (infoSource.archetype && infoSource.archetype !== "")}
-			<Separator />
-			<p class="pl-16 pr-4 my-2">
-				{infoSource.archetype} – {infoSource.type}
-			</p>
-		{/if}
-		{#if (infoSource.extraType && infoSource.extraType !== "")}
-			<Separator />
-			<p class="pl-16 pr-4 my-2">
-				{infoSource.extraType}
-			</p>
-		{/if}
-		<Separator />
-		<div class="pl-16 pr-4 my2 prose">
-			<!-- Always render ParsedCardText; it has its own safe fallback when source is empty.
-					 Key by card identity + face to ensure remount when navigating between cards within same route. -->
-			{#key `${card?.ivionUUID ?? card?.id ?? ''}:${infoSource?.name ?? ''}`}
-				<ParsedCardText source={infoSource?.rulesText ?? ''} />
-			{/key}
-		</div>
-		{#if (infoSource.actionCost || infoSource.powerCost || infoSource.range)}
-			<Separator />
-			<div class="pl-16 r-4 my-2">
-				<div class="flex items-center gap-3">
-					{#if infoSource.actionCost !== undefined && infoSource.actionCost !== null}
-						<CardStat type="action" value={infoSource.actionCost} size={44} />
-					{/if}
-					{#if infoSource.powerCost !== undefined && infoSource.powerCost !== null}
-						<CardStat type="power" value={infoSource.powerCost} size={44} />
-					{/if}
-					{#if infoSource.range !== undefined && infoSource.range !== null}
-						<CardStat type="range" value={infoSource.range} size={44} />
-					{/if}
-				</div>
-			</div>
-		{/if}
-		{#if infoSource.flavorText}
-			<Separator />
-			<p class="pl-16 pr-4 my-2"><i>{infoSource.flavorText}</i></p>
-		{/if}
-	{/if}
-{/snippet}
-
-<div class="flex w-full p-4 pb-8 justify-center bg-neutral-50">
-	<div class="flex flex-row  max-w-5xl flex-wrap lg:flex-nowrap" style={colorStyle}>
-		{#if card}
-			<div class="">
-				<div class="md:w-96 md:h-[538px] shadow-lg rounded-lg">
-					<CardImage {card} size="large" />
-				</div>
-			</div>
-
-			<div class="border border-gray-200  py-4 -ml-8 mt-4 h-[600px] rounded-lg  card-info-shadow card-info-block">
-				{#if cardHasFaces}
-					{@render cardInfo(frontFace)}
-					<Separator />
-					{@render cardInfo(backFace)}
-				{:else}
-					{@render cardInfo(card)}
-				{/if}
-
-				{#if card.artist}
-					<Separator />
-					<p class="pl-16 pr-4 my-2 prose">
-						<i>Illustrated by <a href={`/cards?q=artist%3A\"${card.artist}\"`}>{card.artist}</a></i>
-					</p>
-				{/if}
-			</div>
-		{/if}
-	</div>
+<div class="p-4 pb-8 bg-neutral-50">
+	<CardDisplay {card} />
 </div>
 
 
@@ -172,7 +92,7 @@
 		<div class="flex flex-col gap-2 items-start w-full md:max-w-[33%]">
 			{#if frontPng}
 				<button
-					on:click={() => forceDownload(frontPng, buildCardFilename(card, cardHasFaces ? 'front' : undefined))}
+					onclick={() => forceDownload(frontPng, buildCardFilename(card, cardHasFaces ? 'front' : undefined))}
 					class={`${btnBase} ${btnPrimary}`}
 					title="Download full-resolution PNG"
 				>
@@ -190,7 +110,7 @@
 
 			{#if cardHasFaces && backPng}
 				<button
-					on:click={() => forceDownload(backPng, buildCardFilename(card, 'back'))}
+					onclick={() => forceDownload(backPng, buildCardFilename(card, 'back'))}
 					class={`${btnBase} ${btnPrimary}`}
 					title="Download full-resolution PNG (back)"
 				>
@@ -272,12 +192,3 @@
 		</div>
 	</div>
 {/if}
-
-<style>
-    .card-info-shadow {
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1),
-        0 1px 2px -1px rgba(0, 0, 0, 0.1),
-        -8px 12px 20px 1px rgba(var(--color-1), .9),
-        8px 16px 15px 1px rgba(var(--color-2), .8);
-    }
-</style>

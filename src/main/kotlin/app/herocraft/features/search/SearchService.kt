@@ -14,6 +14,7 @@ class SearchService(private val cardRepo: CardRepo) {
         specs: List<String>?,
         types: List<String>?,
         page: Int = 1,
+        sortBy: String? = null,
     ): Page<IvionCard> {
         return if (
             queryString.isNullOrEmpty()
@@ -21,11 +22,11 @@ class SearchService(private val cardRepo: CardRepo) {
             && specs.isNullOrEmpty()
             && types.isNullOrEmpty()
         ) {
-            cardRepo.getPaging(page = page)
+            cardRepo.getPaging(page = page, sortBy = sortBy)
         } else {
             val query = buildQuery(queryString, classes, specs, types)
             logger.debug { "Query: $query" }
-            cardRepo.search(query, page = page)
+            cardRepo.search(query, page = page, sortBy = sortBy)
         }
     }
 

@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(xargs ls:*)",
+      "Bash(mise run dev-frontend)",
+      "Bash(npm run check:*)",
+      "Bash(npm run dev:*)",
+      "Bash(mise run:*)",
+      "Bash(gradlew.bat flywayMigrate:*)",
+      "Bash(mise install:*)",
+      "Bash(gradle --version:*)",
+      "Bash(gradle compileKotlin:*)"
+    ],
+    "deny": [],
+    "ask": [],
+    "additionalDirectories": [
+      "D:\\Programming\\helm-charts\\",
+      "c:\\programming\\herocraft-private\\"
+    ]
+  }
+}

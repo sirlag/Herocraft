@@ -6,7 +6,7 @@ export const load: PageServerLoad = async ({ request, url, cookies }) => {
 	// Check if user is authenticated by looking for session cookie
 	const sessionCookie = cookies.get('user_session');
 	if (!sessionCookie) {
-		throw redirect(302, '/login');
+		throw redirect(302, '/account/signin');
 	}
 
 	const page = url.searchParams.get('page') || '1';
@@ -21,7 +21,7 @@ export const load: PageServerLoad = async ({ request, url, cookies }) => {
 		});
 
 		if (decksResponse.status === 401 || decksResponse.status === 302) {
-			throw redirect(302, '/login');
+			throw redirect(302, '/account/signin');
 		}
 
 		let paginatedDecks = await decksResponse.json();

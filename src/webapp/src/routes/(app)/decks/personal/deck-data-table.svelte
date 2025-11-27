@@ -53,7 +53,7 @@ const table = createSvelteTable({
 							<div class="flex items-center">
 								<button
 									class="flex items-center gap-1"
-									on:click={() => header.column.toggleSorting()}
+									onclick={() => header.column.toggleSorting()}
 									disabled={!header.column.getCanSort()}
 								>
 									<FlexRender

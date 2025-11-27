@@ -4,7 +4,8 @@
 [tools]
 # Node.js for frontend development
 node = "22.16.0"
-
+java = "21"
+gradle = "latest"
 # Note: Java 21 is required for Kotlin backend
 # Install via: brew install openjdk@21
 # Or manage with mise once the plugin issue is resolved

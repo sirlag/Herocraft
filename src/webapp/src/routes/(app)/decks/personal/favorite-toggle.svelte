@@ -28,7 +28,7 @@
 </script>
 
 <button 
-    on:click={toggleFavorite} 
+    onclick={toggleFavorite} 
     class="focus:outline-none"
     aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
 >
