@@ -60,7 +60,7 @@
 <div class="container mx-auto px-4 py-6 space-y-6">
   <div class="flex items-center justify-between">
     <h1 class="text-2xl font-semibold">Login & Security</h1>
-    <button class="px-3 py-2 rounded border" onclick={back}>Back</button>
+    <button class="px-3 py-2 rounded border" on:click={back}>Back</button>
   </div>
 
   <div class="space-y-6 max-w-2xl">

@@ -423,7 +423,7 @@ class CardRepo(database: Database) : DataService(database) {
         }
     }
 
-    suspend fun search(searchString: String, size: Int = 60, page: Int = 1): Page<IvionCard> {
+    suspend fun search(searchString: String, size: Int = 60, page: Int = 1, sortBy: String? = null): Page<IvionCard> {
 
         val inputStream = CharStreams.fromString(searchString)
         val lexer = HQLLexer(inputStream)
@@ -437,18 +437,40 @@ class CardRepo(database: Database) : DataService(database) {
         val (query, errors) = buildQuery(searchField)
 
         if (query == null) {
-            return paged(size, page, { Card.id.count() }, { Op.TRUE })
+            return paged(size, page, sortBy, { Card.id.count() }, { Op.TRUE })
         }
 
 
-        return paged(size, page, { Card.id.count() }, { query })
+        return paged(size, page, sortBy, { Card.id.count() }, { query })
     }
 
-    suspend fun getPaging(size: Int = 60, page: Int = 1) = paged(size, page, { Card.id.count() }, { Op.TRUE })
+    suspend fun getPaging(size: Int = 60, page: Int = 1, sortBy: String? = null) = paged(size, page, sortBy, { Card.id.count() }, { Op.TRUE })
+
+    private fun getSortOrder(sortBy: String?): Pair<Expression<*>, SortOrder> {
+        return when (sortBy?.lowercase()) {
+            "action" -> Card.actionCost to SortOrder.ASC
+            "power" -> Card.powerCost to SortOrder.ASC
+            "artist" -> Card.artist to SortOrder.ASC
+            "color" -> {
+                // Custom color order: White > Blue > Black > Red > Green > Grey
+                val colorOrder = Case()
+                    .When(Card.colorPip1 eq "White", intLiteral(1))
+                    .When(Card.colorPip1 eq "Blue", intLiteral(2))
+                    .When(Card.colorPip1 eq "Black", intLiteral(3))
+                    .When(Card.colorPip1 eq "Red", intLiteral(4))
+                    .When(Card.colorPip1 eq "Green", intLiteral(5))
+                    .When(Card.colorPip1 eq "Grey", intLiteral(6))
+                    .Else(intLiteral(7))
+                colorOrder to SortOrder.ASC
+            }
+            else -> Card.name to SortOrder.ASC // Default to name
+        }
+    }
 
     private suspend fun paged(
         size: Int = 60,
         page: Int = 1,
+        sortBy: String? = null,
         total: () -> Count = { Card.id.count() },
         query: (() -> Op<Boolean>)
     ) = dbQuery {
@@ -473,9 +495,10 @@ class CardRepo(database: Database) : DataService(database) {
         }
 
         val offset = (page - 1L) * size
+        val sortOrder = getSortOrder(sortBy)
 
         val cards = CardEntity.find(query)
-            .orderBy(Card.name to SortOrder.ASC)
+            .orderBy(sortOrder.first to sortOrder.second)
             .limit(size)
             .offset(offset)
             .map(CardEntity::toIvionCard)

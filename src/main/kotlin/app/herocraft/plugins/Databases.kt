@@ -44,13 +44,15 @@ fun Application.configureDatabases() {
             }
 
             // Filter parameters
-
             val classes = call.parameters.getAll("c")
             val specs = call.parameters.getAll("s")
             val types = call.parameters.getAll("f")
 
-            log.info("Search string: $searchString, page: $page")
-            val results = searchService.search(searchString, classes, specs, types, page)
+            // Sort parameter
+            val sortBy = call.request.queryParameters["sort"]
+
+            log.info("Search string: $searchString, page: $page, sort: $sortBy")
+            val results = searchService.search(searchString, classes, specs, types, page, sortBy)
 
             // results.hasNext //synthetic call to populate
             call.respond(HttpStatusCode.OK, results)
