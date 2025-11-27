@@ -16,7 +16,7 @@
         displayName = data.displayName ?? '';
       } else if (res.status === 401) {
         // redirect to login
-        window.location.href = '/login';
+        window.location.href = '/account/signin';
         return;
       }
     } catch (e) {
