@@ -17,8 +17,10 @@
 
 	const form = superForm(data, {
 		validators: zodClient(newDeckSchema),
-		onSubmit: () => {
-			handleSubmit();
+		onResult: ({ result }) => {
+			if (result.type === 'redirect') {
+				handleSubmit();
+			}
 		}
 	});
 

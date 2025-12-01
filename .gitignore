@@ -37,3 +37,5 @@ out/
 
 ### Node ###
 !**/src/webapp/node_modules/
+
+.claude/

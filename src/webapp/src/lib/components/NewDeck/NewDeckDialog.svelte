@@ -14,9 +14,13 @@
 	const handleSubmit = () => {
 		open = false;
 	};
+
+	const handleOpenChange = (newOpen: boolean) => {
+		open = newOpen;
+	};
 </script>
 
-<Dialog.Root bind:open>
+<Dialog.Root {open} onOpenChange={handleOpenChange}>
 	{#if children}
 		<Dialog.Trigger class={buttonVariants({ variant: 'header', size: 'header' })}
 			>{@render children?.()}</Dialog.Trigger>
