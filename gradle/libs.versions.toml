@@ -4,7 +4,7 @@ exposed = "1.0.0-rc-3"
 flyway = "11.17.0"
 
 kotlin = "2.2.0"
-koin-bom = "4.1.0"
+koin-bom = "4.1.1"
 ktor = "3.3.2"
 
 [libraries]
