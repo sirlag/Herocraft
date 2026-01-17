@@ -3,7 +3,7 @@
 
 [tools]
 # Node.js for frontend development
-node = "22.16.0"
+node = "22.22.0"
 java = "21"
 gradle = "latest"
 # Note: Java 21 is required for Kotlin backend

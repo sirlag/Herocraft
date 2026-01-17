@@ -61,7 +61,7 @@
 	"type": "module",
 	"dependencies": {
 		"@tanstack/table-core": "^8.21.3",
-		"@types/node": "^22.10.0",
+		"@types/node": "^22.19.7",
 		"clsx": "^2.1.1",
 		"lucide-svelte": "^0.554.0",
 		"paneforge": "^1.0.2",
