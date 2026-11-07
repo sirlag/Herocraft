@@ -15,7 +15,7 @@
 		"@fontsource/fira-mono": "^5.2.7",
 		"@internationalized/date": "^3.10.0",
 		"@lucide/svelte": "^0.554.0",
-		"@sinclair/typebox": "^0.34.41",
+		"@sinclair/typebox": "^0.34.52",
 		"@sveltejs/adapter-auto": "^3.3.1",
 		"@sveltejs/adapter-cloudflare": "^7.2.4",
 		"@sveltejs/kit": "^2.48.5",
